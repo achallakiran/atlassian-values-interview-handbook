@@ -1,0 +1,748 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Atlassian Values Interview Handbook - Senior Engineering Manager</title>
+  <style>
+    :root {
+      --bg: #f7f8fb;
+      --paper: #ffffff;
+      --ink: #172b4d;
+      --muted: #5e6c84;
+      --line: #dfe1e6;
+      --blue: #0052cc;
+      --blue2: #0c66e4;
+      --teal: #008da6;
+      --yellow: #ffab00;
+      --red: #de350b;
+      --green: #00875a;
+      --code: #f4f5f7;
+      --shadow: 0 14px 40px rgba(9, 30, 66, .12);
+      --serif: Georgia, "Times New Roman", serif;
+      --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+    }
+    [data-theme="dark"] {
+      --bg: #091e42;
+      --paper: #101f3d;
+      --ink: #f7f8fb;
+      --muted: #b6c2cf;
+      --line: #30445f;
+      --blue: #579dff;
+      --blue2: #85b8ff;
+      --teal: #60c6d2;
+      --yellow: #f5cd47;
+      --red: #ff8f73;
+      --green: #7ee2b8;
+      --code: #172b4d;
+      --shadow: 0 14px 40px rgba(0, 0, 0, .25);
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font: 15.5px/1.55 var(--sans);
+    }
+    #progress {
+      position: fixed; inset: 0 auto auto 0; height: 4px; width: 0%;
+      background: linear-gradient(90deg, var(--blue), var(--teal), var(--yellow));
+      z-index: 10;
+    }
+    .layout { display: grid; grid-template-columns: 292px minmax(0, 1fr); min-height: 100vh; }
+    aside {
+      position: sticky; top: 0; height: 100vh; overflow: auto;
+      padding: 22px 18px; border-right: 1px solid var(--line); background: var(--paper);
+    }
+    main { max-width: 1040px; margin: 0 auto; padding: 28px 30px 70px; }
+    .brand {
+      font: 700 20px/1.1 var(--serif); letter-spacing: .2px; margin: 0 0 6px;
+    }
+    .subtitle { color: var(--muted); font-size: 12px; margin-bottom: 18px; }
+    .tools { display: grid; gap: 10px; margin: 0 0 18px; }
+    input[type="search"] {
+      width: 100%; border: 1px solid var(--line); border-radius: 6px; padding: 10px 11px;
+      color: var(--ink); background: var(--paper); font: inherit;
+    }
+    button, .print-link {
+      border: 1px solid var(--line); border-radius: 6px; padding: 9px 10px; cursor: pointer;
+      background: var(--code); color: var(--ink); font-weight: 700; text-align: center;
+      text-decoration: none;
+    }
+    nav a {
+      display: block; padding: 7px 8px; border-radius: 5px; color: var(--ink);
+      text-decoration: none; font-size: 13px;
+    }
+    nav a:hover, nav a.active { background: var(--code); color: var(--blue); }
+    .cover {
+      min-height: 92vh; display: grid; align-content: center; gap: 22px;
+      border: 1px solid var(--line); background: var(--paper); box-shadow: var(--shadow);
+      padding: 62px; position: relative; overflow: hidden;
+    }
+    .cover:before {
+      content: ""; position: absolute; inset: 0 auto 0 0; width: 16px;
+      background: linear-gradient(var(--blue), var(--teal), var(--yellow), var(--red));
+    }
+    .kicker { color: var(--blue); font-weight: 800; text-transform: uppercase; letter-spacing: .09em; font-size: 12px; }
+    h1, h2, h3 { line-height: 1.15; margin: 0 0 12px; letter-spacing: 0; }
+    h1 { font: 800 48px/1.03 var(--serif); max-width: 780px; }
+    h2 { font: 800 30px/1.1 var(--serif); border-bottom: 3px solid var(--blue); padding-bottom: 9px; }
+    h3 { font-size: 20px; margin-top: 24px; }
+    h4 { margin: 18px 0 6px; font-size: 14px; text-transform: uppercase; letter-spacing: .06em; color: var(--blue); }
+    p { margin: 0 0 11px; }
+    ul, ol { margin-top: 6px; padding-left: 22px; }
+    li { margin: 4px 0; }
+    section {
+      background: var(--paper); border: 1px solid var(--line); border-radius: 8px;
+      padding: 28px; margin: 22px 0; box-shadow: 0 2px 8px rgba(9, 30, 66, .04);
+    }
+    .toc-grid, .value-grid { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 14px; }
+    .callout {
+      border-left: 5px solid var(--blue); background: var(--code); padding: 14px 16px;
+      border-radius: 0 6px 6px 0; margin: 14px 0;
+    }
+    .tag { display: inline-block; border: 1px solid var(--line); border-radius: 999px; padding: 2px 8px; font-size: 12px; color: var(--muted); margin: 2px 3px 2px 0; }
+    details {
+      border: 1px solid var(--line); border-radius: 8px; margin: 14px 0; background: var(--paper);
+      overflow: hidden;
+    }
+    summary {
+      cursor: pointer; padding: 15px 18px; font-weight: 800; color: var(--ink);
+      background: linear-gradient(90deg, var(--code), transparent);
+    }
+    .detail-body { padding: 0 18px 18px; }
+    .qa h3 { margin-top: 0; }
+    .mini { color: var(--muted); font-size: 13px; }
+    .star { display: grid; grid-template-columns: 110px 1fr; gap: 8px 14px; margin: 12px 0; }
+    .star b { color: var(--blue); }
+    .columns { columns: 2; column-gap: 34px; }
+    mark { background: #fff0b3; color: #172b4d; padding: 0 2px; }
+    .hidden { display: none !important; }
+    .oreilly {
+      display: inline-grid; place-items: center; width: 92px; height: 92px; border: 4px solid var(--ink);
+      font: 800 20px/1 var(--serif); margin-bottom: 8px;
+    }
+    @media (max-width: 880px) {
+      .layout { grid-template-columns: 1fr; }
+      aside { position: relative; height: auto; }
+      main { padding: 16px; }
+      .cover { padding: 36px 28px; min-height: 72vh; }
+      h1 { font-size: 34px; }
+      .toc-grid, .value-grid { grid-template-columns: 1fr; }
+      .columns { columns: 1; }
+      .star { grid-template-columns: 1fr; }
+    }
+    @media print {
+      :root { --bg: #fff; --paper: #fff; --ink: #000; --muted: #333; --line: #999; --code: #f2f2f2; --blue: #000; }
+      body { font-size: 10.5pt; line-height: 1.35; background: #fff; }
+      #progress, aside, .tools, button { display: none !important; }
+      .layout { display: block; }
+      main { max-width: none; padding: 0; }
+      section, .cover { box-shadow: none; border: 0; border-radius: 0; padding: 0; margin: 0 0 14pt; }
+      .cover { min-height: 95vh; page-break-after: always; border-left: 12pt solid #000; padding-left: 24pt; }
+      h1 { font-size: 32pt; }
+      h2 { font-size: 20pt; page-break-after: avoid; }
+      h3 { font-size: 14pt; page-break-after: avoid; }
+      details { page-break-inside: avoid; break-inside: avoid; border: 0; }
+      details[open] summary { border-bottom: 1px solid #999; }
+      summary { padding: 8pt 0; }
+      .detail-body { padding: 0; }
+      .qa { page-break-inside: avoid; break-inside: avoid; }
+      a { color: #000; text-decoration: none; }
+    }
+  </style>
+</head>
+<body>
+  <div id="progress"></div>
+  <div class="layout">
+    <aside>
+      <div class="brand">Values Interview Handbook</div>
+      <div class="subtitle">Senior Engineering Manager / Principal Data Engineering - Atlassian</div>
+      <div class="tools">
+        <input id="search" type="search" placeholder="Search stories, values, phrases...">
+        <button id="theme">Toggle dark mode</button>
+        <button onclick="window.print()">Print / Save PDF</button>
+      </div>
+      <nav id="nav">
+        <a href="#cover">Cover</a>
+        <a href="#toc">Table of Contents</a>
+        <a href="#strategy">Interview Strategy</a>
+        <a href="#team">Play, as a Team</a>
+        <a href="#change">Be the Change You Seek</a>
+        <a href="#customer">Don't #@!% the Customer</a>
+        <a href="#open">Open Company, No Bullsh*t</a>
+        <a href="#heart">Build with Heart and Balance</a>
+        <a href="#questions">Top 25 Questions</a>
+        <a href="#revision">Revision Sheets</a>
+      </nav>
+    </aside>
+    <main>
+      <article id="content">
+        <div class="cover searchable" id="cover">
+          <div class="oreilly">SEM<br>DATA</div>
+          <div class="kicker">Final Values Interview - Tomorrow</div>
+          <h1>Atlassian Values Interview Handbook</h1>
+          <p style="font-size:20px;max-width:760px">A practical, story-driven prep guide for a Senior Engineering Manager / Principal Data Engineering leadership interview.</p>
+          <p class="mini">Built around your real background: Walmart Global Tech, 14+ years in Data Engineering, 18-person engineering team, GCP, Spark, BigQuery, Dataproc, Python, Scala, migrations, platform modernization, governance, reusable frameworks, operational reliability, hiring, mentoring, and cross-org delivery.</p>
+          <div>
+            <span class="tag">60-90 minute read</span><span class="tag">Print friendly</span><span class="tag">Behavioural answers</span><span class="tag">No filler</span>
+          </div>
+        </div>
+
+        <section id="toc" class="searchable">
+          <h2>Table of Contents</h2>
+          <div class="toc-grid">
+            <div><b>1. Interview Strategy</b><br><span class="mini">Evaluation, STAR, timing, mistakes, language.</span></div>
+            <div><b>2. Atlassian Values Chapters</b><br><span class="mini">What each value really means, signals, weak signals, top questions.</span></div>
+            <div><b>3. Top 25 Behavioural Questions</b><br><span class="mini">High-probability SEM questions with tailored STAR answers.</span></div>
+            <div><b>4. Revision Sheets</b><br><span class="mini">30-minute, 15-minute, 5-minute prep plus phrases and checklist.</span></div>
+          </div>
+        </section>
+
+        <section id="strategy" class="searchable">
+          <h2>Interview Strategy</h2>
+          <h3>What Atlassian Is Evaluating</h3>
+          <p>They are not only checking whether you can recite values. They are checking how you behave when delivery pressure, ambiguity, customer impact, technical debt, and people dynamics collide. For a Senior Engineering Manager / Principal Data Engineering role, the bar is: can you create clarity, raise engineering quality, protect customers, develop leaders, and influence outside your reporting line without becoming political or defensive?</p>
+          <div class="callout"><b>Your positioning:</b> "I lead large data engineering teams through complex platform work by combining technical depth, stakeholder clarity, and calm operating discipline. I care about customer outcomes, but I also care about the engineering system that produces those outcomes repeatedly."</div>
+          <h3>How Behavioural Interviews Work</h3>
+          <p>The interviewer listens for evidence. One specific story beats five abstract claims. They are mapping your story to judgement, self-awareness, ownership, collaboration, and learning. They will often push on tradeoffs: "What did you do personally?", "What would you do differently?", "How did you know it worked?", "How did the team feel?"</p>
+          <h3>STAR Framework</h3>
+          <ul>
+            <li><b>Situation:</b> one or two lines of context. Do not over-explain architecture.</li>
+            <li><b>Task:</b> your leadership responsibility, not just the project goal.</li>
+            <li><b>Action:</b> the richest part. Include decisions, tradeoffs, communication, coaching, and operating mechanisms.</li>
+            <li><b>Result:</b> concrete but believable. Use directionally honest outcomes: fewer incidents, clearer ownership, faster onboarding, smoother cutover, better stakeholder trust.</li>
+          </ul>
+          <h3>Answer Length</h3>
+          <p>A strong final-round values answer is usually 90-120 seconds. Use 15 seconds for context, 15 seconds for the challenge, 55-75 seconds for actions, and 15-25 seconds for results and learning. If the story is complex, say: "I'll keep the technical detail light unless helpful."</p>
+          <h3>Common Mistakes</h3>
+          <ul>
+            <li>Sounding like the hero who saved everyone instead of the leader who built a stronger system.</li>
+            <li>Over-indexing on technical implementation and under-explaining stakeholder impact.</li>
+            <li>Describing conflict as "alignment issues" without naming the real tension.</li>
+            <li>Claiming customer obsession while only measuring platform metrics.</li>
+            <li>Not explaining what you personally did versus what the team did.</li>
+          </ul>
+          <h3>Good Phrases To Use</h3>
+          <ul class="columns">
+            <li>"I tried to separate urgency from importance."</li>
+            <li>"I made the tradeoff explicit instead of letting it stay implicit."</li>
+            <li>"I wanted the team to own the decision, not just comply with it."</li>
+            <li>"The customer impact was indirect, but real."</li>
+            <li>"I used data to create shared reality."</li>
+            <li>"My role was to create clarity and remove friction."</li>
+            <li>"I took accountability for the miss and changed the operating model."</li>
+            <li>"I did not want reliability to depend on tribal knowledge."</li>
+          </ul>
+          <h3>Phrases To Avoid</h3>
+          <ul class="columns">
+            <li>"I convinced everyone."</li>
+            <li>"The business did not understand engineering."</li>
+            <li>"I escalated and got it done."</li>
+            <li>"It was just a communication issue."</li>
+            <li>"My team worked weekends."</li>
+            <li>"We had no choice."</li>
+            <li>"I handled everything myself."</li>
+            <li>"The legacy system was bad."</li>
+          </ul>
+        </section>
+
+        <section id="team" class="searchable">
+          <h2>Chapter 1: Play, as a Team</h2>
+          <div class="value-grid">
+            <div><h3>What It Really Means</h3><p>Atlassian wants leaders who make the whole system better, not only their own team. For you, this means turning data platform work into shared outcomes across product, architecture, TPM, country teams, governance, and operations.</p></div>
+            <div><h3>What Interviewer Is Testing</h3><p>Can you collaborate without losing accountability? Can you disagree respectfully, share credit, create operating rhythm, and lead through influence when priorities conflict?</p></div>
+            <div><h3>Strong Signals</h3><ul><li>You built cross-team mechanisms.</li><li>You resolved ownership ambiguity.</li><li>You coached engineers to collaborate directly.</li><li>You used shared metrics, not status theatre.</li></ul></div>
+            <div><h3>Weak Signals</h3><ul><li>Blaming partner teams.</li><li>Being proud of bypassing process.</li><li>Only describing your team's delivery.</li><li>Confusing consensus with collaboration.</li></ul></div>
+          </div>
+          <h3>Top 5 Questions</h3>
+          <ol><li>Tell me about a time you led a cross-functional initiative with conflicting priorities.</li><li>Tell me about a time another team was blocking your team.</li><li>How do you handle disagreement with Product, Architecture, or TPM?</li><li>Tell me about a time you helped another team succeed.</li><li>Describe how you build trust across distributed engineering teams.</li></ol>
+        </section>
+
+        <section id="change" class="searchable">
+          <h2>Chapter 2: Be the Change You Seek</h2>
+          <div class="value-grid">
+            <div><h3>What It Really Means</h3><p>Do not wait for perfect mandate. Notice what is broken, start with the part you can influence, show evidence, and scale the change through people and mechanisms.</p></div>
+            <div><h3>What Interviewer Is Testing</h3><p>Do you take ownership beyond your job description? Can you modernize systems and culture without becoming reckless? Do you convert frustration into constructive change?</p></div>
+            <div><h3>Strong Signals</h3><ul><li>You created reusable frameworks or standards.</li><li>You changed incentives or rituals.</li><li>You piloted before scaling.</li><li>You measured adoption and impact.</li></ul></div>
+            <div><h3>Weak Signals</h3><ul><li>"I told leadership this was wrong."</li><li>Big-bang change with no adoption path.</li><li>No empathy for teams using the old process.</li><li>No measurable result.</li></ul></div>
+          </div>
+          <h3>Top 5 Questions</h3>
+          <ol><li>Tell me about a change you initiated without being asked.</li><li>Tell me about a time you improved engineering quality.</li><li>Describe a time you challenged an existing process.</li><li>Tell me about a platform modernization you led.</li><li>How do you get adoption for a new engineering practice?</li></ol>
+        </section>
+
+        <section id="customer" class="searchable">
+          <h2>Chapter 3: Don't #@!% the Customer</h2>
+          <div class="value-grid">
+            <div><h3>What It Really Means</h3><p>For data engineering, the customer may be a merchant, analyst, business operator, product team, data scientist, or downstream platform. The value means you protect their trust, timelines, and ability to make decisions from reliable data.</p></div>
+            <div><h3>What Interviewer Is Testing</h3><p>Do you understand customer impact behind pipelines? Can you prioritize reliability, data quality, migration safety, and transparent communication when pressure rises?</p></div>
+            <div><h3>Strong Signals</h3><ul><li>You connected data quality to business decisions.</li><li>You communicated risk early.</li><li>You created monitoring, rollback, and ownership.</li><li>You balanced speed with trust.</li></ul></div>
+            <div><h3>Weak Signals</h3><ul><li>Only talking about SLA dashboards.</li><li>Shipping migration without customer readiness.</li><li>Minimizing incidents.</li><li>Blaming consumers for using data incorrectly.</li></ul></div>
+          </div>
+          <h3>Top 5 Questions</h3>
+          <ol><li>Tell me about a time you protected customers during a migration.</li><li>Tell me about a production incident or data quality issue.</li><li>How do you decide between delivery speed and reliability?</li><li>Tell me about a time you changed roadmap based on customer feedback.</li><li>How do you define customer obsession for a platform team?</li></ol>
+        </section>
+
+        <section id="open" class="searchable">
+          <h2>Chapter 4: Open Company, No Bullsh*t</h2>
+          <div class="value-grid">
+            <div><h3>What It Really Means</h3><p>Be direct, transparent, and respectful. Surface bad news early. Do not hide behind status colors, vague language, or hierarchy. Use truth to help the team make better decisions.</p></div>
+            <div><h3>What Interviewer Is Testing</h3><p>Can you have difficult conversations upward, sideways, and downward? Do you create psychological safety while still holding a high bar?</p></div>
+            <div><h3>Strong Signals</h3><ul><li>You named risk before it became failure.</li><li>You gave hard feedback with care.</li><li>You admitted your own miss.</li><li>You created factual, blameless postmortems.</li></ul></div>
+            <div><h3>Weak Signals</h3><ul><li>Being "blunt" without empathy.</li><li>Using transparency as complaint.</li><li>Surprising stakeholders late.</li><li>Not showing what changed after the truth was shared.</li></ul></div>
+          </div>
+          <h3>Top 5 Questions</h3>
+          <ol><li>Tell me about a difficult conversation with a stakeholder.</li><li>Tell me about a time you gave tough feedback to an engineer.</li><li>Tell me about a time you admitted a mistake.</li><li>How do you handle bad news in a high-visibility program?</li><li>Describe a time you disagreed with leadership.</li></ol>
+        </section>
+
+        <section id="heart" class="searchable">
+          <h2>Chapter 5: Build with Heart and Balance</h2>
+          <div class="value-grid">
+            <div><h3>What It Really Means</h3><p>Deliver meaningful outcomes with craft, care, and sustainability. Atlassian wants leaders who care about quality and people, not leaders who burn teams down to hit dates.</p></div>
+            <div><h3>What Interviewer Is Testing</h3><p>Can you balance delivery, engineering health, customer needs, and team well-being? Can you make principled tradeoffs under pressure?</p></div>
+            <div><h3>Strong Signals</h3><ul><li>You protected focus and reduced toil.</li><li>You invested in technical debt intentionally.</li><li>You coached growth without sacrificing delivery.</li><li>You used sustainable operating mechanisms.</li></ul></div>
+            <div><h3>Weak Signals</h3><ul><li>Heroics as normal operating model.</li><li>No quality bar.</li><li>No attention to burnout.</li><li>Framing balance as lack of ambition.</li></ul></div>
+          </div>
+          <h3>Top 5 Questions</h3>
+          <ol><li>Tell me about balancing a deadline with technical quality.</li><li>Tell me about preventing burnout on your team.</li><li>How do you prioritize technical debt?</li><li>Tell me about developing someone on your team.</li><li>Describe a time you had to make a tradeoff you were not fully happy with.</li></ol>
+        </section>
+
+        <section id="questions" class="searchable">
+          <h2>Top 25 Behavioural Questions</h2>
+          <p class="mini">Use these as answer bank, not a script. The recommended stories are intentionally reusable so you can adapt under pressure.</p>
+
+          <details open class="qa searchable"><summary>1. Tell me about a time you led a cross-functional initiative with conflicting priorities.</summary><div class="detail-body">
+            <h4>Question</h4><p>1. Tell me about a time you led a cross-functional initiative with conflicting priorities.</p>
+            <h4>Why interviewer asks it</h4><p>They want to know whether you can align teams without formal authority and still deliver.</p>
+            <h4>Which Atlassian value it maps to</h4><p>Play, as a Team; Open Company, No Bullsh*t.</p>
+            <h4>Recommended Story</h4><p>Multi-country data platform migration with Product, Architects, TPMs, country engineering teams, and downstream consumers.</p>
+            <h4>STAR Answer</h4><div class="star"><b>Situation</b><p>In one migration program, we were moving critical data pipelines to a more modern GCP-based platform across multiple countries. Each country had different reporting deadlines, legacy dependencies, and tolerance for change.</p><b>Task</b><p>My responsibility was to lead the engineering plan for my 18-person team while keeping Product, architecture, TPM, and country stakeholders aligned on sequencing and risk.</p><b>Action</b><p>I started by making the tradeoffs visible. Instead of debating dates in every meeting, we created a migration readiness scorecard: data volume, downstream dependencies, SLA criticality, rollback readiness, and business calendar risk. I then split the work into waves. Low-risk domains moved first, which let us harden frameworks and monitoring before touching high-impact datasets. For disagreements, I used a simple rule: if the risk was customer or business-facing, we decided with the impacted stakeholders in the room. If it was implementation detail, engineering owned it. I also asked senior engineers to pair directly with country teams so the relationship was not only manager-to-manager.</p><b>Result</b><p>The program became calmer and more predictable. We still had hard tradeoffs, but they were explicit. Stakeholders could see why something moved earlier or later, and the engineering team had fewer priority resets. My main learning was that cross-functional alignment is not one big meeting; it is a shared operating model.</p></div>
+            <h4>Likely Follow-up Questions</h4><ul><li>What was the hardest disagreement?</li><li>How did you handle a country team that resisted?</li><li>What did you personally do versus delegate?</li><li>How did you measure migration success?</li></ul>
+            <h4>Excellent Closing Sentence</h4><p>"The biggest win was not just completing the migration; it was creating a decision system everyone trusted."</p>
+            <h4>Common Mistakes</h4><ul><li>Making it sound like stakeholder management was status reporting.</li><li>Over-explaining GCP architecture.</li><li>Claiming everyone aligned immediately.</li></ul>
+            <h4>Interview Tips</h4><ul><li>Name the conflict clearly.</li><li>Show your operating mechanism.</li><li>Give shared credit.</li></ul>
+          </div></details>
+
+          <details class="qa searchable"><summary>2. Tell me about a time you improved engineering quality.</summary><div class="detail-body">
+            <h4>Question</h4><p>2. Tell me about a time you improved engineering quality.</p>
+            <h4>Why interviewer asks it</h4><p>They are testing whether you raise the bar beyond delivery dates.</p>
+            <h4>Which Atlassian value it maps to</h4><p>Be the Change You Seek; Build with Heart and Balance.</p>
+            <h4>Recommended Story</h4><p>Reusable data engineering framework for ingestion, validation, logging, alerts, and deployment standards.</p>
+            <h4>STAR Answer</h4><div class="star"><b>Situation</b><p>As our data platform grew, teams were solving similar problems differently: ingestion patterns, retry logic, data validation, schema changes, and operational alerts. It worked when the team was small, but it created uneven quality and too much tribal knowledge.</p><b>Task</b><p>I wanted to improve engineering consistency without slowing teams down with heavy process.</p><b>Action</b><p>I asked two senior engineers to audit recurring defects and operational pain points from the previous few quarters. We found that many issues came from missing validation, inconsistent logging, and unclear ownership during failures. I sponsored a lightweight reusable framework in Python and Scala patterns, with templates for Spark jobs, BigQuery loads, validation checks, runbooks, and alerting. I was careful not to mandate it blindly. We piloted it on a few new pipelines, collected feedback, simplified the interface, and then made it the default for new work. I also changed code review expectations: reviewers were no longer only checking logic; they checked operability.</p><b>Result</b><p>New pipelines became easier to review and support. Onboarding improved because engineers had a known pattern. We reduced repeat operational issues and had better confidence during releases. The important part was that quality became part of how we delivered, not a separate cleanup initiative.</p></div>
+            <h4>Likely Follow-up Questions</h4><ul><li>How did you get engineers to adopt it?</li><li>Did anyone resist?</li><li>How did you avoid over-standardizing?</li><li>What metrics changed?</li></ul>
+            <h4>Excellent Closing Sentence</h4><p>"I wanted quality to be built into the path of least resistance."</p>
+            <h4>Common Mistakes</h4><ul><li>Sounding like process for process's sake.</li><li>Ignoring engineer adoption.</li><li>Not tying quality to customer trust.</li></ul>
+            <h4>Interview Tips</h4><ul><li>Use practical examples: validation, logging, ownership.</li><li>Show pilot-to-scale thinking.</li><li>Mention code review and runbooks.</li></ul>
+          </div></details>
+
+          <details class="qa searchable"><summary>3. Tell me about a production incident or data quality issue.</summary><div class="detail-body">
+            <h4>Question</h4><p>3. Tell me about a production incident or data quality issue.</p>
+            <h4>Why interviewer asks it</h4><p>They want ownership, transparency, and customer-first judgement under pressure.</p>
+            <h4>Which Atlassian value it maps to</h4><p>Don't #@!% the Customer; Open Company, No Bullsh*t.</p>
+            <h4>Recommended Story</h4><p>Incorrect or delayed downstream dataset affecting business reporting, caused by schema drift or late upstream feed.</p>
+            <h4>STAR Answer</h4><div class="star"><b>Situation</b><p>We had a case where a critical downstream dataset used by business teams became unreliable after an upstream schema change was not caught early enough. The pipeline did not completely fail; it produced partial data, which is often worse because consumers may not realize the issue immediately.</p><b>Task</b><p>My job was to protect the consumers, restore trust in the dataset, and make sure we did not treat it as a one-off bug.</p><b>Action</b><p>First, we stopped the spread of bad data and notified the impacted stakeholders with what we knew, what we did not know, and when we would update them next. I asked the team to validate the last known good partition and provide a clear recommendation on whether users should pause decisions based on that dataset. Then we fixed the pipeline and backfilled the affected period. After recovery, I ran a blameless review focused on detection gaps. We added schema validation, data freshness checks, anomaly thresholds, and clearer ownership between upstream and downstream teams. I also changed our release checklist for pipelines serving high-visibility reporting.</p><b>Result</b><p>The immediate issue was resolved, but more importantly, we improved early detection and communication. Stakeholders appreciated that we were direct rather than defensive. My takeaway was that data reliability is not only about uptime; it is about whether customers can confidently make decisions.</p></div>
+            <h4>Likely Follow-up Questions</h4><ul><li>How fast did you communicate?</li><li>Who owned the upstream dependency?</li><li>What would you do differently?</li><li>How did you prevent recurrence?</li></ul>
+            <h4>Excellent Closing Sentence</h4><p>"For data platforms, silent correctness issues are the incidents I take most seriously."</p>
+            <h4>Common Mistakes</h4><ul><li>Minimizing the customer impact.</li><li>Blaming upstream teams.</li><li>Only discussing technical fix.</li></ul>
+            <h4>Interview Tips</h4><ul><li>Stress transparency.</li><li>Use "partial data is dangerous."</li><li>Close with systemic prevention.</li></ul>
+          </div></details>
+
+          <details class="qa searchable"><summary>4. Tell me about a time you had a difficult conversation with a stakeholder.</summary><div class="detail-body">
+            <h4>Question</h4><p>4. Tell me about a time you had a difficult conversation with a stakeholder.</p>
+            <h4>Why interviewer asks it</h4><p>They test whether you can be direct without damaging trust.</p>
+            <h4>Which Atlassian value it maps to</h4><p>Open Company, No Bullsh*t; Play, as a Team.</p>
+            <h4>Recommended Story</h4><p>Product or business stakeholder pushing for an unrealistic migration date without adequate validation or rollback.</p>
+            <h4>STAR Answer</h4><div class="star"><b>Situation</b><p>During a platform modernization effort, a stakeholder wanted us to commit to a launch date that looked reasonable on a roadmap but did not account for validation complexity, downstream dependencies, and country-specific business calendars.</p><b>Task</b><p>I needed to be honest about risk without sounding like engineering was simply saying no.</p><b>Action</b><p>I prepared a short risk view rather than a long technical explanation. I showed which datasets were low risk, which were high risk, and what would happen if we cut over without reconciliation and rollback. I told the stakeholder, "We can choose the date, or we can choose the confidence level, but we should not pretend both are fixed." Then I offered options: reduce scope for the date, move a lower-risk domain first, or add validation time and keep the broader launch. I also took accountability for making the engineering plan easier to understand, because part of the tension came from us not translating technical risk into business risk early enough.</p><b>Result</b><p>We agreed on a phased launch. It was not the most aggressive date, but it protected trust and gave the stakeholder a plan they could explain upward. The relationship improved because I was direct and solution-oriented.</p></div>
+            <h4>Likely Follow-up Questions</h4><ul><li>Did they push back?</li><li>How did you stay firm?</li><li>What was the final tradeoff?</li><li>Would you escalate?</li></ul>
+            <h4>Excellent Closing Sentence</h4><p>"I have learned that honest tradeoffs build more trust than optimistic dates."</p>
+            <h4>Common Mistakes</h4><ul><li>Portraying stakeholder as unreasonable.</li><li>Giving only one option.</li><li>Hiding behind engineering complexity.</li></ul>
+            <h4>Interview Tips</h4><ul><li>Use the "date or confidence" phrase.</li><li>Show options.</li><li>Own your communication gap.</li></ul>
+          </div></details>
+
+          <details class="qa searchable"><summary>5. Tell me about a change you initiated without being asked.</summary><div class="detail-body">
+            <h4>Question</h4><p>5. Tell me about a change you initiated without being asked.</p>
+            <h4>Why interviewer asks it</h4><p>They are looking for proactive leadership and constructive ownership.</p>
+            <h4>Which Atlassian value it maps to</h4><p>Be the Change You Seek.</p>
+            <h4>Recommended Story</h4><p>Data governance and ownership model for critical datasets.</p>
+            <h4>STAR Answer</h4><div class="star"><b>Situation</b><p>As our platform scaled, we had many critical datasets but inconsistent ownership. People knew who had built a pipeline, but not always who owned quality, access, documentation, or incident response.</p><b>Task</b><p>No one had explicitly asked me to fix governance, but I could see it becoming a scaling problem for engineering and consumers.</p><b>Action</b><p>I started small. I identified the most business-critical datasets and asked my team to document ownership, SLA expectations, upstream dependencies, and known quality checks. Then I partnered with product and architecture to define what "production-grade dataset" meant. I avoided making governance a paperwork exercise. We tied it to practical outcomes: faster incident routing, clearer access decisions, easier migration planning, and better consumer confidence. I also made dataset ownership part of roadmap planning, so new datasets could not be launched without an owner and basic observability.</p><b>Result</b><p>The biggest improvement was clarity. Incidents routed faster, new engineers understood the platform more quickly, and stakeholders stopped relying on informal memory. It also helped modernization because we knew what we were moving and who needed to sign off.</p></div>
+            <h4>Likely Follow-up Questions</h4><ul><li>How did you avoid bureaucracy?</li><li>Who resisted?</li><li>How did you measure adoption?</li><li>How did Product react?</li></ul>
+            <h4>Excellent Closing Sentence</h4><p>"Governance worked because we made it useful to engineers, not just acceptable to auditors."</p>
+            <h4>Common Mistakes</h4><ul><li>Making governance sound abstract.</li><li>No adoption plan.</li><li>Not connecting to customer impact.</li></ul>
+            <h4>Interview Tips</h4><ul><li>Anchor on ownership.</li><li>Use "production-grade dataset."</li><li>Show practical benefits.</li></ul>
+          </div></details>
+
+          <details class="qa searchable"><summary>6. Tell me about balancing a deadline with technical quality.</summary><div class="detail-body">
+            <h4>Question</h4><p>6. Tell me about balancing a deadline with technical quality.</p>
+            <h4>Why interviewer asks it</h4><p>They want to see mature tradeoff judgement, not perfectionism or recklessness.</p>
+            <h4>Which Atlassian value it maps to</h4><p>Build with Heart and Balance; Don't #@!% the Customer.</p>
+            <h4>Recommended Story</h4><p>Migration cutover or critical analytics launch where quality gates were negotiated.</p>
+            <h4>STAR Answer</h4><div class="star"><b>Situation</b><p>We had a committed delivery window for a data platform migration, but late in the cycle we found that a few pipelines had edge-case reconciliation differences. They were not catastrophic, but they affected confidence for some downstream reports.</p><b>Task</b><p>I had to decide whether to hold the broader release, ship everything, or create a more nuanced plan.</p><b>Action</b><p>I grouped the issues by customer impact rather than by technical severity alone. Some differences were explainable and did not affect business decisions; others needed more validation. I proposed a partial release: move the validated domains, keep high-risk datasets on the old path, and publish a clear cutover schedule. I also asked the team to document the known differences and add automated reconciliation checks before the next wave. Internally, I was explicit that this was not a quality compromise; it was a scoped release with clear guardrails.</p><b>Result</b><p>We met the business need without forcing risky datasets through the migration. The team felt respected because we did not ignore their concerns, and stakeholders had a transparent view of what was ready. It reinforced a principle I use often: quality gates should guide scope, not just block delivery.</p></div>
+            <h4>Likely Follow-up Questions</h4><ul><li>Who made the final decision?</li><li>How did you communicate the partial release?</li><li>What quality bar was non-negotiable?</li><li>How did you avoid scope creep?</li></ul>
+            <h4>Excellent Closing Sentence</h4><p>"The right balance was not speed versus quality; it was matching scope to confidence."</p>
+            <h4>Common Mistakes</h4><ul><li>Saying you never compromise.</li><li>Shipping everything under pressure.</li><li>Not defining non-negotiables.</li></ul>
+            <h4>Interview Tips</h4><ul><li>Talk customer impact.</li><li>Separate scope from quality.</li><li>Use guardrails.</li></ul>
+          </div></details>
+
+          <details class="qa searchable"><summary>7. Tell me about a time you coached or developed someone.</summary><div class="detail-body">
+            <h4>Question</h4><p>7. Tell me about a time you coached or developed someone.</p>
+            <h4>Why interviewer asks it</h4><p>Senior EMs must grow leaders, not only manage tasks.</p>
+            <h4>Which Atlassian value it maps to</h4><p>Build with Heart and Balance; Play, as a Team.</p>
+            <h4>Recommended Story</h4><p>Senior data engineer growing into tech lead for a migration or platform framework.</p>
+            <h4>STAR Answer</h4><div class="star"><b>Situation</b><p>I had a strong senior engineer who was technically excellent but tended to solve problems individually. For our platform modernization work, I needed more technical leadership across the team, not just strong execution.</p><b>Task</b><p>My goal was to help this engineer become a leader who could influence design, mentor others, and drive cross-team decisions.</p><b>Action</b><p>I started by giving direct feedback: their technical judgement was strong, but their impact would be limited if others could not follow or build on it. We agreed on a growth plan. I asked them to lead a design review for a reusable ingestion pattern, but I coached them beforehand on framing options, tradeoffs, and open questions instead of presenting one perfect answer. I also paired them with a mid-level engineer and asked them to delegate meaningful pieces, not just leftovers. After each milestone, we reviewed what went well and where they could communicate earlier.</p><b>Result</b><p>Over time, they became a go-to technical lead. The team relied less on me for every architecture decision, and the engineer grew in confidence as a multiplier. For me, the key was treating leadership as a skill to practice, not a title to award.</p></div>
+            <h4>Likely Follow-up Questions</h4><ul><li>How did you give the feedback?</li><li>What if they disagreed?</li><li>How did you measure growth?</li><li>How do you scale coaching across 18 engineers?</li></ul>
+            <h4>Excellent Closing Sentence</h4><p>"The goal was to help them move from being the best problem solver to being a multiplier."</p>
+            <h4>Common Mistakes</h4><ul><li>Only describing promotion.</li><li>No difficult feedback.</li><li>No specific coaching actions.</li></ul>
+            <h4>Interview Tips</h4><ul><li>Show care and candor.</li><li>Mention delegation.</li><li>End with team impact.</li></ul>
+          </div></details>
+
+          <details class="qa searchable"><summary>8. Tell me about a time you gave tough feedback.</summary><div class="detail-body">
+            <h4>Question</h4><p>8. Tell me about a time you gave tough feedback.</p>
+            <h4>Why interviewer asks it</h4><p>They need leaders who protect standards while keeping trust.</p>
+            <h4>Which Atlassian value it maps to</h4><p>Open Company, No Bullsh*t; Build with Heart and Balance.</p>
+            <h4>Recommended Story</h4><p>Engineer missing ownership on operational readiness or code quality.</p>
+            <h4>STAR Answer</h4><div class="star"><b>Situation</b><p>An engineer on my team was delivering features, but production readiness was weak. Runbooks were incomplete, alerts were noisy, and during incidents they relied on others to diagnose issues.</p><b>Task</b><p>I needed to address it directly because the behavior affected team reliability and the engineer's growth.</p><b>Action</b><p>I had a private conversation and used specific examples rather than labels. I said, "The code delivery is strong, but ownership does not end when the job is deployed. For senior expectations, operability is part of the deliverable." I asked for their perspective and learned they had not owned production systems deeply before. We agreed on concrete expectations: every new pipeline needed meaningful alerts, a runbook, failure-mode thinking, and a handoff walkthrough. I paired them with a stronger operations-minded engineer for two releases and reviewed progress weekly.</p><b>Result</b><p>The engineer improved noticeably. More importantly, the feedback clarified the bar for the team. It was a reminder that tough feedback works best when it is specific, timely, and paired with a path to succeed.</p></div>
+            <h4>Likely Follow-up Questions</h4><ul><li>How did they react?</li><li>What if they did not improve?</li><li>How do you document feedback?</li><li>How do you avoid demotivating people?</li></ul>
+            <h4>Excellent Closing Sentence</h4><p>"I try to make feedback clear enough to act on and respectful enough to build from."</p>
+            <h4>Common Mistakes</h4><ul><li>Using vague phrases like attitude problem.</li><li>No follow-up plan.</li><li>Avoiding accountability.</li></ul>
+            <h4>Interview Tips</h4><ul><li>Quote your feedback.</li><li>Separate person from behavior.</li><li>Show improvement.</li></ul>
+          </div></details>
+
+          <details class="qa searchable"><summary>9. Tell me about a time you influenced without authority.</summary><div class="detail-body">
+            <h4>Question</h4><p>9. Tell me about a time you influenced without authority.</p>
+            <h4>Why interviewer asks it</h4><p>Atlassian values collaborative leadership across teams.</p>
+            <h4>Which Atlassian value it maps to</h4><p>Play, as a Team; Be the Change You Seek.</p>
+            <h4>Recommended Story</h4><p>Driving adoption of data quality or migration standards across teams you did not manage.</p>
+            <h4>STAR Answer</h4><div class="star"><b>Situation</b><p>We had multiple teams producing datasets for shared consumers, but quality practices varied. My team could improve our own pipelines, but customer trust depended on consistency across teams.</p><b>Task</b><p>I needed to influence peer teams to adopt common quality checks without having formal authority over them.</p><b>Action</b><p>I avoided starting with a mandate. I gathered examples of real incidents and support pain caused by inconsistent validation. Then I proposed a minimum standard: freshness checks, schema checks, ownership metadata, and escalation paths for critical datasets. I asked peer EMs and architects to help shape it, so it did not feel like my team's process being pushed onto everyone. We piloted the standard with two teams and used the results to simplify it. I also offered reusable templates so adoption was easier than inventing something separately.</p><b>Result</b><p>Several teams adopted the standard because it solved a shared pain. The conversation shifted from "your process" to "our quality bar." My learning was that influence scales when you combine evidence, empathy, and low-friction tools.</p></div>
+            <h4>Likely Follow-up Questions</h4><ul><li>Who resisted?</li><li>Did leadership sponsor it?</li><li>How did you handle non-adoption?</li><li>How did you measure success?</li></ul>
+            <h4>Excellent Closing Sentence</h4><p>"Influence worked because we made the better practice easier to adopt."</p>
+            <h4>Common Mistakes</h4><ul><li>Saying "I convinced them" repeatedly.</li><li>No evidence.</li><li>No empathy for peer teams.</li></ul>
+            <h4>Interview Tips</h4><ul><li>Mention co-creation.</li><li>Use incident evidence.</li><li>Show templates and pilots.</li></ul>
+          </div></details>
+
+          <details class="qa searchable"><summary>10. Tell me about a time you disagreed with leadership.</summary><div class="detail-body">
+            <h4>Question</h4><p>10. Tell me about a time you disagreed with leadership.</p>
+            <h4>Why interviewer asks it</h4><p>They test backbone, judgement, and ability to disagree constructively.</p>
+            <h4>Which Atlassian value it maps to</h4><p>Open Company, No Bullsh*t; Don't #@!% the Customer.</p>
+            <h4>Recommended Story</h4><p>Leadership wanted aggressive migration timeline or feature delivery that risked reliability.</p>
+            <h4>STAR Answer</h4><div class="star"><b>Situation</b><p>In one planning cycle, there was pressure to accelerate a platform migration because the legacy system was expensive and hard to maintain. I agreed with the direction, but not with the proposed timeline for the highest-risk datasets.</p><b>Task</b><p>I needed to challenge the plan in a way that was respectful, evidence-based, and still solution-oriented.</p><b>Action</b><p>I prepared a short view of risk by dataset category: business criticality, reconciliation complexity, upstream stability, and rollback readiness. In the leadership discussion, I said I supported the migration goal, but the current sequence put customer trust at risk. I recommended moving faster on low-risk domains while adding validation time for high-risk ones. I also committed my team to remove waste in our own execution so the ask was not simply "give us more time."</p><b>Result</b><p>Leadership accepted a phased plan. We still delivered meaningful progress that quarter, but avoided a risky cutover. The discussion strengthened trust because I did not challenge the strategy; I challenged the unsafe execution path and brought an alternative.</p></div>
+            <h4>Likely Follow-up Questions</h4><ul><li>What if leadership said no?</li><li>How did you avoid sounding negative?</li><li>Did this affect your relationship?</li><li>How do you know when to escalate?</li></ul>
+            <h4>Excellent Closing Sentence</h4><p>"I try to disagree with the plan in service of the outcome, not in opposition to it."</p>
+            <h4>Common Mistakes</h4><ul><li>Sounding insubordinate.</li><li>No alternative proposal.</li><li>Over-indexing on engineering comfort.</li></ul>
+            <h4>Interview Tips</h4><ul><li>Say you agreed with direction.</li><li>Challenge execution risk.</li><li>Bring options.</li></ul>
+          </div></details>
+
+          <details class="qa searchable"><summary>11. Tell me about a time you changed roadmap based on customer feedback.</summary><div class="detail-body">
+            <h4>Question</h4><p>11. Tell me about a time you changed roadmap based on customer feedback.</p>
+            <h4>Why interviewer asks it</h4><p>They want product thinking from a platform leader.</p>
+            <h4>Which Atlassian value it maps to</h4><p>Don't #@!% the Customer; Play, as a Team.</p>
+            <h4>Recommended Story</h4><p>Data consumers struggling with dataset discoverability, quality, latency, or migration readiness.</p>
+            <h4>STAR Answer</h4><div class="star"><b>Situation</b><p>Our roadmap was heavily focused on platform modernization, but feedback from downstream analytics and product teams showed a different pain point: they were spending too much time understanding which datasets to trust and how changes would affect them.</p><b>Task</b><p>I needed to balance long-term modernization with near-term customer usability.</p><b>Action</b><p>I met with a few key consumer groups and asked them to walk us through their actual workflow. The issue was not only pipeline latency; it was discoverability, ownership, and change communication. I worked with Product and architecture to adjust the roadmap. We kept modernization moving, but added work for dataset metadata, ownership fields, quality indicators, and migration communication templates. I also asked my team to treat internal consumers as customers: if they needed a meeting to understand whether a dataset was safe, our platform experience was incomplete.</p><b>Result</b><p>Consumer trust improved because the platform became easier to use, not just more modern internally. It also reduced repetitive questions to engineers. The lesson was that platform roadmaps need customer discovery just like product roadmaps.</p></div>
+            <h4>Likely Follow-up Questions</h4><ul><li>What did you deprioritize?</li><li>How did you collect feedback?</li><li>How did you know it helped?</li><li>How did Product participate?</li></ul>
+            <h4>Excellent Closing Sentence</h4><p>"A modern platform is only successful if customers can confidently use it."</p>
+            <h4>Common Mistakes</h4><ul><li>Calling internal users "not real customers."</li><li>No roadmap tradeoff.</li><li>Only adding documentation.</li></ul>
+            <h4>Interview Tips</h4><ul><li>Describe actual user workflow.</li><li>Name what changed in roadmap.</li><li>Show product mindset.</li></ul>
+          </div></details>
+
+          <details class="qa searchable"><summary>12. Tell me about a time you admitted a mistake.</summary><div class="detail-body">
+            <h4>Question</h4><p>12. Tell me about a time you admitted a mistake.</p>
+            <h4>Why interviewer asks it</h4><p>They look for humility, accountability, and learning.</p>
+            <h4>Which Atlassian value it maps to</h4><p>Open Company, No Bullsh*t; Be the Change You Seek.</p>
+            <h4>Recommended Story</h4><p>Underestimating migration complexity or stakeholder readiness.</p>
+            <h4>STAR Answer</h4><div class="star"><b>Situation</b><p>In an earlier phase of a migration, I underestimated the communication needed for downstream consumers. Engineering had a reasonable technical plan, but some consumers felt surprised by changes in validation timelines and cutover sequencing.</p><b>Task</b><p>I needed to own the miss and restore confidence without making excuses.</p><b>Action</b><p>I told the stakeholders directly that the gap was on me. We had communicated status, but not decision impact. I paused the next wave long enough to create a clearer readiness checklist and communication plan. We identified impacted consumers, documented what would change, what would not change, rollback criteria, and who to contact. I also changed our internal review so migration readiness included customer readiness, not only engineering readiness.</p><b>Result</b><p>The next waves were smoother, with fewer surprises and better stakeholder participation. Personally, it changed how I think about leadership communication: if people cannot make decisions from your update, the update is not good enough.</p></div>
+            <h4>Likely Follow-up Questions</h4><ul><li>How did stakeholders react?</li><li>What was the cost of the mistake?</li><li>How did your team respond?</li><li>What did you change permanently?</li></ul>
+            <h4>Excellent Closing Sentence</h4><p>"I learned that status is not the same as clarity."</p>
+            <h4>Common Mistakes</h4><ul><li>Choosing a fake weakness.</li><li>Blaming ambiguity.</li><li>No lasting change.</li></ul>
+            <h4>Interview Tips</h4><ul><li>Own it plainly.</li><li>Explain the system change.</li><li>Keep it mature, not dramatic.</li></ul>
+          </div></details>
+
+          <details class="qa searchable"><summary>13. How do you define customer obsession for a data platform team?</summary><div class="detail-body">
+            <h4>Question</h4><p>13. How do you define customer obsession for a data platform team?</p>
+            <h4>Why interviewer asks it</h4><p>They want to know whether you translate customer obsession into platform leadership.</p>
+            <h4>Which Atlassian value it maps to</h4><p>Don't #@!% the Customer.</p>
+            <h4>Recommended Story</h4><p>Platform operating model around reliability, usability, governance, and consumer trust.</p>
+            <h4>STAR Answer</h4><div class="star"><b>Situation</b><p>In data engineering, it is easy to think the customer only cares whether a pipeline ran. In reality, customers care whether the data is timely, correct, understandable, and safe to use for decisions.</p><b>Task</b><p>As a manager, my job is to make customer trust part of how the platform is designed and operated.</p><b>Action</b><p>I define customer obsession through a few practical questions. Can consumers discover the right dataset? Do they know who owns it? Are freshness and quality visible? Are breaking changes communicated early? During incidents, do we tell them what decisions are affected? I push teams to measure reliability from the consumer's perspective, not only job success rates. For critical datasets, I expect validation, lineage awareness, runbooks, and clear escalation paths. I also encourage engineers to speak directly with consumers so they hear the pain behind support tickets.</p><b>Result</b><p>This changes engineering behavior. Teams stop optimizing only for successful batch execution and start optimizing for decision confidence. That is the platform version of customer obsession: customers should not need inside knowledge to trust the data.</p></div>
+            <h4>Likely Follow-up Questions</h4><ul><li>Who are your customers?</li><li>What metrics do you use?</li><li>How do you prioritize customer asks?</li><li>How do you avoid overbuilding?</li></ul>
+            <h4>Excellent Closing Sentence</h4><p>"For a data platform, customer obsession means protecting decision confidence."</p>
+            <h4>Common Mistakes</h4><ul><li>Only saying uptime.</li><li>No customer discovery.</li><li>No usability thinking.</li></ul>
+            <h4>Interview Tips</h4><ul><li>Use "decision confidence."</li><li>Name internal customers.</li><li>Connect metrics to trust.</li></ul>
+          </div></details>
+
+          <details class="qa searchable"><summary>14. Tell me about hiring or raising the talent bar.</summary><div class="detail-body">
+            <h4>Question</h4><p>14. Tell me about hiring or raising the talent bar.</p>
+            <h4>Why interviewer asks it</h4><p>SEM roles require strong judgement in building teams.</p>
+            <h4>Which Atlassian value it maps to</h4><p>Build with Heart and Balance; Play, as a Team.</p>
+            <h4>Recommended Story</h4><p>Hiring for senior data engineers with technical depth plus ownership and collaboration.</p>
+            <h4>STAR Answer</h4><div class="star"><b>Situation</b><p>As our team grew, I noticed that hiring only for Spark or cloud experience was not enough. The hardest problems required ownership, communication, and judgement around reliability and customer impact.</p><b>Task</b><p>I wanted to raise the hiring bar without making the process academic or biased toward one technology stack.</p><b>Action</b><p>I worked with interviewers to define signals for senior data engineers: data modeling judgement, distributed processing fundamentals, operational thinking, code quality, and ability to explain tradeoffs. We added practical scenarios like handling schema drift, designing a backfill, or responding to a data quality incident. I also calibrated interviewers after loops, asking for evidence instead of impressions like "good culture fit." For leadership roles, I looked for people who could mentor others and work with Product, not just solve isolated technical problems.</p><b>Result</b><p>The quality of hiring discussions improved. We made decisions with clearer evidence and hired engineers who were stronger in real production contexts. It also helped internal growth because the same signals became expectations for the existing team.</p></div>
+            <h4>Likely Follow-up Questions</h4><ul><li>How do you avoid bias?</li><li>What signals matter most?</li><li>Have you rejected a strong technical candidate?</li><li>How do you onboard hires?</li></ul>
+            <h4>Excellent Closing Sentence</h4><p>"I hire for the engineering judgement people use when the system is messy, not only when the problem is clean."</p>
+            <h4>Common Mistakes</h4><ul><li>Only discussing headcount.</li><li>No structured signals.</li><li>Vague culture fit language.</li></ul>
+            <h4>Interview Tips</h4><ul><li>Mention calibration.</li><li>Use production scenarios.</li><li>Talk about evidence.</li></ul>
+          </div></details>
+
+          <details class="qa searchable"><summary>15. Tell me about prioritizing technical debt.</summary><div class="detail-body">
+            <h4>Question</h4><p>15. Tell me about prioritizing technical debt.</p>
+            <h4>Why interviewer asks it</h4><p>They want to see if you can make engineering health legible to the business.</p>
+            <h4>Which Atlassian value it maps to</h4><p>Build with Heart and Balance; Be the Change You Seek.</p>
+            <h4>Recommended Story</h4><p>Modernizing legacy pipelines or reducing operational toil.</p>
+            <h4>STAR Answer</h4><div class="star"><b>Situation</b><p>We had legacy data pipelines that were stable most days but expensive to change and difficult to operate. Engineers felt the pain, but stakeholders mainly saw that reports were still running.</p><b>Task</b><p>I needed to prioritize technical debt in a way that connected to business outcomes, not just engineering frustration.</p><b>Action</b><p>I categorized debt by impact: incident risk, change lead time, cloud cost, onboarding complexity, and customer-facing limitations. Then I created a proposal that mixed debt work with roadmap delivery. For example, when a product initiative needed changes in a legacy pipeline, we modernized that portion instead of patching it again. I also reserved capacity for toil reduction where we had repeated incidents or manual operations. With stakeholders, I avoided saying "technical debt is bad" and instead showed how it affected delivery predictability and reliability.</p><b>Result</b><p>We made steady progress without a massive pause in feature work. Engineers saw that leadership cared about platform health, and stakeholders saw fewer surprises. The key was treating technical debt as risk and drag, not as an abstract engineering preference.</p></div>
+            <h4>Likely Follow-up Questions</h4><ul><li>How much capacity do you reserve?</li><li>Who decides?</li><li>How do you measure debt reduction?</li><li>What debt would you not fix?</li></ul>
+            <h4>Excellent Closing Sentence</h4><p>"Technical debt gets funded when it is translated into risk, speed, and customer trust."</p>
+            <h4>Common Mistakes</h4><ul><li>Making it sound like engineers versus business.</li><li>No prioritization model.</li><li>Trying to fix everything.</li></ul>
+            <h4>Interview Tips</h4><ul><li>Use categories.</li><li>Connect to roadmap.</li><li>Say what you would leave alone.</li></ul>
+          </div></details>
+
+          <details class="qa searchable"><summary>16. Tell me about preventing burnout while delivering.</summary><div class="detail-body">
+            <h4>Question</h4><p>16. Tell me about preventing burnout while delivering.</p>
+            <h4>Why interviewer asks it</h4><p>They test sustainable leadership and operating discipline.</p>
+            <h4>Which Atlassian value it maps to</h4><p>Build with Heart and Balance.</p>
+            <h4>Recommended Story</h4><p>High-pressure migration or reliability period where you reduced toil and protected focus.</p>
+            <h4>STAR Answer</h4><div class="star"><b>Situation</b><p>During a major migration, the team had delivery pressure plus operational support for existing pipelines. The risk was not one dramatic burnout moment; it was slow context switching and after-hours interruptions becoming normal.</p><b>Task</b><p>I needed to keep the program moving while making the work sustainable.</p><b>Action</b><p>I made capacity visible. We separated migration work, production support, and stakeholder asks instead of pretending one team could do all three at full speed. I rotated support ownership, tightened escalation criteria, and pushed back on low-value status meetings. I also asked leads to identify manual tasks that were consuming time and funded automation for the most painful ones. In one-on-ones, I paid attention to signals like constant late-night work or people not taking time off. When dates were at risk, I discussed scope and sequencing instead of quietly absorbing the pressure through the team.</p><b>Result</b><p>Delivery stayed predictable and the team did not normalize heroics. We still had intense weeks, but they were bounded and visible. My belief is that sustainable teams are not less ambitious; they are more honest about capacity.</p></div>
+            <h4>Likely Follow-up Questions</h4><ul><li>Did you ever ask people to work late?</li><li>How did stakeholders react?</li><li>How do you detect burnout?</li><li>What tradeoff did you make?</li></ul>
+            <h4>Excellent Closing Sentence</h4><p>"I do not want heroics to become an operating model."</p>
+            <h4>Common Mistakes</h4><ul><li>Claiming no pressure ever.</li><li>No mechanism beyond empathy.</li><li>Not protecting scope.</li></ul>
+            <h4>Interview Tips</h4><ul><li>Talk capacity.</li><li>Mention toil reduction.</li><li>Be realistic about intense periods.</li></ul>
+          </div></details>
+
+          <details class="qa searchable"><summary>17. Tell me about resolving conflict between engineers or teams.</summary><div class="detail-body">
+            <h4>Question</h4><p>17. Tell me about resolving conflict between engineers or teams.</p>
+            <h4>Why interviewer asks it</h4><p>They want mature conflict handling without politics.</p>
+            <h4>Which Atlassian value it maps to</h4><p>Play, as a Team; Open Company, No Bullsh*t.</p>
+            <h4>Recommended Story</h4><p>Architecture disagreement over build-versus-reuse or ownership of shared pipeline components.</p>
+            <h4>STAR Answer</h4><div class="star"><b>Situation</b><p>Two groups disagreed on whether to build a custom pipeline pattern for a specific domain or reuse a common framework. One side worried the framework would slow them down; the other worried custom work would create long-term support issues.</p><b>Task</b><p>I needed to help the teams make a good decision without turning it into a personality conflict.</p><b>Action</b><p>I reframed the debate around criteria: time to deliver, operational risk, future maintenance, data quality needs, and how unique the domain really was. I asked both sides to write their assumptions down. That exposed that the disagreement was partly about missing framework capabilities, not philosophical resistance. We agreed to extend the common framework for the genuinely needed capability and allow a short-term adapter for the domain team. I also clarified ownership so future support did not become ambiguous.</p><b>Result</b><p>The teams moved forward with less friction, and the shared framework improved for others. The lesson was that conflict often becomes easier when you move from positions to decision criteria.</p></div>
+            <h4>Likely Follow-up Questions</h4><ul><li>Who was right?</li><li>How did you handle strong personalities?</li><li>How did you decide?</li><li>What did you do after?</li></ul>
+            <h4>Excellent Closing Sentence</h4><p>"I try to turn conflict into a decision with criteria, owners, and next steps."</p>
+            <h4>Common Mistakes</h4><ul><li>Forcing compromise with no rationale.</li><li>Avoiding the real issue.</li><li>No ownership after decision.</li></ul>
+            <h4>Interview Tips</h4><ul><li>Use criteria.</li><li>Show both sides had valid concerns.</li><li>Clarify ownership.</li></ul>
+          </div></details>
+
+          <details class="qa searchable"><summary>18. Tell me about operational reliability.</summary><div class="detail-body">
+            <h4>Question</h4><p>18. Tell me about operational reliability.</p>
+            <h4>Why interviewer asks it</h4><p>They want evidence you can run platforms, not just build them.</p>
+            <h4>Which Atlassian value it maps to</h4><p>Don't #@!% the Customer; Build with Heart and Balance.</p>
+            <h4>Recommended Story</h4><p>Improving monitoring, on-call, alert quality, runbooks, and incident review for data pipelines.</p>
+            <h4>STAR Answer</h4><div class="star"><b>Situation</b><p>Our pipelines were growing in number and importance, but operational practices were uneven. Some jobs had good alerts and runbooks; others depended on the person who built them.</p><b>Task</b><p>I wanted to make reliability repeatable across the team, especially for critical datasets.</p><b>Action</b><p>We started by identifying critical pipelines and reviewing incident patterns. A lot of toil came from noisy alerts, unclear ownership, and weak failure context. I introduced a reliability checklist for production pipelines: meaningful alerting, freshness checks, runbooks, ownership, backfill instructions, and escalation contacts. We cleaned up alerts so pages represented actionable customer risk. I also made post-incident reviews blameless but specific: what did we miss, how could detection be earlier, and what should be automated?</p><b>Result</b><p>Support became less dependent on individual memory, and incidents were easier to diagnose. Engineers also started thinking about operations earlier in design. Reliability improved because it became part of engineering craft, not an afterthought.</p></div>
+            <h4>Likely Follow-up Questions</h4><ul><li>What reliability metrics do you track?</li><li>How do you reduce alert fatigue?</li><li>How do you handle repeated incidents?</li><li>How do you choose critical pipelines?</li></ul>
+            <h4>Excellent Closing Sentence</h4><p>"A pipeline is not production-ready until the team knows how it fails and how to recover it."</p>
+            <h4>Common Mistakes</h4><ul><li>Only mentioning dashboards.</li><li>No on-call or ownership model.</li><li>No blameless learning.</li></ul>
+            <h4>Interview Tips</h4><ul><li>Mention actionable alerts.</li><li>Use runbooks.</li><li>Connect to customer risk.</li></ul>
+          </div></details>
+
+          <details class="qa searchable"><summary>19. Tell me about a time you had to make an unpopular decision.</summary><div class="detail-body">
+            <h4>Question</h4><p>19. Tell me about a time you had to make an unpopular decision.</p>
+            <h4>Why interviewer asks it</h4><p>They test courage, communication, and empathy.</p>
+            <h4>Which Atlassian value it maps to</h4><p>Open Company, No Bullsh*t; Build with Heart and Balance.</p>
+            <h4>Recommended Story</h4><p>Pausing a feature, delaying migration wave, or enforcing production readiness gates.</p>
+            <h4>STAR Answer</h4><div class="star"><b>Situation</b><p>We had a migration wave that several stakeholders expected to complete in a particular window. During readiness review, the team found gaps in reconciliation and rollback for a few high-impact datasets.</p><b>Task</b><p>I had to decide whether to proceed to maintain momentum or delay that wave and absorb the stakeholder disappointment.</p><b>Action</b><p>I chose to delay the high-risk part. I explained the decision in business terms: if the data was wrong after cutover, it could affect reporting and decision-making, and rollback was not yet clean enough. I also made sure the team did not hide behind a vague "quality issue." We listed the specific exit criteria and committed dates for closing them. For stakeholders, I separated what was still moving from what was paused, so the whole program did not appear stalled.</p><b>Result</b><p>The decision was unpopular for a few days, but it prevented a risky release. Once the criteria were met, the cutover was smoother. I learned that unpopular decisions are easier to accept when people can see the reasoning and the path forward.</p></div>
+            <h4>Likely Follow-up Questions</h4><ul><li>Who disagreed?</li><li>Did you get pressure to reverse?</li><li>How did the team react?</li><li>Would you make the same call?</li></ul>
+            <h4>Excellent Closing Sentence</h4><p>"I am comfortable taking heat for a decision when customer trust is the thing being protected."</p>
+            <h4>Common Mistakes</h4><ul><li>Enjoying the unpopular part.</li><li>No clear criteria.</li><li>No empathy for impact.</li></ul>
+            <h4>Interview Tips</h4><ul><li>Be calm, not heroic.</li><li>Use exit criteria.</li><li>Show partial progress.</li></ul>
+          </div></details>
+
+          <details class="qa searchable"><summary>20. Tell me about a time you managed ambiguity.</summary><div class="detail-body">
+            <h4>Question</h4><p>20. Tell me about a time you managed ambiguity.</p>
+            <h4>Why interviewer asks it</h4><p>Leadership roles rarely start with clean requirements.</p>
+            <h4>Which Atlassian value it maps to</h4><p>Be the Change You Seek; Play, as a Team.</p>
+            <h4>Recommended Story</h4><p>Early platform modernization or multi-country migration planning with unclear dependencies.</p>
+            <h4>STAR Answer</h4><div class="star"><b>Situation</b><p>At the start of a modernization program, the goal was clear but the details were not. We had multiple legacy pipelines, country-specific dependencies, unclear ownership, and different stakeholder expectations.</p><b>Task</b><p>My job was to turn that ambiguity into an executable plan without pretending we knew everything upfront.</p><b>Action</b><p>I created a discovery phase with a tight timebox. We mapped critical datasets, owners, downstream consumers, current pain points, and migration risks. I asked the team to identify unknowns explicitly and classify them: unknowns we could resolve with analysis, unknowns requiring stakeholder decisions, and unknowns we would learn through pilots. We then picked a low-risk pilot to validate our migration approach. I communicated the plan as progressive certainty: here is what we know, what we are testing, and when we will make the next decision.</p><b>Result</b><p>The ambiguity became manageable. Stakeholders saw momentum, engineers had a clear first step, and the pilot gave us real evidence for the broader roadmap. I try to avoid false certainty; it is better to create a learning plan.</p></div>
+            <h4>Likely Follow-up Questions</h4><ul><li>How long was discovery?</li><li>How did you stop analysis paralysis?</li><li>What did the pilot reveal?</li><li>How did you communicate uncertainty?</li></ul>
+            <h4>Excellent Closing Sentence</h4><p>"In ambiguous programs, I try to replace false certainty with disciplined learning."</p>
+            <h4>Common Mistakes</h4><ul><li>Saying you just figured it out.</li><li>No structure for unknowns.</li><li>No pilot or decision points.</li></ul>
+            <h4>Interview Tips</h4><ul><li>Use "progressive certainty."</li><li>Classify unknowns.</li><li>Show momentum.</li></ul>
+          </div></details>
+
+          <details class="qa searchable"><summary>21. Tell me about a time another team blocked your team.</summary><div class="detail-body">
+            <h4>Question</h4><p>21. Tell me about a time another team blocked your team.</p>
+            <h4>Why interviewer asks it</h4><p>They test collaboration under dependency pressure.</p>
+            <h4>Which Atlassian value it maps to</h4><p>Play, as a Team; Open Company, No Bullsh*t.</p>
+            <h4>Recommended Story</h4><p>Upstream platform or source system dependency delaying migration or data quality fix.</p>
+            <h4>STAR Answer</h4><div class="star"><b>Situation</b><p>In one delivery cycle, my team depended on an upstream team to stabilize a feed before we could complete a downstream migration. Their priorities were different, and from our side it felt like we were blocked.</p><b>Task</b><p>I needed to unblock delivery without creating an adversarial relationship.</p><b>Action</b><p>I first made sure we understood their constraints. They were dealing with their own roadmap and did not see the downstream business impact clearly. I set up a focused discussion with both teams and translated the dependency into customer and program risk. Then we agreed on a narrow contract: the minimum upstream changes needed, a target date, test data expectations, and escalation path. In parallel, my team worked on what we could control: mocks, validation logic, and fallback handling so we were ready when the dependency landed.</p><b>Result</b><p>The upstream team committed to the narrower ask, and we reduced idle time on our side. The relationship stayed healthy because we treated it as a shared delivery problem rather than blaming them for blocking us.</p></div>
+            <h4>Likely Follow-up Questions</h4><ul><li>Did you escalate?</li><li>What if they still missed?</li><li>How did you keep your team productive?</li><li>What did you learn?</li></ul>
+            <h4>Excellent Closing Sentence</h4><p>"A dependency becomes easier when it is translated into a clear contract and shared impact."</p>
+            <h4>Common Mistakes</h4><ul><li>Blaming the other team.</li><li>No parallel work.</li><li>No clear contract.</li></ul>
+            <h4>Interview Tips</h4><ul><li>Show empathy.</li><li>Define minimum ask.</li><li>Explain what your team controlled.</li></ul>
+          </div></details>
+
+          <details class="qa searchable"><summary>22. Tell me about a time you improved communication in a program.</summary><div class="detail-body">
+            <h4>Question</h4><p>22. Tell me about a time you improved communication in a program.</p>
+            <h4>Why interviewer asks it</h4><p>They want leaders who reduce confusion at scale.</p>
+            <h4>Which Atlassian value it maps to</h4><p>Open Company, No Bullsh*t; Play, as a Team.</p>
+            <h4>Recommended Story</h4><p>Migration status changed from vague updates to decision-oriented communication.</p>
+            <h4>STAR Answer</h4><div class="star"><b>Situation</b><p>During a large migration, we had many meetings but still saw confusion. Different stakeholders interpreted "on track" differently, and engineers were spending time repeating the same context.</p><b>Task</b><p>I needed to make communication clearer and more useful without adding more meetings.</p><b>Action</b><p>I changed the program update format. Every update had five parts: current state, decisions needed, risks, customer impact, and next milestone. We stopped reporting every task and focused on what stakeholders needed to know to act. I also created a single source of truth for migration readiness by domain, with status, owner, blockers, and cutover criteria. For engineering standups, I separated execution coordination from stakeholder communication so the team did not feel like every meeting was a status performance.</p><b>Result</b><p>Meetings became shorter and decisions were faster. Stakeholders had fewer surprises, and engineers got more focus time. The learning was simple: good communication is not more information; it is the right information at the right decision point.</p></div>
+            <h4>Likely Follow-up Questions</h4><ul><li>What tool did you use?</li><li>How did you get people to read it?</li><li>What changed in meetings?</li><li>How did you handle bad news?</li></ul>
+            <h4>Excellent Closing Sentence</h4><p>"I try to make updates decision-oriented, not activity-oriented."</p>
+            <h4>Common Mistakes</h4><ul><li>Adding more ceremonies.</li><li>Overloading updates with details.</li><li>No explicit decisions needed.</li></ul>
+            <h4>Interview Tips</h4><ul><li>Use the five-part format.</li><li>Mention single source of truth.</li><li>Say fewer meetings, better decisions.</li></ul>
+          </div></details>
+
+          <details class="qa searchable"><summary>23. Tell me about a time you had to say no.</summary><div class="detail-body">
+            <h4>Question</h4><p>23. Tell me about a time you had to say no.</p>
+            <h4>Why interviewer asks it</h4><p>They assess prioritization and leadership courage.</p>
+            <h4>Which Atlassian value it maps to</h4><p>Build with Heart and Balance; Open Company, No Bullsh*t.</p>
+            <h4>Recommended Story</h4><p>Rejecting a low-value stakeholder request during migration or platform reliability work.</p>
+            <h4>STAR Answer</h4><div class="star"><b>Situation</b><p>While the team was focused on a high-priority migration, we received several requests for custom data extracts and one-off pipeline changes. Each request was understandable, but together they threatened focus.</p><b>Task</b><p>I needed to protect the team's capacity while still treating stakeholders respectfully.</p><b>Action</b><p>I reviewed the requests with Product and categorized them by urgency, customer impact, and whether they aligned with the platform direction. For one request, I said no to a custom pipeline because it would create another long-term support path. But I did not stop at no. I offered an alternative: use an existing dataset with a smaller enhancement that would serve multiple consumers. I explained the tradeoff clearly: the custom path would be faster for one team this week, but slower and riskier for everyone over time.</p><b>Result</b><p>The stakeholder accepted the alternative because they understood the reasoning and still got a workable outcome. The team stayed focused, and we avoided adding support burden. Saying no works better when it protects a principle and includes a better path.</p></div>
+            <h4>Likely Follow-up Questions</h4><ul><li>Did the stakeholder escalate?</li><li>How do you decide priority?</li><li>What if the request is urgent?</li><li>How do you avoid being seen as unhelpful?</li></ul>
+            <h4>Excellent Closing Sentence</h4><p>"I try to say no to the custom path while still saying yes to the underlying customer need."</p>
+            <h4>Common Mistakes</h4><ul><li>Sounding dismissive.</li><li>No alternative.</li><li>No prioritization criteria.</li></ul>
+            <h4>Interview Tips</h4><ul><li>Say the request was reasonable.</li><li>Offer an alternative.</li><li>Use long-term support cost.</li></ul>
+          </div></details>
+
+          <details class="qa searchable"><summary>24. Tell me about strategic thinking in your current role.</summary><div class="detail-body">
+            <h4>Question</h4><p>24. Tell me about strategic thinking in your current role.</p>
+            <h4>Why interviewer asks it</h4><p>They want to distinguish senior leadership from project management.</p>
+            <h4>Which Atlassian value it maps to</h4><p>Be the Change You Seek; Don't #@!% the Customer.</p>
+            <h4>Recommended Story</h4><p>Moving from pipeline delivery to platform modernization strategy: governance, frameworks, reliability, reusable capabilities.</p>
+            <h4>STAR Answer</h4><div class="star"><b>Situation</b><p>When I looked across our data engineering work, I saw a pattern: many teams needed similar capabilities, but we were still operating too much like a collection of pipelines. That created duplication, uneven quality, and slower delivery.</p><b>Task</b><p>My responsibility was to help shift the team toward platform thinking while continuing to deliver roadmap commitments.</p><b>Action</b><p>I framed the strategy around three themes: reusable engineering patterns, trusted datasets, and operational reliability. Reusable patterns reduced duplicate work. Trusted datasets focused governance, ownership, and quality. Reliability made production support scalable. I translated this into roadmap work by pairing feature delivery with platform improvements. For example, new pipeline work used standard templates; migration work improved metadata and quality checks; incident trends informed reliability investment. I also worked with architects and Product so the strategy was not just my team's preference but part of broader platform direction.</p><b>Result</b><p>The team began moving from reactive delivery to a more scalable operating model. It improved engineering consistency and made stakeholder conversations more outcome-oriented. Strategic thinking, to me, is connecting today's delivery choices to the system you want to be operating a year from now.</p></div>
+            <h4>Likely Follow-up Questions</h4><ul><li>How did you choose the themes?</li><li>How did you fund platform work?</li><li>What did you deprioritize?</li><li>How did you communicate strategy to engineers?</li></ul>
+            <h4>Excellent Closing Sentence</h4><p>"I try to make today's roadmap also build the platform we need next year."</p>
+            <h4>Common Mistakes</h4><ul><li>Using vague strategy language.</li><li>No link to execution.</li><li>Ignoring current delivery.</li></ul>
+            <h4>Interview Tips</h4><ul><li>Use three themes.</li><li>Show execution linkage.</li><li>Mention partners.</li></ul>
+          </div></details>
+
+          <details class="qa searchable"><summary>25. Why Atlassian, and how do these values show up in your leadership?</summary><div class="detail-body">
+            <h4>Question</h4><p>25. Why Atlassian, and how do these values show up in your leadership?</p>
+            <h4>Why interviewer asks it</h4><p>They want authentic motivation and values alignment, not flattery.</p>
+            <h4>Which Atlassian value it maps to</h4><p>All five values.</p>
+            <h4>Recommended Story</h4><p>Synthesize your leadership style: platform modernization, customer trust, open communication, team growth, sustainable delivery.</p>
+            <h4>STAR Answer</h4><div class="star"><b>Situation</b><p>Across my career in data engineering, the problems I have enjoyed most are not just technical scale problems. They are the problems where engineering quality, customer trust, and team operating model all matter at the same time.</p><b>Task</b><p>For this role, I am looking for an environment where those leadership instincts are valued and expected.</p><b>Action</b><p>Atlassian's values resonate because they are practical. "Don't #@!% the Customer" maps directly to how I think about data platforms: if customers cannot trust the data, the platform has failed. "Open Company, No Bullsh*t" is how I try to handle risk, incidents, and stakeholder conversations. "Play, as a Team" matters because large platform work only succeeds across product, architecture, TPM, and engineering boundaries. "Be the Change You Seek" describes how I approach modernization and governance: start with the part you can improve and scale it through evidence. And "Build with Heart and Balance" is important because high-performing teams need quality and sustainability, not constant heroics.</p><b>Result</b><p>That is the kind of leadership I would bring: technical depth, calm execution, direct communication, customer orientation, and a focus on building teams and platforms that improve over time.</p></div>
+            <h4>Likely Follow-up Questions</h4><ul><li>Which value is hardest for you?</li><li>Which value do you most identify with?</li><li>How would you apply this in your first 90 days?</li><li>Why leave your current role?</li></ul>
+            <h4>Excellent Closing Sentence</h4><p>"The role is attractive to me because Atlassian seems to value the same thing I try to practice: strong engineering, direct collaboration, and customer trust at scale."</p>
+            <h4>Common Mistakes</h4><ul><li>Over-praising the company.</li><li>Reciting values without personal examples.</li><li>Sounding like you want any big-tech role.</li></ul>
+            <h4>Interview Tips</h4><ul><li>Be personal but not emotional.</li><li>Connect each value to your leadership.</li><li>End with contribution, not admiration.</li></ul>
+          </div></details>
+        </section>
+
+        <section id="revision" class="searchable">
+          <h2>Revision Sheets</h2>
+          <h3>30-Minute Revision Sheet</h3>
+          <ol>
+            <li><b>Pick your six anchor stories:</b> multi-country migration, reusable framework, data quality incident, stakeholder tradeoff, coaching senior engineer, governance/ownership model.</li>
+            <li><b>Map stories to values:</b> migration = team/customer/open; framework = change/heart; incident = customer/open; coaching = heart/team; governance = change/customer; prioritization = balance/open.</li>
+            <li><b>Practice three answers aloud:</b> cross-functional conflict, customer incident, difficult conversation.</li>
+            <li><b>Prepare one mistake story:</b> status was not clarity; you changed readiness communication.</li>
+            <li><b>Prepare one "why Atlassian" answer:</b> values are practical operating principles for platform leadership.</li>
+          </ol>
+          <h3>15-Minute Revision Sheet</h3>
+          <ul>
+            <li>Your core leadership message: "I build trusted data platforms and strong engineering teams through clarity, quality, and cross-functional ownership."</li>
+            <li>Do not over-explain tools. Mention GCP, Spark, BigQuery, Dataproc, Python, Scala only when they support the leadership point.</li>
+            <li>Every answer needs: tension, your action, tradeoff, customer/team result, learning.</li>
+            <li>Use one memorable line per answer, then stop.</li>
+          </ul>
+          <h3>5-Minute Revision Sheet</h3>
+          <ul>
+            <li>Be specific. One real story beats a general philosophy.</li>
+            <li>Be direct. Name the conflict, risk, or mistake.</li>
+            <li>Be senior. Talk systems, mechanisms, people growth, and customer trust.</li>
+            <li>Be human. Share credit, show learning, avoid heroics.</li>
+          </ul>
+          <h3>Top 20 Phrases To Naturally Use</h3>
+          <ul class="columns">
+            <li>"I made the tradeoff explicit."</li>
+            <li>"I wanted to create shared reality."</li>
+            <li>"The customer impact was indirect, but real."</li>
+            <li>"We treated this as a platform problem, not just a pipeline problem."</li>
+            <li>"I separated scope from quality."</li>
+            <li>"I challenged the execution path, not the strategy."</li>
+            <li>"I used evidence rather than opinion."</li>
+            <li>"I made ownership clear."</li>
+            <li>"I wanted the better practice to be easier to adopt."</li>
+            <li>"We moved from tribal knowledge to repeatable mechanisms."</li>
+            <li>"I gave direct feedback with a path to succeed."</li>
+            <li>"We focused on decision confidence."</li>
+            <li>"I did not want heroics to become normal."</li>
+            <li>"We created progressive certainty."</li>
+            <li>"I translated technical risk into business risk."</li>
+            <li>"The update needed to support a decision."</li>
+            <li>"We used a pilot before scaling."</li>
+            <li>"I tried to protect trust, not just hit a date."</li>
+            <li>"I made quality part of the delivery path."</li>
+            <li>"I owned the communication gap."</li>
+          </ul>
+          <h3>Top 20 Phrases To Avoid</h3>
+          <ul class="columns">
+            <li>"I convinced everyone."</li>
+            <li>"The business did not understand."</li>
+            <li>"It was just politics."</li>
+            <li>"We had no choice."</li>
+            <li>"I escalated and solved it."</li>
+            <li>"The other team was the blocker."</li>
+            <li>"I handled it myself."</li>
+            <li>"I pushed the team hard."</li>
+            <li>"We worked nights and weekends."</li>
+            <li>"It was a simple communication issue."</li>
+            <li>"The legacy system was bad."</li>
+            <li>"I am very customer obsessed."</li>
+            <li>"I always disagree openly."</li>
+            <li>"Quality is non-negotiable" with no tradeoff.</li>
+            <li>"I fixed the culture."</li>
+            <li>"Everyone aligned."</li>
+            <li>"I don't remember exact details."</li>
+            <li>"That's not my responsibility."</li>
+            <li>"We just followed agile."</li>
+            <li>"My weakness is caring too much."</li>
+          </ul>
+          <h3>Checklist For Interview Day</h3>
+          <ul>
+            <li>Open with calm confidence: "Sure, I can share a concrete example."</li>
+            <li>Keep the first 15 seconds simple: context, scale, why it mattered.</li>
+            <li>Spend most time on your actions and judgement.</li>
+            <li>Use "we" for delivery and "I" for leadership decisions.</li>
+            <li>Do not hide the tension. The tension is where the value signal lives.</li>
+            <li>End each answer with result plus learning.</li>
+            <li>If interrupted, answer the follow-up directly and do not restart the story.</li>
+            <li>If asked for failure, choose a real but recoverable miss and show the system change.</li>
+            <li>Keep technical detail at executive-interview depth unless they ask for more.</li>
+            <li>Close with contribution: how you would lead at Atlassian.</li>
+          </ul>
+        </section>
+      </article>
+    </main>
+  </div>
+  <script>
+    const root = document.documentElement;
+    const themeButton = document.getElementById('theme');
+    const search = document.getElementById('search');
+    const progress = document.getElementById('progress');
+    const navLinks = [...document.querySelectorAll('nav a')];
+    const searchable = [...document.querySelectorAll('.searchable')];
+
+    themeButton.addEventListener('click', () => {
+      const next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+      root.setAttribute('data-theme', next);
+      localStorage.setItem('atl-theme', next);
+    });
+    root.setAttribute('data-theme', localStorage.getItem('atl-theme') || 'light');
+
+    window.addEventListener('scroll', () => {
+      const max = document.documentElement.scrollHeight - innerHeight;
+      progress.style.width = Math.max(0, Math.min(100, scrollY / max * 100)) + '%';
+      let current = '';
+      document.querySelectorAll('main [id]').forEach(sec => {
+        if (sec.getBoundingClientRect().top < 120) current = sec.id;
+      });
+      navLinks.forEach(a => a.classList.toggle('active', a.getAttribute('href') === '#' + current));
+    }, { passive: true });
+
+    search.addEventListener('input', () => {
+      const q = search.value.trim().toLowerCase();
+      searchable.forEach(el => {
+        el.classList.remove('hidden');
+        el.querySelectorAll('mark').forEach(m => m.replaceWith(document.createTextNode(m.textContent)));
+        if (!q) return;
+        const hit = el.innerText.toLowerCase().includes(q);
+        el.classList.toggle('hidden', !hit);
+        if (hit && el.tagName.toLowerCase() === 'details') el.open = true;
+      });
+    });
+
+    document.querySelectorAll('details.qa').forEach(d => {
+      d.addEventListener('toggle', () => {
+        if (d.open && search.value.trim()) d.scrollIntoView({ block: 'nearest' });
+      });
+    });
+  </script>
+</body>
+</html>
