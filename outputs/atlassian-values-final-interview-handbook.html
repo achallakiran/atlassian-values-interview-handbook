@@ -103,6 +103,12 @@
       border-left: 5px solid var(--blue); background: var(--code); padding: 14px 16px;
       border-radius: 0 6px 6px 0; margin: 14px 0;
     }
+    .story-card, .followup-answer {
+      border: 1px solid var(--line); border-radius: 8px; padding: 14px 16px; margin: 10px 0;
+      background: linear-gradient(180deg, var(--paper), var(--code));
+    }
+    .story-card b, .followup-answer b { color: var(--blue); }
+    .metric { font-family: var(--mono); font-weight: 800; color: var(--green); }
     .tag { display: inline-block; border: 1px solid var(--line); border-radius: 999px; padding: 2px 8px; font-size: 12px; color: var(--muted); margin: 2px 3px 2px 0; }
     details {
       border: 1px solid var(--line); border-radius: 8px; margin: 14px 0; background: var(--paper);
@@ -174,7 +180,9 @@
         <a href="#customer">Don't #@!% the Customer</a>
         <a href="#open">Open Company, No Bullsh*t</a>
         <a href="#heart">Build with Heart and Balance</a>
+        <a href="#story-bank">Resume Story Bank</a>
         <a href="#questions">Top 25 Questions</a>
+        <a href="#followups">Follow-up Answers</a>
         <a href="#revision">Revision Sheets</a>
       </nav>
     </aside>
@@ -185,7 +193,7 @@
           <div class="kicker">Final Values Interview - Tomorrow</div>
           <h1>Atlassian Values Interview Handbook</h1>
           <p style="font-size:20px;max-width:760px">A practical, story-driven prep guide for a Senior Engineering Manager / Principal Data Engineering leadership interview.</p>
-          <p class="mini">Built around your real background: Walmart Global Tech, 14+ years in Data Engineering, 18-person engineering team, GCP, Spark, BigQuery, Dataproc, Python, Scala, migrations, platform modernization, governance, reusable frameworks, operational reliability, hiring, mentoring, and cross-org delivery.</p>
+          <p class="mini">Built around your real background: Walmart Global Tech, 15 years in Data Engineering, Senior Manager II scope, GCP, Spark, BigQuery, Dataproc, Python, Scala, platform modernization, governance, FinOps, pricing quality, Agentic AI, operational reliability, hiring, mentoring, and cross-org delivery.</p>
           <div>
             <span class="tag">60-90 minute read</span><span class="tag">Print friendly</span><span class="tag">Behavioural answers</span><span class="tag">No filler</span>
           </div>
@@ -196,8 +204,10 @@
           <div class="toc-grid">
             <div><b>1. Interview Strategy</b><br><span class="mini">Evaluation, STAR, timing, mistakes, language.</span></div>
             <div><b>2. Atlassian Values Chapters</b><br><span class="mini">What each value really means, signals, weak signals, top questions.</span></div>
-            <div><b>3. Top 25 Behavioural Questions</b><br><span class="mini">High-probability SEM questions with tailored STAR answers.</span></div>
-            <div><b>4. Revision Sheets</b><br><span class="mini">30-minute, 15-minute, 5-minute prep plus phrases and checklist.</span></div>
+            <div><b>3. Resume-Calibrated Story Bank</b><br><span class="mini">Corrected metrics and the strongest story inventory from your resume.</span></div>
+            <div><b>4. Top 25 Behavioural Questions</b><br><span class="mini">High-probability SEM questions with tailored STAR answers.</span></div>
+            <div><b>5. Follow-up Answer Bank</b><br><span class="mini">Direct answers to the follow-up questions already listed under each story.</span></div>
+            <div><b>6. Revision Sheets</b><br><span class="mini">30-minute, 15-minute, 5-minute prep plus phrases and checklist.</span></div>
           </div>
         </section>
 
@@ -307,6 +317,19 @@
           </div>
           <h3>Top 5 Questions</h3>
           <ol><li>Tell me about balancing a deadline with technical quality.</li><li>Tell me about preventing burnout on your team.</li><li>How do you prioritize technical debt?</li><li>Tell me about developing someone on your team.</li><li>Describe a time you had to make a tradeoff you were not fully happy with.</li></ol>
+        </section>
+
+        <section id="story-bank" class="searchable">
+          <h2>Resume-Calibrated Story Bank</h2>
+          <p class="mini">Use this as your quick story selector. These are the strongest realistic examples from your resume and notes, with corrected numbers.</p>
+          <div class="story-card"><b>Cloud Cost Optimization / FinOps:</b> Use <span class="metric">$20M</span> as the corrected annual cloud cost optimization impact. Position it as disciplined FinOps: usage visibility, workload right-sizing, audit rhythm, stakeholder education, and guardrails for Dataproc, BigQuery, and GCS. Avoid saying it was only one technical trick.</div>
+          <div class="story-card"><b>eCommerce 360 / Product Margin:</b> Use <span class="metric">$5M</span> as the corrected positive product cost margin reference. Position it as product thinking in data: consolidated customer journey view, trusted data product, stakeholder adoption, quality controls, and measurable business usage.</div>
+          <div class="story-card"><b>Egregious Pricing:</b> Strong customer-obsession story. You reduced roughly <span class="metric">20M</span> duplicate item listings to below <span class="metric">1,000</span> by improving matching logic, data quality controls, governance, and operational review. Best mapped to "Don't #@!% the Customer", "Be the Change You Seek", and "Open Company, No Bullsh*t".</div>
+          <div class="story-card"><b>Sarthi Autonomous AI Support Agent:</b> Strong innovation plus balance story. Use it as an Agentic AI support automation example that reduced manual support effort by more than <span class="metric">30%</span>. Emphasize safe adoption: RAG grounding, auditability, human escalation, prompt/version governance, and measuring deflection quality rather than just chatbot usage.</div>
+          <div class="story-card"><b>GCP Migration:</b> Strong cross-functional leadership story. Use the 3000+ pipeline conversion and Airflow workflow migration as proof of scale, but keep the interview answer focused on sequencing, readiness, rollback, governance, country-team alignment, and stakeholder trust.</div>
+          <div class="story-card"><b>Unified Data Analytics:</b> Strong platform strategy story. Use the peta-scale GCP data lake and 800+ internal users to show architecture, compliance, security, access policy, and cross-tenant governance leadership.</div>
+          <div class="story-card"><b>Fraud Detection:</b> Strong business-impact data product story. Use the eCommerce fraud detection platform as customer protection and ML/data partnership. If you mention the <span class="metric">$200M</span> fraud-prevention scale, be clear this is fraudulent transaction exposure protected by the application, not cloud savings.</div>
+          <div class="story-card"><b>Supplier KPI Analytics:</b> Strong stakeholder/product story. Use supplier KPI analytics and data monetization as a story about aligning business users, data definitions, adoption, and governance, not just reporting.</div>
         </section>
 
         <section id="questions" class="searchable">
@@ -437,8 +460,8 @@
             <h4>Question</h4><p>11. Tell me about a time you changed roadmap based on customer feedback.</p>
             <h4>Why interviewer asks it</h4><p>They want product thinking from a platform leader.</p>
             <h4>Which Atlassian value it maps to</h4><p>Don't #@!% the Customer; Play, as a Team.</p>
-            <h4>Recommended Story</h4><p>Data consumers struggling with dataset discoverability, quality, latency, or migration readiness.</p>
-            <h4>STAR Answer</h4><div class="star"><b>Situation</b><p>Our roadmap was heavily focused on platform modernization, but feedback from downstream analytics and product teams showed a different pain point: they were spending too much time understanding which datasets to trust and how changes would affect them.</p><b>Task</b><p>I needed to balance long-term modernization with near-term customer usability.</p><b>Action</b><p>I met with a few key consumer groups and asked them to walk us through their actual workflow. The issue was not only pipeline latency; it was discoverability, ownership, and change communication. I worked with Product and architecture to adjust the roadmap. We kept modernization moving, but added work for dataset metadata, ownership fields, quality indicators, and migration communication templates. I also asked my team to treat internal consumers as customers: if they needed a meeting to understand whether a dataset was safe, our platform experience was incomplete.</p><b>Result</b><p>Consumer trust improved because the platform became easier to use, not just more modern internally. It also reduced repetitive questions to engineers. The lesson was that platform roadmaps need customer discovery just like product roadmaps.</p></div>
+            <h4>Recommended Story</h4><p>eCommerce 360, egregious pricing cleanup, or data consumers struggling with dataset discoverability, quality, latency, or migration readiness.</p>
+            <h4>STAR Answer</h4><div class="star"><b>Situation</b><p>Our roadmap was heavily focused on platform modernization, but feedback from downstream analytics and product teams showed a different pain point: they were spending too much time understanding which datasets to trust and how changes would affect them. A similar pattern showed up in pricing quality, where duplicate item listings created customer and operational risk.</p><b>Task</b><p>I needed to balance long-term modernization with near-term customer usability and data trust.</p><b>Action</b><p>I met with key consumer groups and asked them to walk us through their actual workflow. The issue was not only pipeline latency; it was discoverability, ownership, change communication, and confidence in the data. For the egregious pricing work, we treated duplicate listings as a customer-trust problem, not only a data-cleanup problem. We improved matching logic, added validation and governance controls, and created a review rhythm so the issue stayed under control after the first cleanup. I worked with Product and architecture to adjust the roadmap so platform modernization also improved data product quality.</p><b>Result</b><p>Consumer trust improved because the platform became easier to use and safer to rely on. In the pricing case, duplicate listings were reduced from roughly 20M to below 1,000. The lesson was that platform roadmaps need customer discovery just like product roadmaps.</p></div>
             <h4>Likely Follow-up Questions</h4><ul><li>What did you deprioritize?</li><li>How did you collect feedback?</li><li>How did you know it helped?</li><li>How did Product participate?</li></ul>
             <h4>Excellent Closing Sentence</h4><p>"A modern platform is only successful if customers can confidently use it."</p>
             <h4>Common Mistakes</h4><ul><li>Calling internal users "not real customers."</li><li>No roadmap tradeoff.</li><li>Only adding documentation.</li></ul>
@@ -461,8 +484,8 @@
             <h4>Question</h4><p>13. How do you define customer obsession for a data platform team?</p>
             <h4>Why interviewer asks it</h4><p>They want to know whether you translate customer obsession into platform leadership.</p>
             <h4>Which Atlassian value it maps to</h4><p>Don't #@!% the Customer.</p>
-            <h4>Recommended Story</h4><p>Platform operating model around reliability, usability, governance, and consumer trust.</p>
-            <h4>STAR Answer</h4><div class="star"><b>Situation</b><p>In data engineering, it is easy to think the customer only cares whether a pipeline ran. In reality, customers care whether the data is timely, correct, understandable, and safe to use for decisions.</p><b>Task</b><p>As a manager, my job is to make customer trust part of how the platform is designed and operated.</p><b>Action</b><p>I define customer obsession through a few practical questions. Can consumers discover the right dataset? Do they know who owns it? Are freshness and quality visible? Are breaking changes communicated early? During incidents, do we tell them what decisions are affected? I push teams to measure reliability from the consumer's perspective, not only job success rates. For critical datasets, I expect validation, lineage awareness, runbooks, and clear escalation paths. I also encourage engineers to speak directly with consumers so they hear the pain behind support tickets.</p><b>Result</b><p>This changes engineering behavior. Teams stop optimizing only for successful batch execution and start optimizing for decision confidence. That is the platform version of customer obsession: customers should not need inside knowledge to trust the data.</p></div>
+            <h4>Recommended Story</h4><p>Platform operating model around reliability, usability, governance, egregious pricing cleanup, and consumer trust.</p>
+            <h4>STAR Answer</h4><div class="star"><b>Situation</b><p>In data engineering, it is easy to think the customer only cares whether a pipeline ran. In reality, customers care whether the data is timely, correct, understandable, and safe to use for decisions. Pricing is a good example because duplicate or incorrect item data can directly affect customer trust.</p><b>Task</b><p>As a manager, my job is to make customer trust part of how the platform is designed and operated.</p><b>Action</b><p>I define customer obsession through practical questions. Can consumers discover the right dataset? Do they know who owns it? Are freshness and quality visible? Are breaking changes communicated early? For the egregious pricing work, the team reduced duplicate item listings from roughly 20M to below 1,000 by improving matching logic, quality controls, and operational governance. I push teams to measure reliability from the consumer's perspective, not only job success rates. For critical datasets, I expect validation, lineage awareness, runbooks, and clear escalation paths.</p><b>Result</b><p>This changes engineering behavior. Teams stop optimizing only for successful batch execution and start optimizing for decision confidence. That is the platform version of customer obsession: customers should not need inside knowledge to trust the data.</p></div>
             <h4>Likely Follow-up Questions</h4><ul><li>Who are your customers?</li><li>What metrics do you use?</li><li>How do you prioritize customer asks?</li><li>How do you avoid overbuilding?</li></ul>
             <h4>Excellent Closing Sentence</h4><p>"For a data platform, customer obsession means protecting decision confidence."</p>
             <h4>Common Mistakes</h4><ul><li>Only saying uptime.</li><li>No customer discovery.</li><li>No usability thinking.</li></ul>
@@ -485,8 +508,8 @@
             <h4>Question</h4><p>15. Tell me about prioritizing technical debt.</p>
             <h4>Why interviewer asks it</h4><p>They want to see if you can make engineering health legible to the business.</p>
             <h4>Which Atlassian value it maps to</h4><p>Build with Heart and Balance; Be the Change You Seek.</p>
-            <h4>Recommended Story</h4><p>Modernizing legacy pipelines or reducing operational toil.</p>
-            <h4>STAR Answer</h4><div class="star"><b>Situation</b><p>We had legacy data pipelines that were stable most days but expensive to change and difficult to operate. Engineers felt the pain, but stakeholders mainly saw that reports were still running.</p><b>Task</b><p>I needed to prioritize technical debt in a way that connected to business outcomes, not just engineering frustration.</p><b>Action</b><p>I categorized debt by impact: incident risk, change lead time, cloud cost, onboarding complexity, and customer-facing limitations. Then I created a proposal that mixed debt work with roadmap delivery. For example, when a product initiative needed changes in a legacy pipeline, we modernized that portion instead of patching it again. I also reserved capacity for toil reduction where we had repeated incidents or manual operations. With stakeholders, I avoided saying "technical debt is bad" and instead showed how it affected delivery predictability and reliability.</p><b>Result</b><p>We made steady progress without a massive pause in feature work. Engineers saw that leadership cared about platform health, and stakeholders saw fewer surprises. The key was treating technical debt as risk and drag, not as an abstract engineering preference.</p></div>
+            <h4>Recommended Story</h4><p>Modernizing legacy pipelines, reducing operational toil, or the corrected $20M cloud cost optimization / FinOps program.</p>
+            <h4>STAR Answer</h4><div class="star"><b>Situation</b><p>We had legacy data pipelines and cloud workloads that were stable most days but expensive to change, difficult to operate, and not always cost-efficient. Engineers felt the pain, but stakeholders mainly saw that reports were still running.</p><b>Task</b><p>I needed to prioritize technical debt and FinOps work in a way that connected to business outcomes, not just engineering frustration.</p><b>Action</b><p>I categorized debt by impact: incident risk, change lead time, cloud cost, onboarding complexity, and customer-facing limitations. For cloud cost optimization, the work was not a one-time cleanup; we created visibility, regular audits, right-sizing practices, and ownership around high-cost workloads. Then I mixed debt work with roadmap delivery. When a product initiative needed changes in a legacy pipeline, we modernized that portion instead of patching it again. With stakeholders, I avoided saying "technical debt is bad" and instead showed how it affected delivery predictability, reliability, and cost.</p><b>Result</b><p>We made steady progress without a massive pause in feature work, and the FinOps work contributed to a corrected impact of about $20M in cloud cost optimization. The key was treating technical debt as risk, drag, and cost, not as an abstract engineering preference.</p></div>
             <h4>Likely Follow-up Questions</h4><ul><li>How much capacity do you reserve?</li><li>Who decides?</li><li>How do you measure debt reduction?</li><li>What debt would you not fix?</li></ul>
             <h4>Excellent Closing Sentence</h4><p>"Technical debt gets funded when it is translated into risk, speed, and customer trust."</p>
             <h4>Common Mistakes</h4><ul><li>Making it sound like engineers versus business.</li><li>No prioritization model.</li><li>Trying to fix everything.</li></ul>
@@ -593,8 +616,8 @@
             <h4>Question</h4><p>24. Tell me about strategic thinking in your current role.</p>
             <h4>Why interviewer asks it</h4><p>They want to distinguish senior leadership from project management.</p>
             <h4>Which Atlassian value it maps to</h4><p>Be the Change You Seek; Don't #@!% the Customer.</p>
-            <h4>Recommended Story</h4><p>Moving from pipeline delivery to platform modernization strategy: governance, frameworks, reliability, reusable capabilities.</p>
-            <h4>STAR Answer</h4><div class="star"><b>Situation</b><p>When I looked across our data engineering work, I saw a pattern: many teams needed similar capabilities, but we were still operating too much like a collection of pipelines. That created duplication, uneven quality, and slower delivery.</p><b>Task</b><p>My responsibility was to help shift the team toward platform thinking while continuing to deliver roadmap commitments.</p><b>Action</b><p>I framed the strategy around three themes: reusable engineering patterns, trusted datasets, and operational reliability. Reusable patterns reduced duplicate work. Trusted datasets focused governance, ownership, and quality. Reliability made production support scalable. I translated this into roadmap work by pairing feature delivery with platform improvements. For example, new pipeline work used standard templates; migration work improved metadata and quality checks; incident trends informed reliability investment. I also worked with architects and Product so the strategy was not just my team's preference but part of broader platform direction.</p><b>Result</b><p>The team began moving from reactive delivery to a more scalable operating model. It improved engineering consistency and made stakeholder conversations more outcome-oriented. Strategic thinking, to me, is connecting today's delivery choices to the system you want to be operating a year from now.</p></div>
+            <h4>Recommended Story</h4><p>Moving from pipeline delivery to platform modernization strategy: governance, frameworks, reliability, FinOps, reusable capabilities, and Sarthi autonomous AI support agent.</p>
+            <h4>STAR Answer</h4><div class="star"><b>Situation</b><p>When I looked across our data engineering work, I saw a pattern: many teams needed similar capabilities, but we were still operating too much like a collection of pipelines. That created duplication, uneven quality, manual support effort, and slower delivery.</p><b>Task</b><p>My responsibility was to help shift the team toward platform thinking while continuing to deliver roadmap commitments.</p><b>Action</b><p>I framed the strategy around four themes: reusable engineering patterns, trusted datasets, operational reliability, and intelligent automation. Reusable patterns reduced duplicate work. Trusted datasets focused governance, ownership, and quality. Reliability made production support scalable. Intelligent automation included Sarthi, our autonomous AI support agent, where we used a grounded Agentic AI approach with human escalation and quality controls to reduce repetitive support effort. I translated this into roadmap work by pairing feature delivery with platform improvements: new pipelines used standard templates, migration work improved metadata and quality checks, incident trends informed reliability investment, and FinOps practices supported the corrected $20M cloud cost optimization impact.</p><b>Result</b><p>The team began moving from reactive delivery to a more scalable operating model. Sarthi-style automation helped reduce manual support effort by more than 30%, while platform practices improved consistency and stakeholder confidence. Strategic thinking, to me, is connecting today's delivery choices to the system you want to be operating a year from now.</p></div>
             <h4>Likely Follow-up Questions</h4><ul><li>How did you choose the themes?</li><li>How did you fund platform work?</li><li>What did you deprioritize?</li><li>How did you communicate strategy to engineers?</li></ul>
             <h4>Excellent Closing Sentence</h4><p>"I try to make today's roadmap also build the platform we need next year."</p>
             <h4>Common Mistakes</h4><ul><li>Using vague strategy language.</li><li>No link to execution.</li><li>Ignoring current delivery.</li></ul>
@@ -614,12 +637,192 @@
           </div></details>
         </section>
 
+        <section id="followups" class="searchable">
+          <h2>Follow-up Answer Bank</h2>
+          <p class="mini">Use these when the interviewer probes. Keep follow-up answers direct: answer the question first, then add one sentence of evidence.</p>
+
+          <details class="qa searchable"><summary>1. Cross-functional migration follow-ups</summary><div class="detail-body">
+            <div class="followup-answer"><b>What was the hardest disagreement?</b><p>The hardest disagreement was sequencing: business stakeholders wanted the most visible country or domain first, while engineering saw hidden data-quality and rollback risk. I resolved it by creating a readiness scorecard so the debate moved from opinions to risk, customer impact, and confidence.</p></div>
+            <div class="followup-answer"><b>How did you handle a country team that resisted?</b><p>I first tried to understand the local constraint instead of labeling it resistance. In a few cases, they had genuine reporting calendar or dependency risk, so we adjusted the wave plan while keeping the common migration standards intact.</p></div>
+            <div class="followup-answer"><b>What did you personally do versus delegate?</b><p>I personally owned stakeholder alignment, tradeoff framing, and escalation paths. I delegated detailed conversion planning and validation ownership to senior engineers, but I stayed close to readiness reviews and risk decisions.</p></div>
+            <div class="followup-answer"><b>How did you measure migration success?</b><p>We measured success through cutover completion, reconciliation accuracy, SLA stability, incident volume, rollback readiness, and stakeholder sign-off. I did not consider a migration successful just because code moved to GCP.</p></div>
+          </div></details>
+
+          <details class="qa searchable"><summary>2. Engineering quality follow-ups</summary><div class="detail-body">
+            <div class="followup-answer"><b>How did you get engineers to adopt it?</b><p>I made the framework useful before making it standard. We piloted it with real pipelines, removed friction from the developer experience, and showed that it reduced review time and production support pain.</p></div>
+            <div class="followup-answer"><b>Did anyone resist?</b><p>Yes, mostly engineers who felt a shared pattern would slow them down. I listened to where the framework was too rigid, adjusted it, and kept the non-negotiables limited to quality, ownership, and operability.</p></div>
+            <div class="followup-answer"><b>How did you avoid over-standardizing?</b><p>We standardized the boring, high-risk parts: validation, logging, alerting, ownership, deployment shape. We left room for teams to choose domain-specific logic and optimization strategies.</p></div>
+            <div class="followup-answer"><b>What metrics changed?</b><p>The most visible changes were fewer repeat production issues, faster onboarding, cleaner reviews, and better readiness for releases. I would avoid overstating precision, but the operational trend clearly improved.</p></div>
+          </div></details>
+
+          <details class="qa searchable"><summary>3. Incident and data quality follow-ups</summary><div class="detail-body">
+            <div class="followup-answer"><b>How fast did you communicate?</b><p>As soon as we knew consumers could be making decisions on questionable data. I prefer an early message that says what we know and what we are validating over a perfect message that arrives too late.</p></div>
+            <div class="followup-answer"><b>Who owned the upstream dependency?</b><p>The upstream team owned the source contract, but my team owned protecting our consumers. So we fixed the downstream guardrails and then worked with upstream owners on schema/change communication.</p></div>
+            <div class="followup-answer"><b>What would you do differently?</b><p>I would add consumer-facing data quality indicators earlier. The miss was not only technical detection; it was that customers could not easily see whether the data was safe to use.</p></div>
+            <div class="followup-answer"><b>How did you prevent recurrence?</b><p>We added schema checks, freshness checks, anomaly thresholds, better runbooks, and a clearer change contract with upstream teams. The goal was earlier detection and less dependency on tribal knowledge.</p></div>
+          </div></details>
+
+          <details class="qa searchable"><summary>4. Difficult stakeholder conversation follow-ups</summary><div class="detail-body">
+            <div class="followup-answer"><b>Did they push back?</b><p>Yes. The pushback was mostly about date pressure, not denial of risk. I acknowledged the date mattered, then showed the concrete customer and rollback risk of pretending the date was safe.</p></div>
+            <div class="followup-answer"><b>How did you stay firm?</b><p>I stayed firm by separating preference from principle. I was flexible on scope and sequence, but not on launching high-impact data without validation and rollback clarity.</p></div>
+            <div class="followup-answer"><b>What was the final tradeoff?</b><p>We protected the date for lower-risk domains and moved the high-risk datasets into a later wave. That gave business momentum without gambling with customer trust.</p></div>
+            <div class="followup-answer"><b>Would you escalate?</b><p>I escalate when the decision affects customer trust or business risk and the right owners are not aligned. But I try to escalate with options, not just with a complaint.</p></div>
+          </div></details>
+
+          <details class="qa searchable"><summary>5. Proactive governance follow-ups</summary><div class="detail-body">
+            <div class="followup-answer"><b>How did you avoid bureaucracy?</b><p>I tied governance to daily engineering pain: faster incident routing, clearer access decisions, safer migrations, and better dataset trust. Anything that did not help those outcomes was kept out.</p></div>
+            <div class="followup-answer"><b>Who resisted?</b><p>Some teams worried it would become extra documentation work. I handled that by starting with critical datasets only and using lightweight templates rather than asking everyone to fill long forms.</p></div>
+            <div class="followup-answer"><b>How did you measure adoption?</b><p>I looked at coverage for critical datasets, owner completeness, SLA metadata, quality checks, and whether incidents routed faster. Adoption had to show up in operations, not just documents.</p></div>
+            <div class="followup-answer"><b>How did Product react?</b><p>Product was supportive once the work was framed as customer confidence and roadmap predictability. Governance became easier to prioritize when it reduced surprises for consumers.</p></div>
+          </div></details>
+
+          <details class="qa searchable"><summary>6. Deadline versus quality follow-ups</summary><div class="detail-body">
+            <div class="followup-answer"><b>Who made the final decision?</b><p>I made the engineering recommendation and brought the business tradeoff to the right stakeholders. For customer-impacting scope, I wanted Product and business owners involved, but I owned the technical risk assessment.</p></div>
+            <div class="followup-answer"><b>How did you communicate the partial release?</b><p>I communicated it as a scoped release, not a delay. The message was: here is what is safe to move, here is what needs more validation, and here are the exit criteria for the next wave.</p></div>
+            <div class="followup-answer"><b>What quality bar was non-negotiable?</b><p>For critical datasets, reconciliation, rollback, observability, and owner sign-off were non-negotiable. We could adjust scope, but we could not knowingly create silent data correctness risk.</p></div>
+            <div class="followup-answer"><b>How did you avoid scope creep?</b><p>We defined exit criteria upfront and separated must-fix validation gaps from nice-to-have improvements. Anything not tied to the release risk went into the follow-up backlog.</p></div>
+          </div></details>
+
+          <details class="qa searchable"><summary>7. Coaching follow-ups</summary><div class="detail-body">
+            <div class="followup-answer"><b>How did you give the feedback?</b><p>I gave it privately and specifically. I told the engineer their technical judgement was strong, but their next level of impact required making others effective through design clarity, delegation, and mentoring.</p></div>
+            <div class="followup-answer"><b>What if they disagreed?</b><p>I would ask for their view and compare it against role expectations and examples. The goal is not to win the conversation; it is to create shared clarity on what senior leadership looks like.</p></div>
+            <div class="followup-answer"><b>How did you measure growth?</b><p>I looked for whether others could execute from their designs, whether they delegated meaningful work, whether cross-team partners trusted them, and whether I was less of a bottleneck.</p></div>
+            <div class="followup-answer"><b>How do you scale coaching across 18 engineers?</b><p>I use a mix of direct one-on-ones, lead-level coaching, design reviews, feedback calibration, and giving senior engineers explicit mentoring responsibilities. Coaching cannot depend only on me.</p></div>
+          </div></details>
+
+          <details class="qa searchable"><summary>8. Tough feedback follow-ups</summary><div class="detail-body">
+            <div class="followup-answer"><b>How did they react?</b><p>Initially they were a bit defensive, which is normal. The conversation improved once I made clear that the feedback was about senior expectations and that I was giving them a concrete path to succeed.</p></div>
+            <div class="followup-answer"><b>What if they did not improve?</b><p>I would tighten expectations, document the gap, increase feedback frequency, and align with HR/leadership if needed. Care does not mean avoiding accountability.</p></div>
+            <div class="followup-answer"><b>How do you document feedback?</b><p>I summarize the expectation, examples, agreed actions, and review date. Documentation should create clarity for both sides, not feel like a surprise file being built later.</p></div>
+            <div class="followup-answer"><b>How do you avoid demotivating people?</b><p>I separate behavior from identity and pair candor with belief. People can usually handle hard feedback if it is specific, fair, and connected to growth.</p></div>
+          </div></details>
+
+          <details class="qa searchable"><summary>9. Influence without authority follow-ups</summary><div class="detail-body">
+            <div class="followup-answer"><b>Who resisted?</b><p>Peer teams resisted when they saw the standard as extra work or as my team's preference. I reduced that by co-designing the standard and showing incident evidence from across teams.</p></div>
+            <div class="followup-answer"><b>Did leadership sponsor it?</b><p>Eventually yes, but I did not wait for sponsorship to start. I used a pilot and evidence first, then leadership sponsorship helped scale it.</p></div>
+            <div class="followup-answer"><b>How did you handle non-adoption?</b><p>I focused on critical datasets first. If a team chose not to adopt, I asked them to show an equivalent control for quality, ownership, and escalation rather than insisting on my exact implementation.</p></div>
+            <div class="followup-answer"><b>How did you measure success?</b><p>By adoption coverage, fewer repeated incidents, better owner clarity, and faster incident routing. Influence was successful only if it changed operating behavior.</p></div>
+          </div></details>
+
+          <details class="qa searchable"><summary>10. Disagreeing with leadership follow-ups</summary><div class="detail-body">
+            <div class="followup-answer"><b>What if leadership said no?</b><p>I would document the risk, make sure the decision owner understood the impact, and then execute professionally with the strongest guardrails possible. Disagreeing does not remove my responsibility to deliver.</p></div>
+            <div class="followup-answer"><b>How did you avoid sounding negative?</b><p>I started by supporting the business goal, then challenged the execution risk. I also brought alternatives, which made it a problem-solving conversation rather than a blocker conversation.</p></div>
+            <div class="followup-answer"><b>Did this affect your relationship?</b><p>It improved trust over time because I was direct and evidence-based. Leaders usually appreciate disagreement when it protects the outcome and does not become personal.</p></div>
+            <div class="followup-answer"><b>How do you know when to escalate?</b><p>I escalate when the risk crosses team boundaries, affects customers, or requires a tradeoff my team should not make alone. I do not escalate routine implementation disagreements.</p></div>
+          </div></details>
+
+          <details class="qa searchable"><summary>11. Roadmap and customer feedback follow-ups</summary><div class="detail-body">
+            <div class="followup-answer"><b>What did you deprioritize?</b><p>We slowed a few internal platform enhancements that were useful but less urgent than customer trust and discoverability. I made that tradeoff explicit with Product.</p></div>
+            <div class="followup-answer"><b>How did you collect feedback?</b><p>I used direct consumer conversations, support patterns, repeated questions, adoption data, and incident learnings. For platform teams, support friction is often customer feedback in disguise.</p></div>
+            <div class="followup-answer"><b>How did you know it helped?</b><p>We saw fewer repeated clarification requests, cleaner onboarding for consumers, and better confidence in migration readiness. The best signal was that users could self-serve more decisions.</p></div>
+            <div class="followup-answer"><b>How did Product participate?</b><p>Product helped prioritize the user pain, communicate tradeoffs, and define what mattered for adoption. I owned the engineering plan, but Product helped keep us honest on customer value.</p></div>
+          </div></details>
+
+          <details class="qa searchable"><summary>12. Admitting a mistake follow-ups</summary><div class="detail-body">
+            <div class="followup-answer"><b>How did stakeholders react?</b><p>They were frustrated but appreciated the clarity. Owning the communication gap helped move the conversation from blame to how we would prevent surprises in the next wave.</p></div>
+            <div class="followup-answer"><b>What was the cost of the mistake?</b><p>The cost was mainly trust and rework, not a catastrophic outage. That still mattered because migrations depend on stakeholder confidence as much as technical execution.</p></div>
+            <div class="followup-answer"><b>How did your team respond?</b><p>The team responded well because I did not push the blame downward. We treated it as a leadership and operating-model improvement, then updated the readiness process together.</p></div>
+            <div class="followup-answer"><b>What did you change permanently?</b><p>Customer readiness became part of migration readiness. Updates had to explain impact, decisions, dates, rollback criteria, and contacts, not just task status.</p></div>
+          </div></details>
+
+          <details class="qa searchable"><summary>13. Customer obsession follow-ups</summary><div class="detail-body">
+            <div class="followup-answer"><b>Who are your customers?</b><p>For my teams, customers include business operators, analysts, product teams, data scientists, country teams, and downstream platforms. They may be internal, but their decisions affect external customers and business outcomes.</p></div>
+            <div class="followup-answer"><b>What metrics do you use?</b><p>I use freshness, correctness, SLA adherence, incident rate, time to detect, time to recover, adoption, support volume, and consumer confidence signals. Job success alone is not enough.</p></div>
+            <div class="followup-answer"><b>How do you prioritize customer asks?</b><p>I look at customer impact, frequency, strategic fit, operational risk, and whether the solution helps many consumers or only creates a one-off path.</p></div>
+            <div class="followup-answer"><b>How do you avoid overbuilding?</b><p>I start with the smallest capability that solves the real workflow pain, then expand based on adoption and repeated needs. Platform teams can overbuild if they do not stay close to users.</p></div>
+          </div></details>
+
+          <details class="qa searchable"><summary>14. Hiring and talent bar follow-ups</summary><div class="detail-body">
+            <div class="followup-answer"><b>How do you avoid bias?</b><p>I use structured signals, practical scenarios, interviewer calibration, and evidence-based debriefs. I try to avoid vague terms like "culture fit" unless we define the behavior behind it.</p></div>
+            <div class="followup-answer"><b>What signals matter most?</b><p>For senior data engineers, I look for distributed systems fundamentals, data modeling judgement, operational ownership, code quality, tradeoff communication, and ability to mentor others.</p></div>
+            <div class="followup-answer"><b>Have you rejected a strong technical candidate?</b><p>Yes, when the technical depth was strong but ownership or collaboration signals were weak. At senior levels, the wrong behavior can create more drag than the technical skill solves.</p></div>
+            <div class="followup-answer"><b>How do you onboard hires?</b><p>I give them a clear domain, architecture context, operating expectations, a mentor, and one meaningful early deliverable. Onboarding should create confidence without throwing them into chaos.</p></div>
+          </div></details>
+
+          <details class="qa searchable"><summary>15. Technical debt follow-ups</summary><div class="detail-body">
+            <div class="followup-answer"><b>How much capacity do you reserve?</b><p>It depends on roadmap pressure and operational risk, but I like making capacity explicit rather than hiding debt work inside feature estimates. For high-toil areas, I reserve dedicated capacity until the risk trend changes.</p></div>
+            <div class="followup-answer"><b>Who decides?</b><p>Engineering owns the technical risk assessment, Product helps weigh customer and roadmap impact, and leadership gets involved when the tradeoff changes committed outcomes.</p></div>
+            <div class="followup-answer"><b>How do you measure debt reduction?</b><p>I look at incident reduction, change lead time, manual support effort, onboarding friction, cost reduction, and fewer repeated defects. A cleanup is only valuable if it changes the operating reality.</p></div>
+            <div class="followup-answer"><b>What debt would you not fix?</b><p>I would not fix low-risk debt in a stable area with limited change unless it blocks a strategic goal. Debt prioritization should be disciplined, not emotional.</p></div>
+          </div></details>
+
+          <details class="qa searchable"><summary>16. Burnout prevention follow-ups</summary><div class="detail-body">
+            <div class="followup-answer"><b>Did you ever ask people to work late?</b><p>Occasionally during genuine incidents or critical cutovers, yes. But I treat that as an exception to recover from, not a planning strategy.</p></div>
+            <div class="followup-answer"><b>How did stakeholders react?</b><p>Most stakeholders responded well when I showed capacity and tradeoffs clearly. It is easier to negotiate scope when you make the cost of hidden work visible.</p></div>
+            <div class="followup-answer"><b>How do you detect burnout?</b><p>I watch for sustained late hours, irritability, lower quality, missed time off, reduced participation, and people saying yes to everything. One-on-ones are where those signals usually surface first.</p></div>
+            <div class="followup-answer"><b>What tradeoff did you make?</b><p>We delayed or descoped some non-critical asks so the team could protect migration and production support. I would rather make a visible tradeoff than silently spend people's energy.</p></div>
+          </div></details>
+
+          <details class="qa searchable"><summary>17. Conflict resolution follow-ups</summary><div class="detail-body">
+            <div class="followup-answer"><b>Who was right?</b><p>Both sides had valid concerns. One side was optimizing for delivery speed; the other was protecting long-term operability. The right answer combined a framework extension with a short-term adapter.</p></div>
+            <div class="followup-answer"><b>How did you handle strong personalities?</b><p>I moved the discussion to written criteria and assumptions. Strong personalities are easier to manage when the decision is anchored on evidence and agreed principles.</p></div>
+            <div class="followup-answer"><b>How did you decide?</b><p>We evaluated delivery time, operational risk, reuse value, maintenance ownership, and customer impact. Once those criteria were visible, the decision became less personal.</p></div>
+            <div class="followup-answer"><b>What did you do after?</b><p>I clarified ownership, documented the decision, and checked whether the framework improvement helped other teams. A resolved conflict should leave the system cleaner.</p></div>
+          </div></details>
+
+          <details class="qa searchable"><summary>18. Reliability follow-ups</summary><div class="detail-body">
+            <div class="followup-answer"><b>What reliability metrics do you track?</b><p>Freshness, SLA adherence, incident count, time to detect, time to recover, data quality failures, alert actionability, and repeat-incident rate. For data, correctness is as important as uptime.</p></div>
+            <div class="followup-answer"><b>How do you reduce alert fatigue?</b><p>We remove non-actionable alerts, route alerts to owners, tune thresholds, and page only when there is customer or business risk. Noise trains teams to ignore systems.</p></div>
+            <div class="followup-answer"><b>How do you handle repeated incidents?</b><p>I treat repeated incidents as a system failure, not bad luck. We either automate detection/recovery, redesign the fragile component, or change ownership and support expectations.</p></div>
+            <div class="followup-answer"><b>How do you choose critical pipelines?</b><p>By customer impact, business calendar dependency, downstream fanout, data sensitivity, and recovery complexity. A small pipeline can be critical if many decisions depend on it.</p></div>
+          </div></details>
+
+          <details class="qa searchable"><summary>19. Unpopular decision follow-ups</summary><div class="detail-body">
+            <div class="followup-answer"><b>Who disagreed?</b><p>Usually the teams closest to the promised date disagreed first because they had commitments to communicate. I tried to make their problem easier by giving a clear rationale and revised path.</p></div>
+            <div class="followup-answer"><b>Did you get pressure to reverse?</b><p>Yes, but I held the line on customer-risk criteria. I was willing to reduce scope, but not to remove validation or rollback requirements for critical data.</p></div>
+            <div class="followup-answer"><b>How did the team react?</b><p>The engineering team appreciated that their concerns were taken seriously. It reinforced that quality concerns should be raised early, not hidden until launch.</p></div>
+            <div class="followup-answer"><b>Would you make the same call?</b><p>Yes. I would communicate the risk earlier, but I would still protect customer trust over a date that the system was not ready to support.</p></div>
+          </div></details>
+
+          <details class="qa searchable"><summary>20. Ambiguity follow-ups</summary><div class="detail-body">
+            <div class="followup-answer"><b>How long was discovery?</b><p>I prefer a short, timeboxed discovery period. The goal is not to know everything; it is to know enough to choose a pilot, identify major risks, and create decision points.</p></div>
+            <div class="followup-answer"><b>How did you stop analysis paralysis?</b><p>We classified unknowns and converted the most important ones into experiments or stakeholder decisions. If an unknown could only be answered by trying, we used a pilot.</p></div>
+            <div class="followup-answer"><b>What did the pilot reveal?</b><p>It usually reveals hidden dependencies, validation gaps, tooling friction, and whether our migration pattern is practical. That evidence is much better than debating architecture in theory.</p></div>
+            <div class="followup-answer"><b>How did you communicate uncertainty?</b><p>I used clear language: what we know, what we are testing, what decision comes next, and what would change the plan. People can handle uncertainty if it is structured.</p></div>
+          </div></details>
+
+          <details class="qa searchable"><summary>21. Blocked by another team follow-ups</summary><div class="detail-body">
+            <div class="followup-answer"><b>Did you escalate?</b><p>Only after we had a clear dependency contract and impact statement. Escalation works best when leaders can see the specific decision or tradeoff needed.</p></div>
+            <div class="followup-answer"><b>What if they still missed?</b><p>I would update the plan transparently, activate fallback work, and revisit sequencing. I would not let my team sit idle waiting for a dependency without options.</p></div>
+            <div class="followup-answer"><b>How did you keep your team productive?</b><p>We worked on mocks, validation, fallback handling, documentation, and downstream readiness. Dependency risk should not stop all forward progress.</p></div>
+            <div class="followup-answer"><b>What did you learn?</b><p>I learned to define dependency contracts earlier: what is needed, by when, who owns it, and what happens if it slips. Informal dependencies are where plans get fragile.</p></div>
+          </div></details>
+
+          <details class="qa searchable"><summary>22. Communication follow-ups</summary><div class="detail-body">
+            <div class="followup-answer"><b>What tool did you use?</b><p>The tool mattered less than the format. We used a single source of truth with status, risks, decisions, owners, and dates, so people stopped relying on scattered meeting notes.</p></div>
+            <div class="followup-answer"><b>How did you get people to read it?</b><p>I made it the source used in meetings and decisions. If a document actually drives decisions, people learn to trust it; if it is extra reporting, they ignore it.</p></div>
+            <div class="followup-answer"><b>What changed in meetings?</b><p>Meetings shifted from task narration to decisions, risks, blockers, and tradeoffs. That gave engineers time back and made stakeholder conversations more useful.</p></div>
+            <div class="followup-answer"><b>How did you handle bad news?</b><p>I surfaced it early with impact, options, and next update timing. Bad news is less damaging when people are not surprised and can still act.</p></div>
+          </div></details>
+
+          <details class="qa searchable"><summary>23. Saying no follow-ups</summary><div class="detail-body">
+            <div class="followup-answer"><b>Did the stakeholder escalate?</b><p>Sometimes stakeholders escalated because their need was real. When that happened, I stayed focused on the tradeoff and the alternative path, not on defending my original no.</p></div>
+            <div class="followup-answer"><b>How do you decide priority?</b><p>I use customer impact, urgency, strategic fit, reuse potential, operational cost, and existing commitments. Priority should be explainable even when people disagree.</p></div>
+            <div class="followup-answer"><b>What if the request is urgent?</b><p>If it is truly urgent, I will make room, but I still ask what gets deprioritized and how we avoid creating long-term support debt. Urgency should not erase tradeoffs.</p></div>
+            <div class="followup-answer"><b>How do you avoid being seen as unhelpful?</b><p>I say no to the exact path, not to the underlying need. Offering a scalable alternative keeps the relationship constructive.</p></div>
+          </div></details>
+
+          <details class="qa searchable"><summary>24. Strategic thinking follow-ups</summary><div class="detail-body">
+            <div class="followup-answer"><b>How did you choose the themes?</b><p>I looked for patterns across incidents, roadmap delays, onboarding friction, customer trust gaps, and duplicate engineering work. The themes came from repeated operating pain, not a strategy deck.</p></div>
+            <div class="followup-answer"><b>How did you fund platform work?</b><p>I paired platform improvements with roadmap work where possible and reserved capacity for high-risk reliability or cost items. Platform work is easier to fund when tied to delivery, reliability, or cost outcomes.</p></div>
+            <div class="followup-answer"><b>What did you deprioritize?</b><p>We deprioritized some one-off pipeline work and non-critical enhancements that did not align with reuse, trust, or reliability. Strategy requires saying no to reasonable but low-leverage work.</p></div>
+            <div class="followup-answer"><b>How did you communicate strategy to engineers?</b><p>I translated it into engineering decisions: use common frameworks, improve dataset ownership, reduce toil, design for operability, and build reusable capabilities. Strategy has to show up in daily choices.</p></div>
+          </div></details>
+
+          <details class="qa searchable"><summary>25. Why Atlassian follow-ups</summary><div class="detail-body">
+            <div class="followup-answer"><b>Which value is hardest for you?</b><p>"Build with Heart and Balance" is the one I have to be most intentional about because platform work always has more demand than capacity. I have learned to make tradeoffs visible instead of letting teams absorb them silently.</p></div>
+            <div class="followup-answer"><b>Which value do you most identify with?</b><p>"Don't #@!% the Customer" maps strongly to how I think about data. Whether it is pricing quality, fraud detection, or platform reliability, the real measure is whether customers can trust the outcome.</p></div>
+            <div class="followup-answer"><b>How would you apply this in your first 90 days?</b><p>I would listen first: understand customer pain, team health, architecture constraints, and operating rhythms. Then I would identify one or two practical improvements where better clarity or reliability can create early trust.</p></div>
+            <div class="followup-answer"><b>Why leave your current role?</b><p>I am proud of my current work, but I am looking for a role where engineering leadership, platform thinking, and customer-facing collaboration operate at a larger product-company scale. Atlassian's values make that environment especially interesting.</p></div>
+          </div></details>
+        </section>
+
         <section id="revision" class="searchable">
           <h2>Revision Sheets</h2>
           <h3>30-Minute Revision Sheet</h3>
           <ol>
-            <li><b>Pick your six anchor stories:</b> multi-country migration, reusable framework, data quality incident, stakeholder tradeoff, coaching senior engineer, governance/ownership model.</li>
-            <li><b>Map stories to values:</b> migration = team/customer/open; framework = change/heart; incident = customer/open; coaching = heart/team; governance = change/customer; prioritization = balance/open.</li>
+            <li><b>Pick your eight anchor stories:</b> multi-country GCP migration, reusable engineering framework, data quality incident, stakeholder tradeoff, coaching senior engineer, governance/ownership model, egregious pricing cleanup, and Sarthi autonomous AI support agent.</li>
+            <li><b>Map stories to values:</b> migration = team/customer/open; framework = change/heart; incident = customer/open; coaching = heart/team; governance = change/customer; pricing = customer/open/change; Sarthi = change/heart/balance; FinOps = balance/ownership.</li>
             <li><b>Practice three answers aloud:</b> cross-functional conflict, customer incident, difficult conversation.</li>
             <li><b>Prepare one mistake story:</b> status was not clarity; you changed readiness communication.</li>
             <li><b>Prepare one "why Atlassian" answer:</b> values are practical operating principles for platform leadership.</li>
