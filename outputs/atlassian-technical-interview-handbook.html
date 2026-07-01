@@ -148,8 +148,12 @@
       <a href="#scala-de">Scala DE &amp; Streaming</a>
       <a href="#realtime-analytics">Real-Time Analytics at Scale</a>
       <a href="#hudi-delta">Hudi / Delta / Iceberg</a>
+      <div class="nav-group">Stage 2 — Governance</div>
+      <a href="#data-governance">Data Governance &amp; Compliance</a>
+      <a href="#atlassian-analytics">Atlassian Analytics Platform</a>
       <div class="nav-group">Interview Intel</div>
       <a href="#interview-intel">Recent Interview Patterns</a>
+      <a href="#interview-guide">Official Interview Guide Insights</a>
       <div class="nav-group">Stage 2 — Design</div>
       <a href="#architecture">Architecture Design</a>
       <a href="#product-sense">Product Sense</a>
@@ -2964,6 +2968,382 @@ changes.filter(F.col("_change_type") == "update_postimage").show()</code></pre>
         </details>
       </section>
 
+      <!-- DATA GOVERNANCE -->
+      <section id="data-governance" class="searchable">
+        <h2>Data Governance &amp; Compliance</h2>
+        <p class="mini">Atlassian operates in 180+ countries with enterprise customers under GDPR, FedRAMP, ISO 27001, and SOC 2. Principal DEs must design pipelines that are secure-by-default, not bolted-on.</p>
+
+        <details open class="qa searchable">
+          <summary>Data Residency — "Pin Your Data" Architecture <span class="tag hard">Must Know</span></summary>
+          <div class="detail-body">
+            <p><b>What it means:</b> Atlassian customers can choose which AWS region their data is stored and processed in (US, EU, AU, Germany, etc). This is a contractual guarantee, not just a performance hint.</p>
+            <h4>Implementation patterns</h4>
+            <table style="width:100%;border-collapse:collapse;font-size:13px">
+              <tr style="background:var(--code)"><th style="text-align:left;padding:8px;border:1px solid var(--line)">Layer</th><th style="text-align:left;padding:8px;border:1px solid var(--line)">Mechanism</th><th style="text-align:left;padding:8px;border:1px solid var(--line)">Atlassian Implementation</th></tr>
+              <tr><td style="padding:8px;border:1px solid var(--line)">Compute isolation</td><td style="padding:8px;border:1px solid var(--line)">Separate AWS accounts per region</td><td style="padding:8px;border:1px solid var(--line)">Terraform IaC — identical stack replicated per region; no cross-region data movement</td></tr>
+              <tr style="background:var(--code)"><td style="padding:8px;border:1px solid var(--line)">Network boundary</td><td style="padding:8px;border:1px solid var(--line)">VPC + IAM SCPs</td><td style="padding:8px;border:1px solid var(--line)"><code>aws:RequestedRegion</code> Deny SCP blocks any API call that would land data outside pinned region</td></tr>
+              <tr><td style="padding:8px;border:1px solid var(--line)">Storage</td><td style="padding:8px;border:1px solid var(--line)">S3 bucket policy</td><td style="padding:8px;border:1px solid var(--line)">S3 Object Lock + bucket replication disabled; KMS key scoped to single region</td></tr>
+              <tr style="background:var(--code)"><td style="padding:8px;border:1px solid var(--line)">Metadata plane</td><td style="padding:8px;border:1px solid var(--line)">Regional Glue Catalog / Hive Metastore</td><td style="padding:8px;border:1px solid var(--line)">Each region has its own metastore — no shared global catalog</td></tr>
+              <tr><td style="padding:8px;border:1px solid var(--line)">Audit</td><td style="padding:8px;border:1px solid var(--line)">CloudTrail + S3 Access Logs</td><td style="padding:8px;border:1px solid var(--line)">All API calls logged; log buckets are also region-pinned; SIEM alert on cross-region copy attempt</td></tr>
+            </table>
+            <div class="callout good"><b>Interview answer pattern:</b> "I would enforce residency at three layers — compute (separate AWS account per region via Terraform), network (IAM SCP denying RequestedRegion ≠ customer_region), and storage (S3 bucket policy + regional KMS). The key insight is that you can't enforce residency at just one layer — a developer with AWS console access could bypass a single control."</div>
+          </div>
+        </details>
+
+        <details open class="qa searchable">
+          <summary>BYOK — Bring Your Own Key Encryption <span class="tag hard">Must Know</span></summary>
+          <div class="detail-body">
+            <p><b>What it means:</b> Enterprise customers provide their own KMS key. Atlassian can encrypt/decrypt customer data using it, but can never export or see the raw key material. Customers can revoke access instantly by disabling the key.</p>
+            <h4>KMS key grant flow</h4>
+            <pre><code># Customer creates CMK in their AWS account
+aws kms create-key --description "Atlassian BYOK - Jira Prod" \
+  --key-policy file://atlassian-key-policy.json
+
+# Key policy allows Atlassian's service account to USE (not administer)
+{
+  "Sid": "AllowAtlassianUse",
+  "Effect": "Allow",
+  "Principal": { "AWS": "arn:aws:iam::ATLASSIAN_ACCT:role/DataEncryptionRole" },
+  "Action": ["kms:GenerateDataKey", "kms:Decrypt"],
+  "Resource": "*"
+}
+
+# Atlassian's pipeline uses the customer's key for envelope encryption:
+# 1. Call GenerateDataKey → get plaintext DEK + encrypted DEK
+# 2. Encrypt data with plaintext DEK (AES-256-GCM)
+# 3. Store encrypted data + encrypted DEK (NOT the plaintext DEK)
+# 4. Discard plaintext DEK from memory immediately
+
+# On read:
+# 1. Retrieve encrypted DEK from metadata
+# 2. Call Decrypt on customer's CMK → plaintext DEK
+# 3. Decrypt data, discard plaintext DEK
+
+# Customer revokes access:
+aws kms disable-key --key-id arn:aws:kms:us-east-1:CUSTOMER_ACCT:key/KEY_ID
+# Immediate effect: all future Decrypt calls fail. Data is effectively inaccessible.</code></pre>
+            <div class="callout warn"><b>Common interview trap:</b> "Why can't Atlassian just cache the DEK so revocation doesn't work?" Answer: DEK cache TTL is typically &lt;1 min in production. Even with caching, revocation takes effect within the TTL window. The real guarantee is that Atlassian's KMS calls are logged via CloudTrail in the customer's account — so the customer can independently audit all encryption events.</div>
+          </div>
+        </details>
+
+        <details open class="qa searchable">
+          <summary>Compliance Certifications — DE Implications <span class="tag med">Stage 2</span></summary>
+          <div class="detail-body">
+            <table style="width:100%;border-collapse:collapse;font-size:13px">
+              <tr style="background:var(--code)"><th style="text-align:left;padding:8px;border:1px solid var(--line)">Cert</th><th style="text-align:left;padding:8px;border:1px solid var(--line)">Scope</th><th style="text-align:left;padding:8px;border:1px solid var(--line)">DE Pipeline Impact</th></tr>
+              <tr><td style="padding:8px;border:1px solid var(--line)"><b>ISO 27001</b></td><td style="padding:8px;border:1px solid var(--line)">Information security management system</td><td style="padding:8px;border:1px solid var(--line)">Access control reviews quarterly; pipeline service accounts must follow least-privilege; audit log retention ≥ 1 year</td></tr>
+              <tr style="background:var(--code)"><td style="padding:8px;border:1px solid var(--line)"><b>SOC 2 Type II</b></td><td style="padding:8px;border:1px solid var(--line)">Security, availability, confidentiality</td><td style="padding:8px;border:1px solid var(--line)">Continuous monitoring; change management gates on pipeline deployments; encryption at rest &amp; in transit required</td></tr>
+              <tr><td style="padding:8px;border:1px solid var(--line)"><b>GDPR</b></td><td style="padding:8px;border:1px solid var(--line)">EU personal data rights</td><td style="padding:8px;border:1px solid var(--line)">Right to erasure within 30 days; data minimisation (don't copy PII unless necessary); DPA required with sub-processors</td></tr>
+              <tr style="background:var(--code)"><td style="padding:8px;border:1px solid var(--line)"><b>FedRAMP Moderate</b></td><td style="padding:8px;border:1px solid var(--line)">US government cloud</td><td style="padding:8px;border:1px solid var(--line)">GovCloud region only; no data movement outside US; FIPS 140-2 encryption; continuous ConMon reporting</td></tr>
+              <tr><td style="padding:8px;border:1px solid var(--line)"><b>PCI DSS</b></td><td style="padding:8px;border:1px solid var(--line)">Card payment data</td><td style="padding:8px;border:1px solid var(--line)">Cardholder data never in data lake raw zone; tokenisation before ingestion; network segmentation for CDE</td></tr>
+              <tr style="background:var(--code)"><td style="padding:8px;border:1px solid var(--line)"><b>CSA STAR</b></td><td style="padding:8px;border:1px solid var(--line)">Cloud security maturity</td><td style="padding:8px;border:1px solid var(--line)">Shared responsibility model documented; data classification tags (Public/Internal/Confidential/Restricted) enforced</td></tr>
+            </table>
+          </div>
+        </details>
+
+        <details open class="qa searchable">
+          <summary>GDPR Right-to-Erasure in an Immutable Data Lake <span class="tag hard">Must Know</span></summary>
+          <div class="detail-body">
+            <p><b>The problem:</b> Parquet files in S3 are immutable. You can't update a row. But GDPR requires you to delete personal data within 30 days of a customer request. How?</p>
+            <h4>Pattern 1 — Delta Lake DELETE + VACUUM</h4>
+            <pre><code>from delta.tables import DeltaTable
+from pyspark.sql import SparkSession
+
+spark = SparkSession.builder.config("spark.sql.extensions",
+    "io.delta.sql.DeltaSparkSessionExtension").getOrCreate()
+
+# Step 1: Logical delete (adds _change_type = delete to CDF log)
+delta_table = DeltaTable.forPath(spark, "s3://lake/refined/events")
+delta_table.delete(condition="customer_id = 'CUST-42'")
+
+# Step 2: Physical delete (rewrites files, removes old versions)
+# Must wait until no queries reference old snapshots
+spark.sql("VACUUM delta.`s3://lake/refined/events` RETAIN 0 HOURS")
+
+# Note: Need to SET spark.databricks.delta.retentionDurationCheck.enabled = false
+# for RETAIN 0 HOURS. In prod, coordinate with downstream query SLAs first.
+
+# Step 3: Verify deletion
+count = spark.sql("""
+    SELECT COUNT(*) FROM delta.`s3://lake/refined/events`
+    WHERE customer_id = 'CUST-42'
+""").collect()[0][0]
+assert count == 0, f"GDPR erasure failed — {count} rows remain"
+
+# Step 4: Audit log entry for compliance evidence
+audit = {
+    "request_id": "GDPR-2026-00123",
+    "customer_id": "CUST-42",
+    "deleted_at": "2026-07-01T00:00:00Z",
+    "table": "s3://lake/refined/events",
+    "rows_affected": delta_table.history(1).select("operationMetrics").collect()[0][0]["numDeletedRows"]
+}
+spark.createDataFrame([audit]).write.mode("append").json("s3://audit/gdpr-erasure/")</code></pre>
+
+            <h4>Pattern 2 — Crypto-Shredding (for append-only raw zone)</h4>
+            <pre><code># Each customer has a unique Data Encryption Key (DEK) in KMS
+# stored as: s3://keys/CUST-42/dek.enc (encrypted with master key)
+
+# On ingest: encrypt PII fields with customer's DEK
+import boto3, base64
+from cryptography.fernet import Fernet
+
+kms = boto3.client('kms')
+
+def get_customer_dek(customer_id: str) -> bytes:
+    resp = kms.decrypt(
+        CiphertextBlob=open(f"s3://keys/{customer_id}/dek.enc", 'rb').read(),
+        KeyId="arn:aws:kms:us-east-1:ATLASSIAN:key/MASTER_KEY"
+    )
+    return resp['Plaintext']
+
+def encrypt_pii(value: str, customer_id: str) -> str:
+    dek = get_customer_dek(customer_id)
+    f = Fernet(base64.urlsafe_b64encode(dek[:32]))
+    return f.encrypt(value.encode()).decode()
+
+# Ingest with encrypted PII — stored in Parquet as opaque bytes
+# On GDPR erasure request:
+# 1. Delete the DEK from KMS (disable + schedule key deletion)
+kms.schedule_key_deletion(KeyId="CUST-42-DEK-ARN", PendingWindowInDays=7)
+# 2. All historical Parquet files now contain undecryptable ciphertext
+# 3. No need to rewrite any files — erasure is mathematical, not physical
+# 4. Response time: immediate (no file rewrites required)
+
+# Trade-off vs Delta DELETE:
+# Crypto-shredding: O(1) erasure, works on immutable files, but you lose the raw data
+# Delta DELETE:     O(data-size) rewrite, requires VACUUM, but data is still queryable until delete</code></pre>
+            <div class="callout good"><b>Interview answer:</b> Use crypto-shredding for the raw append-only zone (you can never rewrite those files efficiently), and Delta DELETE + VACUUM for the refined/curated zone where Delta is already in use. This gives you O(1) erasure in raw and correctness guarantees in refined.</div>
+          </div>
+        </details>
+
+        <details open class="qa searchable">
+          <summary>PII Masking — Column-Level Security <span class="tag med">Stage 2</span></summary>
+          <div class="detail-body">
+            <h4>BigQuery — Policy Tags</h4>
+            <pre><code>-- 1. Create taxonomy in Data Catalog
+gcloud data-catalog taxonomies create --location=us-east1 \
+  --display-name="Atlassian PII" --description="PII classification"
+
+-- 2. Create policy tag
+gcloud data-catalog taxonomies policy-tags create \
+  --taxonomy=TAXONOMY_ID --location=us-east1 \
+  --display-name="Email" --description="User email address"
+
+-- 3. Apply policy tag to column in schema
+-- In BigQuery schema JSON:
+{ "name": "user_email", "type": "STRING", "policyTags": {
+    "names": ["projects/P/locations/us-east1/taxonomies/T/policyTags/EMAIL"]
+}}
+
+-- 4. Grant Fine-Grained Reader to analytics team
+-- analytics-team@ gets maskedReader not dataMasking.maskedReader
+-- Result: SELECT user_email returns NULL for analysts, real value for admins</code></pre>
+            <h4>Databricks Unity Catalog — Column Masking</h4>
+            <pre><code>-- Create masking function
+CREATE OR REPLACE FUNCTION mask_email(email STRING)
+RETURNS STRING
+RETURN CASE
+  WHEN is_account_group_member('data-admin') THEN email
+  ELSE CONCAT(LEFT(email, 2), '****@****.com')
+END;
+
+-- Apply to column
+ALTER TABLE refined.user_events
+  ALTER COLUMN user_email SET MASK mask_email;
+
+-- Analyst query sees:
+SELECT user_email FROM refined.user_events;
+-- Returns: "ac****@****.com" instead of "achallakiran@gmail.com"</code></pre>
+          </div>
+        </details>
+
+        <details open class="qa searchable">
+          <summary>Data Lineage — OpenLineage Standard <span class="tag med">Stage 2</span></summary>
+          <div class="detail-body">
+            <p><b>Problem:</b> A column gets corrupted upstream. How do you know which downstream tables, dashboards, and ML models are affected?</p>
+            <pre><code># OpenLineage is the vendor-neutral standard (CNCF project)
+# Supported by: Spark, dbt, Airflow, Flink natively
+
+# Airflow integration — emit lineage automatically
+from openlineage.airflow import OpenLineageListener
+# In airflow.cfg: openlineage.transport.type = http
+# All DAG runs emit START/COMPLETE/FAIL events to Marquez/DataHub
+
+# Spark integration
+spark = SparkSession.builder \
+    .config("spark.extraListeners",
+            "io.openlineage.spark.agent.OpenLineageSparkListener") \
+    .config("spark.openlineage.transport.type", "http") \
+    .config("spark.openlineage.transport.url", "http://marquez:5000") \
+    .config("spark.openlineage.namespace", "atlassian.data.lake") \
+    .getOrCreate()
+
+# Every Spark job now emits:
+# - Input datasets (s3://lake/raw/events)
+# - Output datasets (s3://lake/refined/user_events)
+# - Job metadata (duration, row counts, schema)
+# Marquez UI shows full lineage graph — click any column to see
+# all upstream transformations and downstream consumers</code></pre>
+            <h4>Lineage backends</h4>
+            <table style="width:100%;border-collapse:collapse;font-size:13px">
+              <tr style="background:var(--code)"><th style="text-align:left;padding:8px;border:1px solid var(--line)">Tool</th><th style="text-align:left;padding:8px;border:1px solid var(--line)">Type</th><th style="text-align:left;padding:8px;border:1px solid var(--line)">Best for</th></tr>
+              <tr><td style="padding:8px;border:1px solid var(--line)">Marquez</td><td style="padding:8px;border:1px solid var(--line)">OSS, OpenLineage-native</td><td style="padding:8px;border:1px solid var(--line)">Self-hosted; simple REST API; lightweight</td></tr>
+              <tr style="background:var(--code)"><td style="padding:8px;border:1px solid var(--line)">DataHub</td><td style="padding:8px;border:1px solid var(--line)">OSS, LinkedIn-born</td><td style="padding:8px;border:1px solid var(--line)">Enterprise data catalog + lineage; push &amp; pull ingestion</td></tr>
+              <tr><td style="padding:8px;border:1px solid var(--line)">Google Dataplex</td><td style="padding:8px;border:1px solid var(--line)">Managed, GCP</td><td style="padding:8px;border:1px solid var(--line)">Automatic lineage for BQ + Dataflow; native policy tags</td></tr>
+              <tr style="background:var(--code)"><td style="padding:8px;border:1px solid var(--line)">AWS Glue Data Catalog</td><td style="padding:8px;border:1px solid var(--line)">Managed, AWS</td><td style="padding:8px;border:1px solid var(--line)">Schema registry for Atlassian's S3 lake; no lineage graph built-in</td></tr>
+            </table>
+          </div>
+        </details>
+      </section>
+
+      <!-- ATLASSIAN ANALYTICS PLATFORM -->
+      <section id="atlassian-analytics" class="searchable">
+        <h2>Atlassian Analytics Platform</h2>
+        <p class="mini">Generally available as of 2024. Built on the Atlassian Data Lake — the single source of truth for Jira, Confluence, JSM, and other product data. Allows customers to run custom SQL, connect BI tools, and share metrics.</p>
+
+        <details open class="qa searchable">
+          <summary>Platform Architecture &amp; Data Model <span class="tag hard">Must Know</span></summary>
+          <div class="detail-body">
+            <h4>Stack</h4>
+            <ul>
+              <li><b>Atlassian Data Lake:</b> Columnar storage (Parquet on S3) — single source of truth. Populated via the same Kinesis → Flink → Delta pipeline as internal analytics.</li>
+              <li><b>External connectors:</b> Snowflake (native connector), Amazon Redshift, Google BigQuery — customers can mirror the data lake into their own warehouse.</li>
+              <li><b>SQL interface:</b> Built-in SQL mode for ad-hoc queries, plus drag-and-drop chart builder for non-technical users.</li>
+              <li><b>Sharing:</b> Charts and dashboards shared as Confluence pages or embedded in Jira.</li>
+            </ul>
+            <h4>Data Sources in the Atlassian Data Lake</h4>
+            <table style="width:100%;border-collapse:collapse;font-size:13px">
+              <tr style="background:var(--code)"><th style="text-align:left;padding:8px;border:1px solid var(--line)">Source Product</th><th style="text-align:left;padding:8px;border:1px solid var(--line)">Key Tables</th><th style="text-align:left;padding:8px;border:1px solid var(--line)">Common Use Cases</th></tr>
+              <tr><td style="padding:8px;border:1px solid var(--line)">Jira Software</td><td style="padding:8px;border:1px solid var(--line)">issues, sprints, issue_changes, users, projects</td><td style="padding:8px;border:1px solid var(--line)">Sprint velocity, cycle time, throughput, bug rates</td></tr>
+              <tr style="background:var(--code)"><td style="padding:8px;border:1px solid var(--line)">Jira Service Mgmt</td><td style="padding:8px;border:1px solid var(--line)">requests, sla_breaches, queue_depths, agents</td><td style="padding:8px;border:1px solid var(--line)">SLA compliance, agent utilisation, MTTR</td></tr>
+              <tr><td style="padding:8px;border:1px solid var(--line)">Confluence</td><td style="padding:8px;border:1px solid var(--line)">pages, spaces, page_views, comments</td><td style="padding:8px;border:1px solid var(--line)">Knowledge base coverage, content health</td></tr>
+              <tr style="background:var(--code)"><td style="padding:8px;border:1px solid var(--line)">Bitbucket</td><td style="padding:8px;border:1px solid var(--line)">commits, pull_requests, deployments, repositories</td><td style="padding:8px;border:1px solid var(--line)">DORA metrics (deployment freq, lead time, MTTR, CFR)</td></tr>
+            </table>
+          </div>
+        </details>
+
+        <details open class="qa searchable">
+          <summary>Jira Analytics SQL Patterns — Interview Ready <span class="tag med">SQL</span></summary>
+          <div class="detail-body">
+            <h4>DORA Metrics — Deployment Frequency</h4>
+            <pre><code>-- Deployment frequency per team per week
+SELECT
+    p.team_name,
+    DATE_TRUNC('week', d.deployed_at) AS week,
+    COUNT(*)                          AS deployments,
+    COUNT(*) / 7.0                    AS deploys_per_day
+FROM deployments d
+JOIN projects p USING (project_key)
+WHERE d.deployed_at >= CURRENT_DATE - INTERVAL '90 days'
+  AND d.environment = 'production'
+GROUP BY 1, 2
+ORDER BY 1, 2;</code></pre>
+
+            <h4>Flow Metrics — Cycle Time (created → done)</h4>
+            <pre><code>-- P50/P90 cycle time per issue type per sprint
+WITH cycle_times AS (
+    SELECT
+        i.issue_type,
+        s.sprint_name,
+        EXTRACT(EPOCH FROM (
+            ic_done.changed_at - i.created_at
+        )) / 3600.0 AS cycle_hours
+    FROM issues i
+    JOIN issue_changes ic_done
+        ON ic_done.issue_key = i.issue_key
+       AND ic_done.field      = 'status'
+       AND ic_done.new_value  = 'Done'
+    JOIN sprint_issues si USING (issue_key)
+    JOIN sprints s         USING (sprint_id)
+    WHERE s.completed_at IS NOT NULL
+)
+SELECT
+    issue_type,
+    sprint_name,
+    PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY cycle_hours) AS p50_hours,
+    PERCENTILE_CONT(0.9) WITHIN GROUP (ORDER BY cycle_hours) AS p90_hours,
+    COUNT(*)                                                   AS issue_count
+FROM cycle_times
+GROUP BY 1, 2
+ORDER BY 2 DESC, 1;</code></pre>
+
+            <h4>SLA Breach Analysis — Jira Service Management</h4>
+            <pre><code>-- SLA breach rate by priority and request type (last 30 days)
+SELECT
+    r.priority,
+    r.request_type,
+    COUNT(*)                                          AS total_requests,
+    SUM(CASE WHEN sb.breached THEN 1 ELSE 0 END)     AS breaches,
+    ROUND(100.0 * SUM(CASE WHEN sb.breached THEN 1 ELSE 0 END)
+          / COUNT(*), 2)                              AS breach_pct,
+    AVG(EXTRACT(EPOCH FROM (sb.breach_time - r.created_at)) / 60) AS avg_mins_to_breach
+FROM requests r
+LEFT JOIN sla_breaches sb ON sb.request_id = r.id
+WHERE r.created_at >= CURRENT_DATE - 30
+GROUP BY 1, 2
+HAVING COUNT(*) > 10
+ORDER BY breach_pct DESC;</code></pre>
+
+            <h4>Workday Integration Pattern (Jira ↔ HR data)</h4>
+            <pre><code>-- Join Jira issues with HR org data (from Workday connector)
+-- Use case: capacity planning — story points by team/department
+SELECT
+    w.department,
+    w.manager_name,
+    COUNT(DISTINCT i.assignee_id)            AS engineers,
+    SUM(i.story_points)                      AS total_sp_completed,
+    ROUND(SUM(i.story_points)
+          / COUNT(DISTINCT i.assignee_id), 1) AS sp_per_engineer
+FROM issues i
+JOIN workday_employees w ON w.email = i.assignee_email
+WHERE i.status = 'Done'
+  AND i.resolved_at >= DATE_TRUNC('quarter', CURRENT_DATE)
+GROUP BY 1, 2
+ORDER BY total_sp_completed DESC;</code></pre>
+          </div>
+        </details>
+
+        <details open class="qa searchable">
+          <summary>External Connector Setup — Snowflake / BigQuery <span class="tag med">Architecture</span></summary>
+          <div class="detail-body">
+            <p>Atlassian Analytics can push data to the customer's own warehouse via Delta Sharing or native connectors. The Principal DE question here is: <em>"How would you design the data contract between Atlassian's lake and the customer's Snowflake?"</em></p>
+            <pre><code># Delta Sharing — Atlassian side (data provider)
+# 1. Create a share on the Delta table
+spark.sql("""
+    CREATE SHARE atlassian_jira_share;
+    ALTER SHARE atlassian_jira_share
+      ADD TABLE refined.jira_issues PARTITION (customer_id = 'CUST-42');
+    ALTER SHARE atlassian_jira_share
+      ADD TABLE refined.jira_sprints PARTITION (customer_id = 'CUST-42');
+""")
+
+# 2. Create recipient (customer)
+spark.sql("""
+    CREATE RECIPIENT snowflake_customer_42
+      COMMENT 'Atlassian Analytics — Jira data for CUST-42';
+""")
+# Returns activation link with short-lived token
+
+# Customer side — Snowflake
+# 1. Install Delta Sharing provider
+CREATE SHARE PROVIDER atlassian_jira
+  URL 'https://sharing.atlassian.com/delta/CUST-42'
+  AUTH_INFO = '&lt;token&gt;';
+
+# 2. Create database from share
+CREATE DATABASE jira_analytics FROM SHARE atlassian_jira.atlassian_jira_share;
+
+# 3. Query directly — no data copy, data stays in Atlassian's S3
+SELECT sprint_name, SUM(story_points_completed)
+FROM jira_analytics.refined.jira_sprints
+WHERE team = 'Platform'
+GROUP BY 1;</code></pre>
+            <div class="callout good"><b>Key insight:</b> Delta Sharing is read-only and zero-copy — customer queries Atlassian's S3 data directly through pre-signed URLs. No ETL job needed. Atlassian revokes sharing by removing the recipient, which immediately stops all access.</div>
+          </div>
+        </details>
+      </section>
+
       <!-- INTERVIEW INTEL -->
       <section id="interview-intel" class="searchable">
         <h2>Recent Atlassian Interview Patterns (2024–2026)</h2>
@@ -3043,6 +3423,106 @@ GROUP BY CUBE(region, product);    -- 4 groupings
               <tr style="background:var(--code)"><td style="padding:8px;border:1px solid var(--line)">Be the change you seek</td><td style="padding:8px;border:1px solid var(--line)">FinOps $20M — advocated when unpopular</td><td style="padding:8px;border:1px solid var(--line)">$20M saved; first cross-team cost visibility</td></tr>
               <tr><td style="padding:8px;border:1px solid var(--line)">Don't screw the customer</td><td style="padding:8px;border:1px solid var(--line)">Egregious Pricing detection</td><td style="padding:8px;border:1px solid var(--line)">Caught pricing errors before checkout</td></tr>
             </table>
+          </div>
+        </details>
+      </section>
+
+      <!-- OFFICIAL INTERVIEW GUIDE INSIGHTS -->
+      <section id="interview-guide" class="searchable">
+        <h2>Official Interview Guide — Key Insights</h2>
+        <p class="mini">Distilled from the Atlassian <em>Data Engineering, Principal Data Engineer — Interview Guide</em> PDF. These are the actual structural facts that shape how your interview is scored.</p>
+
+        <details open class="qa searchable">
+          <summary>Two Separate Coding Assessments — How They Differ <span class="tag hard">Must Know</span></summary>
+          <div class="detail-body">
+            <table style="width:100%;border-collapse:collapse;font-size:13px">
+              <tr style="background:var(--code)"><th style="text-align:left;padding:8px;border:1px solid var(--line)">Assessment</th><th style="text-align:left;padding:8px;border:1px solid var(--line)">Data Structures Focus</th><th style="text-align:left;padding:8px;border:1px solid var(--line)">Code Design Focus</th></tr>
+              <tr><td style="padding:8px;border:1px solid var(--line)">Level</td><td style="padding:8px;border:1px solid var(--line)">Intermediate DS&amp;A, intermediate-to-advanced SQL</td><td style="padding:8px;border:1px solid var(--line)">LeetCode Easy–Medium Python; real-world DE tasks</td></tr>
+              <tr style="background:var(--code)"><td style="padding:8px;border:1px solid var(--line)">Methodology</td><td style="padding:8px;border:1px solid var(--line)">TDD required — write test BEFORE function body</td><td style="padding:8px;border:1px solid var(--line)">TDD required — multiple solutions expected</td></tr>
+              <tr><td style="padding:8px;border:1px solid var(--line)">Topics IN</td><td style="padding:8px;border:1px solid var(--line)">Arrays, hash maps, trees, DP, sorting, SQL window fns, CTEs, recursion</td><td style="padding:8px;border:1px solid var(--line)">String/dict manipulation, API parsing, CSV/JSON, sorting, file ops</td></tr>
+              <tr style="background:var(--code)"><td style="padding:8px;border:1px solid var(--line)">Topics OUT</td><td style="padding:8px;border:1px solid var(--line)"><b>Graph problems explicitly excluded</b> — "graph related questions will not be asked"</td><td style="padding:8px;border:1px solid var(--line)">No graph/DFS/BFS</td></tr>
+              <tr><td style="padding:8px;border:1px solid var(--line)">Multiple solutions?</td><td style="padding:8px;border:1px solid var(--line)">Yes — brute force first, then optimal</td><td style="padding:8px;border:1px solid var(--line)">Yes — show trade-offs between approaches</td></tr>
+            </table>
+            <div class="callout warn"><b>TDD protocol (critical):</b> Write <code>assert expected == my_function(input)</code> BEFORE you write the function body. Atlassian interviewers specifically look for this — skipping it is a red flag at Principal level.</div>
+          </div>
+        </details>
+
+        <details open class="qa searchable">
+          <summary>Laddering — How Interviewers Probe for Principal-Level Depth <span class="tag hard">Must Know</span></summary>
+          <div class="detail-body">
+            <p>The guide explicitly describes "laddering" — starting with a simple question and adding constraints until you hit your ceiling. The interviewer is calibrating level, not just pass/fail.</p>
+            <h4>Typical laddering sequence (Architecture round)</h4>
+            <ol>
+              <li><b>Baseline:</b> "Design a pipeline to ingest Jira events into our data lake."<br><em>Expected: basic batch ETL, S3, Spark</em></li>
+              <li><b>Scale:</b> "Now it needs to handle 1M events/second with &lt;30s latency."<br><em>Expected: Kinesis, Flink, partitioning strategy</em></li>
+              <li><b>Reliability:</b> "What happens if Flink goes down mid-stream?"<br><em>Expected: checkpointing, exactly-once semantics, dead letter queues</em></li>
+              <li><b>Compliance:</b> "A customer in Germany requests data erasure within 24 hours."<br><em>Expected: Delta DELETE + VACUUM or crypto-shredding</em></li>
+              <li><b>Multi-region:</b> "Now serve EU customers with data residency guarantees."<br><em>Expected: separate AWS account per region, SCP deny rules, regional KMS</em></li>
+              <li><b>Cost:</b> "Storage costs tripled. How do you reduce them?"<br><em>Expected: OPTIMIZE/Z-ORDER, lifecycle policies, Snappy→ZSTD, cold tier to Glacier</em></li>
+            </ol>
+            <div class="callout good"><b>Strategy:</b> When you answer a laddering question, proactively anticipate the next constraint — "this approach works at current scale, and here's how I'd evolve it when X becomes a concern." This is what Principal vs Senior looks like.</div>
+          </div>
+        </details>
+
+        <details open class="qa searchable">
+          <summary>Hiring Committee Independence — What This Means for You <span class="tag med">Process</span></summary>
+          <div class="detail-body">
+            <p>The guide states the Hiring Committee is <em>independent</em> of the interviewer team. This has direct implications for how you should perform:</p>
+            <ul>
+              <li><b>Every round counts equally:</b> The HC reviews all scorecards, not just the final round. A weak coding score is not recovered by a strong architecture round.</li>
+              <li><b>Written scorecards matter:</b> Interviewers write detailed notes. Your explanations and thought process get documented, not just your final answer. Narrate everything.</li>
+              <li><b>Consistent signal across rounds:</b> HC looks for consistency. If you claim "I scaled X to 100TB" in Values but your architecture answer showed basic patterns, that inconsistency flags.</li>
+              <li><b>HC has the compensation authority:</b> The HC sets level and comp, not the hiring manager. Your performance across all rounds determines whether you're placed at Principal vs Senior Principal.</li>
+            </ul>
+            <div class="callout warn"><b>Practical implication:</b> Treat every round as if it's the one that decides your offer. Don't "save" your best examples for the Values round.</div>
+          </div>
+        </details>
+
+        <details open class="qa searchable">
+          <summary>Broad Skills Framework — What Principal Means at Atlassian <span class="tag med">Process</span></summary>
+          <div class="detail-body">
+            <table style="width:100%;border-collapse:collapse;font-size:13px">
+              <tr style="background:var(--code)"><th style="text-align:left;padding:8px;border:1px solid var(--line)">Dimension</th><th style="text-align:left;padding:8px;border:1px solid var(--line)">Senior DE</th><th style="text-align:left;padding:8px;border:1px solid var(--line)">Principal DE (target)</th></tr>
+              <tr><td style="padding:8px;border:1px solid var(--line)">Technical scope</td><td style="padding:8px;border:1px solid var(--line)">Team-level technical decisions</td><td style="padding:8px;border:1px solid var(--line)">Cross-team / org-level architecture; sets direction for 3–5 teams</td></tr>
+              <tr style="background:var(--code)"><td style="padding:8px;border:1px solid var(--line)">Ambiguity</td><td style="padding:8px;border:1px solid var(--line)">Works well with defined requirements</td><td style="padding:8px;border:1px solid var(--line)">Creates clarity from ambiguity; defines requirements for others</td></tr>
+              <tr><td style="padding:8px;border:1px solid var(--line)">Leadership</td><td style="padding:8px;border:1px solid var(--line)">Leads within team</td><td style="padding:8px;border:1px solid var(--line)">Leads without authority across org; drives alignment</td></tr>
+              <tr style="background:var(--code)"><td style="padding:8px;border:1px solid var(--line)">Customer focus</td><td style="padding:8px;border:1px solid var(--line)">Aware of customer impact</td><td style="padding:8px;border:1px solid var(--line)">Owns customer outcomes; proactively prevents "screwing the customer"</td></tr>
+              <tr><td style="padding:8px;border:1px solid var(--line)">Knowledge sharing</td><td style="padding:8px;border:1px solid var(--line)">Documents work</td><td style="padding:8px;border:1px solid var(--line)">Raises the bar for the entire org; creates systems others learn from</td></tr>
+              <tr style="background:var(--code)"><td style="padding:8px;border:1px solid var(--line)">Change</td><td style="padding:8px;border:1px solid var(--line)">Adopts change</td><td style="padding:8px;border:1px solid var(--line)">"Be the change" — identifies what needs to change and drives it</td></tr>
+            </table>
+          </div>
+        </details>
+
+        <details open class="qa searchable">
+          <summary>Pre-Interview Checklist — Day Before <span class="tag">Prep</span></summary>
+          <div class="detail-body">
+            <h4>Stage 1 — Coding</h4>
+            <ul>
+              <li>Practice writing test cases BEFORE the function (TDD discipline)</li>
+              <li>Prepare two solutions for every problem — brute force + optimal — know when to switch</li>
+              <li>Know time/space complexity for: hash map lookups, heap operations, sorting, DP recurrences</li>
+              <li>SQL: window functions (ROW_NUMBER, RANK, LAG/LEAD), recursive CTEs, GROUPING SETS, explain plan reading</li>
+              <li>Python DE: <code>json.loads</code>, <code>csv.DictWriter</code>, <code>pathlib</code>, <code>requests</code> pagination pattern, <code>defaultdict</code></li>
+            </ul>
+            <h4>Stage 2a — Architecture</h4>
+            <ul>
+              <li>Memorise Atlassian's production stack: Kinesis → Flink → Delta Lake → DBT → Databricks → Delta Sharing</li>
+              <li>Know when to use COW vs MOR (Hudi), why Flink over Spark Streaming (true event-level, lower latency)</li>
+              <li>Data residency: can you explain the three-layer enforcement (account + SCP + KMS) in 90 seconds?</li>
+              <li>BYOK: envelope encryption, GenerateDataKey → store encrypted DEK, never persist plaintext</li>
+            </ul>
+            <h4>Stage 2b — Product Sense</h4>
+            <ul>
+              <li>Be ready to propose metrics for ANY Atlassian product feature (Jira, JSM, Confluence, Trello, Bitbucket)</li>
+              <li>Know DORA metrics cold: deployment frequency, lead time for changes, MTTR, change failure rate</li>
+              <li>Understand divergent vs convergent metrics — interviewer will ask "what metric would tell you this feature FAILED?"</li>
+            </ul>
+            <h4>Stage 3 — Leadership &amp; Values</h4>
+            <ul>
+              <li>Prepare 2 STAR stories per Atlassian value (10 stories total) — keep each under 4 minutes</li>
+              <li>One story must show you changed something at org scale without direct authority</li>
+              <li>One story must show you caught a problem that would have hurt customers — not just after a bug, but proactively</li>
+            </ul>
           </div>
         </details>
       </section>
@@ -3440,7 +3920,7 @@ except Exception as e:
               <li><b>XComs only for small metadata:</b> Never pass DataFrames through XComs. Pass file paths, BigQuery table names, or row counts only.</li>
               <li><b>Use datasets/data-aware scheduling</b> (Airflow 2.4+) to trigger downstream DAGs when upstream data is ready — decouples scheduling from clock time.</li>
             </ul>
-            <pre><code">from airflow import DAG
+            <pre><code>from airflow import DAG
 from airflow.providers.google.cloud.operators.bigquery import BigQueryInsertJobOperator
 from airflow.providers.google.cloud.operators.dataproc import DataprocSubmitJobOperator
 from datetime import datetime, timedelta
@@ -3504,7 +3984,7 @@ with DAG(
               <li><b>Statistical validation (post-load):</b> Row count within expected range? Null rate below threshold? Numeric columns within historical percentile bounds? Great Expectations or dbt tests handle this.</li>
               <li><b>Business logic validation (domain-specific):</b> Total sales today within ±20% of 30-day average? No negative inventory? These require custom SQL assertions.</li>
             </ol>
-            <pre><code"># Great Expectations example — statistical checks
+            <pre><code># Great Expectations example — statistical checks
 import great_expectations as gx
 
 context = gx.get_context()
@@ -3672,6 +4152,17 @@ SUM(CASE WHEN region = 'APAC' THEN amount ELSE 0 END) AS apac</code></pre>
           <li><b>Airflow idempotency:</b> Delete-then-insert with {{ ds }} partition key</li>
           <li><b>Data quality layers:</b> Schema (ingestion) → Statistical (post-load) → Business logic (domain)</li>
         </ul>
+
+        <h3>Governance &amp; Compliance Cheat Sheet</h3>
+        <table style="width:100%;border-collapse:collapse;font-size:12px">
+          <tr style="background:var(--code)"><th style="text-align:left;padding:6px;border:1px solid var(--line)">Topic</th><th style="text-align:left;padding:6px;border:1px solid var(--line)">Key Mechanism</th><th style="text-align:left;padding:6px;border:1px solid var(--line)">30-second answer</th></tr>
+          <tr><td style="padding:6px;border:1px solid var(--line)">Data Residency</td><td style="padding:6px;border:1px solid var(--line)">Separate AWS account per region + IAM SCP deny cross-region + regional KMS</td><td style="padding:6px;border:1px solid var(--line)">"Three-layer enforcement — account isolation, network deny, key locality"</td></tr>
+          <tr style="background:var(--code)"><td style="padding:6px;border:1px solid var(--line)">BYOK</td><td style="padding:6px;border:1px solid var(--line)">Envelope encryption — GenerateDataKey, store encrypted DEK, discard plaintext</td><td style="padding:6px;border:1px solid var(--line)">"Atlassian can USE the key but never EXPORT it; customer revokes = instant lockout"</td></tr>
+          <tr><td style="padding:6px;border:1px solid var(--line)">GDPR Erasure</td><td style="padding:6px;border:1px solid var(--line)">Delta DELETE + VACUUM (refined) / Crypto-shredding DEK (raw)</td><td style="padding:6px;border:1px solid var(--line)">"Delta layer: rewrite files. Raw layer: delete the key, data becomes undecryptable"</td></tr>
+          <tr style="background:var(--code)"><td style="padding:6px;border:1px solid var(--line)">PII Masking</td><td style="padding:6px;border:1px solid var(--line)">BQ policy tags / Unity Catalog column mask functions</td><td style="padding:6px;border:1px solid var(--line)">"Masking at the query layer — analysts see NULL or truncated, admins see plaintext"</td></tr>
+          <tr><td style="padding:6px;border:1px solid var(--line)">Lineage</td><td style="padding:6px;border:1px solid var(--line)">OpenLineage standard → Marquez/DataHub</td><td style="padding:6px;border:1px solid var(--line)">"Every Spark/Airflow/dbt job emits START/COMPLETE events; click any column to trace upstream"</td></tr>
+          <tr style="background:var(--code)"><td style="padding:6px;border:1px solid var(--line)">SOC 2 Type II</td><td style="padding:6px;border:1px solid var(--line)">Continuous monitoring, change management gates, encryption everywhere</td><td style="padding:6px;border:1px solid var(--line)">"Every pipeline deploy goes through change management; encryption at rest + in transit non-negotiable"</td></tr>
+        </table>
 
         <h3>Cloud Stack Quick Reference</h3>
         <table style="width:100%;border-collapse:collapse;font-size:12px">
