@@ -136,11 +136,13 @@
       <a href="#sql-cte">CTEs &amp; Subqueries</a>
       <a href="#sql-advanced">Advanced Patterns</a>
       <a href="#sql-perf">SQL Performance &amp; Optimization</a>
-      <div class="nav-group">Data Engineering Deep</div>
+      <div class="nav-group">Stage 1 — Python DE</div>
+      <a href="#python-de">Python DE Patterns</a>
+      <div class="nav-group">Stage 2 — Architecture</div>
       <a href="#big-data">Big Data Concepts</a>
       <a href="#distributed-systems">Distributed Systems</a>
       <a href="#frameworks">Data Processing Frameworks</a>
-      <div class="nav-group">Stage 2</div>
+      <div class="nav-group">Stage 2 — Design</div>
       <a href="#architecture">Architecture Design</a>
       <a href="#product-sense">Product Sense</a>
       <div class="nav-group">Stage 3</div>
@@ -157,7 +159,7 @@
         <div class="oreilly">DE<br>TECH</div>
         <div class="kicker">Atlassian Technical Interview Prep — All 5 Stages</div>
         <h1>Principal Data Engineer Technical Interview Handbook</h1>
-        <p style="font-size:20px;max-width:760px">Complete prep for Stage 1 (Coding + SQL), Stage 2 (Data Architecture &amp; Design + Product Sense), and Stage 3 (Leadership Craft). Based on Atlassian's official interview guide and calibrated to your Walmart background.</p>
+        <p style="font-size:20px;max-width:760px">Complete prep for Stage 1 (Python DE Patterns + Coding + SQL), Stage 2 (Data Architecture, Big Data, Distributed Systems, Frameworks, Product Sense), and Stage 3 (Leadership Craft). Built from the official Atlassian guide. <strong>Graph questions are explicitly excluded from Stage 1 coding.</strong></p>
         <p class="mini">Your stack: Python, PySpark, SQL (BigQuery), Spark, Kafka, GCP. Your anchor projects: 3,000-pipeline GCP migration, eCommerce 360, Fraud Detection, Egregious Pricing, Sarthi Agentic AI, FinOps $20M.</p>
         <div>
           <span class="tag">60-min coding</span>
@@ -167,6 +169,7 @@
           <span class="tag">No graphs asked</span>
           <span class="tag">TDD required</span>
           <span class="tag">HackerRank platform</span>
+          <span class="tag">Python DE patterns</span>
         </div>
       </div>
 
@@ -176,15 +179,16 @@
         <div class="toc-grid">
           <div><b>1. Interview Process</b><br><span class="mini">5 stages, what each tests, logistics.</span></div>
           <div><b>2. Coding Strategy</b><br><span class="mini">Communication protocol, TDD pattern, multi-solution approach.</span></div>
-          <div><b>3. DS&amp;A — 8 Topic Areas</b><br><span class="mini">Arrays, HashMaps, Two Pointers, Stacks, Trees, DP, Sorting, Advanced DS (Heaps, Tries, Union-Find, Graphs).</span></div>
-          <div><b>4. SQL — 4 Topic Areas</b><br><span class="mini">Window functions, CTEs, advanced patterns, performance &amp; optimization. Medium–Advanced BigQuery SQL.</span></div>
-          <div><b>5. Big Data Concepts</b><br><span class="mini">HDFS, MapReduce, data lake patterns, Lambda/Kappa architecture, file formats, partitioning strategies.</span></div>
-          <div><b>6. Distributed Systems</b><br><span class="mini">CAP theorem, consistency models, partitioning, replication, distributed transactions, consensus.</span></div>
-          <div><b>7. Data Processing Frameworks</b><br><span class="mini">PySpark internals, Kafka architecture, Flink vs Spark Streaming, Airflow DAG patterns.</span></div>
-          <div><b>8. Data Architecture &amp; Design</b><br><span class="mini">Framework + 3 practice problems mapped to your background.</span></div>
-          <div><b>9. Product Sense</b><br><span class="mini">Product understanding, data acumen, data modeling. Framework + practice.</span></div>
-          <div><b>10. Leadership Craft</b><br><span class="mini">3 areas Atlassian probes + your story bank mapped to each.</span></div>
-          <div><b>11. Revision Sheets</b><br><span class="mini">30-min, 15-min, 5-min rapid review. Cheat sheets for all patterns.</span></div>
+          <div><b>3. Python DE Patterns</b><br><span class="mini">String manipulation, dict operations, API response transformation, CSV/JSON parsing, custom sorting.</span></div>
+          <div><b>4. DS&amp;A — 8 Topic Areas</b><br><span class="mini">Arrays, HashMaps, Two Pointers, Stacks, Trees, DP, Sorting, Advanced DS (Heaps, Tries, Union-Find). No graphs.</span></div>
+          <div><b>5. SQL — 5 Topic Areas</b><br><span class="mini">Window functions, CTEs (cumulative sums + recursive), advanced patterns, performance &amp; optimization.</span></div>
+          <div><b>6. Big Data Concepts</b><br><span class="mini">HDFS, MapReduce, Lambda/Kappa, file formats, partitioning. Stage 2 Architecture topic.</span></div>
+          <div><b>7. Distributed Systems</b><br><span class="mini">CAP theorem, consistency models, partitioning, replication, distributed transactions. Stage 2 topic.</span></div>
+          <div><b>8. Data Processing Frameworks</b><br><span class="mini">PySpark internals + AQE, Kafka exactly-once, Flink vs Spark, Airflow patterns. Stage 2 topic.</span></div>
+          <div><b>9. Data Architecture &amp; Design</b><br><span class="mini">Framework + 3 practice problems mapped to your background.</span></div>
+          <div><b>10. Product Sense</b><br><span class="mini">Product understanding, data acumen, data modeling. Framework + practice.</span></div>
+          <div><b>11. Leadership Craft</b><br><span class="mini">3 areas Atlassian probes + your story bank mapped to each.</span></div>
+          <div><b>12. Revision Sheets</b><br><span class="mini">30-min, 15-min, 5-min rapid review. Python DE, DS&amp;A, SQL, Big Data cheat sheets.</span></div>
         </div>
       </section>
 
@@ -192,6 +196,9 @@
       <section id="process" class="searchable">
         <h2>Interview Process</h2>
         <p>Atlassian runs a staged process. Each stage must pass before the next is scheduled. The values interview handbook covers Stage 3 (Values). This handbook covers everything else.</p>
+        <div class="callout danger" style="margin-bottom:18px">
+          <b>Directly from the official Atlassian guide:</b> "Focus on intermediate data structures and algorithms — <mark>graph related questions will not be asked</mark>. Additionally, it is essential to review intermediate to advanced SQL constructs and techniques. You will be expected to provide a functional solution."
+        </div>
         <div class="stage-grid">
           <div class="stage-card">
             <div class="stage-num">1</div>
@@ -1166,6 +1173,80 @@ ORDER BY user_id, streak_start;</code></pre>
             <div class="callout good"><b>Interview tip:</b> Walk through the "date minus row number = constant for consecutive dates" insight explicitly. It's non-obvious and shows advanced SQL intuition.</div>
           </div>
         </details>
+
+        <details class="qa searchable">
+          <summary>SQL — Cumulative Sums and Running Totals by Partition <span class="tag sql">SQL Medium</span></summary>
+          <div class="detail-body">
+            <p><b>Problem:</b> For each user, compute the cumulative spend over time and flag the first time their cumulative spend exceeds $1,000.</p>
+            <pre><code>-- Table: transactions(user_id, txn_date, amount)
+
+WITH cumulative AS (
+  SELECT
+    user_id,
+    txn_date,
+    amount,
+    SUM(amount) OVER (
+      PARTITION BY user_id
+      ORDER BY txn_date
+      ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW
+    ) AS cumulative_spend
+  FROM transactions
+),
+first_threshold AS (
+  SELECT
+    user_id,
+    txn_date AS threshold_date,
+    cumulative_spend,
+    ROW_NUMBER() OVER (PARTITION BY user_id ORDER BY txn_date) AS rn
+  FROM cumulative
+  WHERE cumulative_spend >= 1000
+)
+SELECT user_id, threshold_date, cumulative_spend
+FROM first_threshold
+WHERE rn = 1;   -- first time they crossed $1,000</code></pre>
+            <div class="callout good"><b>Pattern:</b> Cumulative sum → filter → ROW_NUMBER() to find the "first" crossing. This three-step CTE chain is a fundamental DE SQL pattern for threshold detection and user milestone analytics.</div>
+          </div>
+        </details>
+
+        <details class="qa searchable">
+          <summary>SQL — Recursive CTE for Page Hierarchy (Confluence-style) <span class="tag sql">SQL Hard</span></summary>
+          <div class="detail-body">
+            <p><b>Problem:</b> Given a <code>pages</code> table with <code>page_id</code>, <code>title</code>, and <code>parent_id</code> (Confluence-style), find all descendants of a given page and their depth level.</p>
+            <pre><code>-- Table: pages(page_id, title, parent_id)  -- NULL parent_id = root page
+
+WITH RECURSIVE page_tree AS (
+  -- Anchor: the root page we're querying from
+  SELECT page_id, title, parent_id, 0 AS depth, title AS path
+  FROM pages
+  WHERE page_id = :root_page_id
+
+  UNION ALL
+
+  -- Recursive: find all child pages
+  SELECT p.page_id, p.title, p.parent_id, pt.depth + 1,
+         CONCAT(pt.path, ' > ', p.title)
+  FROM pages p
+  INNER JOIN page_tree pt ON p.parent_id = pt.page_id
+)
+SELECT page_id, title, depth, path
+FROM page_tree
+WHERE page_id != :root_page_id
+ORDER BY depth, title;
+
+-- Count descendants per page (space health analytics)
+WITH RECURSIVE page_tree AS (
+  SELECT page_id, parent_id FROM pages
+  UNION ALL
+  SELECT p.page_id, p.parent_id FROM pages p
+  JOIN page_tree pt ON p.parent_id = pt.page_id
+)
+SELECT parent_id AS page_id, COUNT(*) AS descendant_count
+FROM page_tree
+WHERE parent_id IS NOT NULL
+GROUP BY parent_id;</code></pre>
+            <div class="callout good"><b>Atlassian direct relevance:</b> Confluence spaces are page trees. Atlassian analytics teams query this exact structure to measure space health, content depth, and page usage patterns. Mentioning this connection will resonate strongly with your interviewer.</div>
+          </div>
+        </details>
       </section>
 
       <!-- SQL ADVANCED -->
@@ -1497,10 +1578,269 @@ dim_issue (
         </details>
       </section>
 
+      <!-- PYTHON DE PATTERNS -->
+      <section id="python-de" class="searchable">
+        <h2>Python DE Patterns</h2>
+        <p class="mini">Atlassian's Stage 1 explicitly tests Python. These patterns cover string manipulation, dictionary operations, data parsing, and API response transformation — the DE-specific Python problems most likely to appear.</p>
+
+        <details open class="qa searchable">
+          <summary>String Manipulation — Clean and Parse Structured Strings <span class="tag med">Medium</span></summary>
+          <div class="detail-body">
+            <p><b>Problem:</b> Given a raw log string <code>"2025-01-15T08:23:11Z INFO user=alice action=login status=200"</code>, parse it into a structured dict with keys: timestamp, level, user, action, status.</p>
+            <div class="approach"><b>Approach 1 — Split + key=value parsing:</b> Split on spaces, identify key=value pairs by checking if "=" is in the token.</div>
+            <div class="approach"><b>Approach 2 — Regex named groups:</b> More robust for variable-order fields. Use <code>re.findall(r'(\w+)=(\S+)')</code> for key-value pairs.</div>
+            <pre><code>import re
+
+def parse_log_line(line: str) -> dict:
+    tokens = line.split()
+    result = {
+        'timestamp': tokens[0],
+        'level': tokens[1],
+    }
+    for token in tokens[2:]:
+        if '=' in token:
+            key, _, value = token.partition('=')
+            result[key] = value
+    return result
+
+def parse_log_line_regex(line: str) -> dict:
+    pattern = r'^(\S+)\s+(\w+)\s+(.+)$'
+    m = re.match(pattern, line)
+    result = {'timestamp': m.group(1), 'level': m.group(2)}
+    for k, v in re.findall(r'(\w+)=(\S+)', m.group(3)):
+        result[k] = v
+    return result
+
+def test_parse_log_line():
+    line = "2025-01-15T08:23:11Z INFO user=alice action=login status=200"
+    r = parse_log_line(line)
+    assert r['level'] == 'INFO'
+    assert r['user'] == 'alice'
+    assert r['status'] == '200'
+    r2 = parse_log_line_regex(line)
+    assert r2['action'] == 'login'
+    r3 = parse_log_line("2025-01-15T08:23:11Z ERROR")
+    assert r3['level'] == 'ERROR'
+
+test_parse_log_line()
+print("All tests passed")</code></pre>
+            <div class="complexity">
+              <div class="cx-item"><b>Time:</b> O(n) where n = string length</div>
+              <div class="cx-item"><b>Space:</b> O(k) where k = number of fields</div>
+            </div>
+            <div class="callout good"><b>DE angle:</b> Log parsing is a real DE task — you parsed pipeline execution logs in your GCP migration to identify failed jobs. Show this context.</div>
+          </div>
+        </details>
+
+        <details class="qa searchable">
+          <summary>Dictionary Manipulation — Frequency Count, Inversion, and Merge <span class="tag easy">Easy–Medium</span></summary>
+          <div class="detail-body">
+            <p><b>Problem set:</b> (a) Count word frequencies in a string. (b) Invert a dict (swap keys and values, handling duplicate values). (c) Deep-merge two dicts where overlapping keys are summed.</p>
+            <pre><code>from collections import Counter, defaultdict
+
+# (a) Word frequency
+def word_frequency(text: str) -> dict:
+    return dict(Counter(text.lower().split()))
+
+# (b) Invert dict — handle duplicate values by grouping keys into a list
+def invert_dict(d: dict) -> dict:
+    inverted = defaultdict(list)
+    for k, v in d.items():
+        inverted[v].append(k)
+    return dict(inverted)
+
+# (c) Merge two dicts, summing numeric values for shared keys
+def merge_sum(d1: dict, d2: dict) -> dict:
+    result = dict(d1)
+    for k, v in d2.items():
+        result[k] = result.get(k, 0) + v
+    return result
+
+def test_dict_operations():
+    freq = word_frequency("the cat sat on the mat the cat")
+    assert freq['the'] == 3 and freq['cat'] == 2
+    inv = invert_dict({'a': 1, 'b': 2, 'c': 1})
+    assert sorted(inv[1]) == ['a', 'c']
+    assert inv[2] == ['b']
+    m = merge_sum({'apac': 100, 'na': 200}, {'apac': 50, 'emea': 75})
+    assert m == {'apac': 150, 'na': 200, 'emea': 75}
+    assert word_frequency("") == {}
+    assert invert_dict({}) == {}
+    assert merge_sum({}, {}) == {}
+
+test_dict_operations()
+print("All tests passed")</code></pre>
+            <div class="complexity">
+              <div class="cx-item"><b>All operations:</b> O(n)</div>
+              <div class="cx-item"><b>Space:</b> O(n)</div>
+            </div>
+          </div>
+        </details>
+
+        <details class="qa searchable">
+          <summary>API Response Transformation — Flatten and Reshape JSON <span class="tag med">Medium</span></summary>
+          <div class="detail-body">
+            <p><b>Problem:</b> You receive a Jira API response. Transform it into a flat list of dicts, extract only specific fields, handle missing keys safely, and group issues by assignee.</p>
+            <pre><code>from collections import defaultdict
+
+JIRA_RESPONSE = {
+    "total": 3,
+    "issues": [
+        {"id": "JRA-1", "fields": {"summary": "Bug in login", "assignee": {"displayName": "Alice"}, "status": {"name": "Open"}, "priority": {"name": "High"}}},
+        {"id": "JRA-2", "fields": {"summary": "Slow dashboard", "assignee": None, "status": {"name": "In Progress"}, "priority": {"name": "Medium"}}},
+        {"id": "JRA-3", "fields": {"summary": "Export broken", "assignee": {"displayName": "Alice"}, "status": {"name": "Done"}, "priority": None}},
+    ]
+}
+
+def flatten_issues(response: dict) -> list:
+    result = []
+    for issue in response.get("issues", []):
+        fields = issue.get("fields", {})
+        result.append({
+            "id": issue.get("id"),
+            "summary": fields.get("summary"),
+            "assignee": (fields.get("assignee") or {}).get("displayName", "Unassigned"),
+            "status": (fields.get("status") or {}).get("name"),
+            "priority": (fields.get("priority") or {}).get("name", "None"),
+        })
+    return result
+
+def group_by_assignee(issues: list) -> dict:
+    groups = defaultdict(list)
+    for issue in issues:
+        groups[issue["assignee"]].append(issue["id"])
+    return dict(groups)
+
+def test_api_transformation():
+    flat = flatten_issues(JIRA_RESPONSE)
+    assert len(flat) == 3
+    assert flat[0]["assignee"] == "Alice"
+    assert flat[1]["assignee"] == "Unassigned"
+    assert flat[2]["priority"] == "None"
+    grouped = group_by_assignee(flat)
+    assert sorted(grouped["Alice"]) == ["JRA-1", "JRA-3"]
+    assert grouped["Unassigned"] == ["JRA-2"]
+    assert flatten_issues({"issues": []}) == []
+    assert flatten_issues({}) == []
+
+test_api_transformation()
+print("All tests passed")</code></pre>
+            <div class="complexity">
+              <div class="cx-item"><b>Time:</b> O(n)</div>
+              <div class="cx-item"><b>Space:</b> O(n)</div>
+            </div>
+            <div class="callout good"><b>Why this matters at Atlassian:</b> Atlassian's own product data (Jira, Confluence, Bitbucket) is consumed via REST APIs. A Principal DE at Atlassian will build pipelines that ingest product API data for analytics. This pattern is directly applicable.</div>
+          </div>
+        </details>
+
+        <details class="qa searchable">
+          <summary>Parsing — CSV and JSON with Edge Cases <span class="tag easy">Easy–Medium</span></summary>
+          <div class="detail-body">
+            <p><b>Problem:</b> Parse a CSV string (with quoted fields that may contain commas) and a nested JSON blob. Handle malformed rows gracefully.</p>
+            <pre><code>import csv
+import io
+
+CSV_DATA = '''id,name,department,salary
+1,Alice Smith,Engineering,120000
+2,"Bob, Jr.",Sales,85000
+3,Carol,,95000
+malformed_row
+'''
+
+def parse_csv(raw: str) -> list:
+    result = []
+    reader = csv.DictReader(io.StringIO(raw))
+    for row in reader:
+        try:
+            if not row.get('id') or not row.get('name'):
+                continue
+            result.append({
+                'id': int(row['id']),
+                'name': row['name'].strip(),
+                'department': row.get('department') or None,
+                'salary': int(row['salary']) if row.get('salary') else None,
+            })
+        except (ValueError, KeyError):
+            continue
+    return result
+
+def safe_get(data: dict, *keys, default=None):
+    """Safely traverse nested dict keys."""
+    for key in keys:
+        if not isinstance(data, dict):
+            return default
+        data = data.get(key, default)
+        if data is default:
+            return default
+    return data
+
+def test_parsing():
+    records = parse_csv(CSV_DATA)
+    assert len(records) == 3
+    assert records[1]['name'] == 'Bob, Jr.'
+    assert records[2]['department'] is None
+
+    nested = {"user": {"profile": {"age": 30}}}
+    assert safe_get(nested, "user", "profile", "age") == 30
+    assert safe_get(nested, "user", "missing", "key", default=-1) == -1
+    assert safe_get(nested, "x", default=None) is None
+
+test_parsing()
+print("All tests passed")</code></pre>
+            <div class="complexity">
+              <div class="cx-item"><b>CSV parse:</b> O(n·m) — n rows, m columns</div>
+              <div class="cx-item"><b>safe_get:</b> O(k) — k = depth of keys</div>
+            </div>
+          </div>
+        </details>
+
+        <details class="qa searchable">
+          <summary>Sorting Custom Objects — Multi-Key Sort and Stable Sort <span class="tag easy">Easy</span></summary>
+          <div class="detail-body">
+            <p><b>Problem:</b> Sort a list of pipeline run dicts by status (failed first), then by duration descending, then by name alphabetically. Handle None durations.</p>
+            <pre><code>PIPELINE_RUNS = [
+    {"name": "ingest_orders", "status": "success", "duration_s": 120},
+    {"name": "fraud_score",   "status": "failed",  "duration_s": None},
+    {"name": "daily_summary", "status": "failed",  "duration_s": 45},
+    {"name": "export_gcs",    "status": "success", "duration_s": 300},
+]
+
+STATUS_ORDER = {"failed": 0, "running": 1, "success": 2}
+
+def sort_pipelines(runs: list) -> list:
+    return sorted(
+        runs,
+        key=lambda r: (
+            STATUS_ORDER.get(r["status"], 99),
+            -(r["duration_s"] or 0),
+            r["name"],
+        )
+    )
+
+def test_sort_pipelines():
+    sorted_runs = sort_pipelines(PIPELINE_RUNS)
+    assert sorted_runs[0]["status"] == "failed"
+    assert sorted_runs[1]["status"] == "failed"
+    assert sorted_runs[0]["name"] == "daily_summary"
+    assert sorted_runs[1]["name"] == "fraud_score"
+    assert sorted_runs[2]["name"] == "export_gcs"
+    assert sort_pipelines([]) == []
+
+test_sort_pipelines()
+print("All tests passed")</code></pre>
+            <div class="complexity">
+              <div class="cx-item"><b>Time:</b> O(n log n)</div>
+              <div class="cx-item"><b>Space:</b> O(n)</div>
+            </div>
+            <div class="callout good"><b>Key technique:</b> Python's <code>sorted()</code> with a tuple key is the cleanest multi-key sort. Negate numeric fields for descending order. Python's sort is stable — equal keys preserve insertion order.</div>
+          </div>
+        </details>
+      </section>
+
       <!-- ADVANCED DATA STRUCTURES -->
       <section id="adv-ds" class="searchable">
         <h2>DS&amp;A — Advanced Data Structures</h2>
-        <p class="mini">Heaps, Tries, Union-Find, and Graphs (BFS/DFS) round out the DS&amp;A toolkit. These appear in system-design-adjacent coding questions at senior/principal level.</p>
+        <p class="mini">Heaps, Tries, and Union-Find complete the DS&amp;A toolkit for Stage 1. Graphs are explicitly excluded from the coding round — you will not be asked to implement graph traversal.</p>
 
         <details open class="qa searchable">
           <summary>Problem — Kth Largest Element (Min-Heap) <span class="tag med">Medium</span></summary>
@@ -1672,43 +2012,9 @@ print("All tests passed")</code></pre>
           </div>
         </details>
 
-        <details class="qa searchable">
-          <summary>Problem — BFS Shortest Path in Graph <span class="tag med">Medium</span></summary>
-          <div class="detail-body">
-            <p><b>Problem:</b> Given an adjacency list for an undirected graph, find the shortest path (by number of edges) between source and target.</p>
-            <div class="approach"><b>BFS O(V+E):</b> BFS guarantees shortest path in an unweighted graph. Use a deque and a visited set.</div>
-            <pre><code>from collections import deque
-
-def shortest_path(graph: dict, src: int, dst: int) -> int:
-    if src == dst:
-        return 0
-    visited = {src}
-    queue = deque([(src, 0)])
-    while queue:
-        node, dist = queue.popleft()
-        for neighbor in graph.get(node, []):
-            if neighbor == dst:
-                return dist + 1
-            if neighbor not in visited:
-                visited.add(neighbor)
-                queue.append((neighbor, dist + 1))
-    return -1  # unreachable
-
-def test_shortest_path():
-    g = {0:[1,2], 1:[0,3], 2:[0,3], 3:[1,2,4], 4:[3]}
-    assert shortest_path(g, 0, 4) == 2
-    assert shortest_path(g, 0, 0) == 0
-    assert shortest_path(g, 0, 99) == -1
-
-test_shortest_path()
-print("All tests passed")</code></pre>
-            <div class="complexity">
-              <div class="cx-item"><b>Time:</b> O(V + E)</div>
-              <div class="cx-item"><b>Space:</b> O(V) for visited + queue</div>
-            </div>
-            <div class="callout warn"><b>Note:</b> Atlassian's guide says no graphs in Stage 1 coding. But graphs appear in architecture and system design. Know BFS/DFS conceptually — you may not need to code them from scratch.</div>
-          </div>
-        </details>
+        <div class="callout danger" style="margin-top:18px">
+          <b>Official guide:</b> "Graph related questions will not be asked" in the DE coding interview. Do not spend time on BFS/DFS coding. Know graph concepts for architecture discussions only.
+        </div>
       </section>
 
       <!-- SQL PERFORMANCE -->
@@ -2194,6 +2500,40 @@ df_filtered.count()  # trigger cache
 
 # 5. Coalesce before writing (avoid tiny files)
 df_result.coalesce(50).write.parquet("gs://bucket/output/")</code></pre>
+            <h4>Advanced Optimization Techniques</h4>
+            <pre><code># 6. Adaptive Query Execution (AQE) — Spark 3.0+
+# AQE dynamically optimizes shuffle partitions and handles skew automatically
+spark.conf.set("spark.sql.adaptive.enabled", "true")
+spark.conf.set("spark.sql.adaptive.coalescePartitions.enabled", "true")
+spark.conf.set("spark.sql.adaptive.skewJoin.enabled", "true")
+
+# 7. Predicate pushdown — verify with df.explain(True)
+# Look for "PushedFilters" in Physical Plan output
+df = spark.read.parquet("gs://bucket/orders/") \
+    .filter("created_date >= '2025-01-01'")
+df.explain(True)  # check Physical Plan for PushedFilters
+
+# 8. Partition output by key columns
+df_result.write \
+    .partitionBy("region", "date") \
+    .mode("overwrite") \
+    .parquet("gs://bucket/output/")
+
+# 9. Delta/Hudi upsert instead of full overwrite (CDC loads)
+from delta.tables import DeltaTable
+delta_table = DeltaTable.forPath(spark, "gs://bucket/delta/orders")
+delta_table.alias("target").merge(
+    df_updates.alias("source"),
+    "target.order_id = source.order_id"
+).whenMatchedUpdateAll().whenNotMatchedInsertAll().execute()
+
+# 10. Filter and project BEFORE join — never join full tables
+result = (
+    orders.filter("status = 'SHIPPED'")
+          .select("order_id", "user_id", "amount")
+          .join(users.select("user_id", "email"), "user_id", "inner")
+)</code></pre>
+            <div class="callout good"><b>Interview tip:</b> Always lead with: (1) check Spark UI first, (2) identify bottleneck type (skew vs shuffle vs OOM vs GC), then prescribe the fix. AQE in Spark 3+ handles many skew problems automatically — naming it shows modern Spark knowledge.</div>
             <div class="callout good"><b>Your anchor:</b> In the 3,000-pipeline GCP migration, you tuned Spark jobs on Dataproc — you encountered skew in supplier transaction data (a handful of large suppliers dominated data volume). You implemented salting with a configurable salt factor, reducing that job's runtime from 4 hours to 35 minutes.</div>
           </div>
         </details>
@@ -2401,6 +2741,42 @@ if not results["success"]:
           <li>Product sense: data quality check before business conclusion.</li>
           <li>Leadership: GCP migration = scale. Sarthi/AI = innovation. Framework = knowledge sharing.</li>
         </ul>
+
+        <h3>Python DE Quick Reference</h3>
+        <pre><code># String ops
+s.split()                          # split on whitespace
+s.partition('=')                   # split on first '=' → (before, sep, after)
+s.strip().lower()                  # normalize
+','.join(items)                    # join list to string
+f"{val:.2f}"                       # format float
+
+# Dict ops
+d.get(k, default)                  # safe get
+d.setdefault(k, [])                # init if missing
+Counter(iterable)                  # frequency map
+defaultdict(list)                  # auto-init lists
+{v: k for k, v in d.items()}      # invert (simple, no duplicate values)
+
+# JSON / CSV
+import json, csv, io
+json.loads(s)                      # parse JSON string to dict
+json.dumps(d, indent=2)            # dict to JSON string
+csv.DictReader(io.StringIO(raw))   # parse CSV string
+
+# Safe nested dict access
+(d.get('a') or {}).get('b', default)
+
+# Multi-key sort (failed first, longest duration first, alpha tiebreak)
+sorted(items, key=lambda x: (priority_map[x['status']], -x['duration'], x['name']))
+
+# API pagination
+def fetch_all(session, url):
+    results = []
+    while url:
+        r = session.get(url).json()
+        results.extend(r['items'])
+        url = r.get('next_page_url')
+    return results</code></pre>
 
         <h3>DS&amp;A Pattern Cheat Sheet</h3>
         <ul class="columns">
