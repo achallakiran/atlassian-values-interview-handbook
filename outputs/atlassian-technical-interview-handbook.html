@@ -1,0 +1,2528 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Atlassian Technical Interview Handbook - Principal Data Engineer</title>
+  <style>
+    :root {
+      --bg: #f7f8fb; --paper: #ffffff; --ink: #172b4d; --muted: #5e6c84;
+      --line: #dfe1e6; --blue: #0052cc; --blue2: #0c66e4; --teal: #008da6;
+      --yellow: #ffab00; --red: #de350b; --green: #00875a; --code: #f4f5f7;
+      --shadow: 0 14px 40px rgba(9,30,66,.12);
+      --serif: Georgia,"Times New Roman",serif;
+      --sans: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+      --mono: ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;
+    }
+    [data-theme="dark"] {
+      --bg:#091e42; --paper:#101f3d; --ink:#f7f8fb; --muted:#b6c2cf;
+      --line:#30445f; --blue:#579dff; --blue2:#85b8ff; --teal:#60c6d2;
+      --yellow:#f5cd47; --red:#ff8f73; --green:#7ee2b8; --code:#172b4d;
+      --shadow: 0 14px 40px rgba(0,0,0,.25);
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body { margin:0; background:var(--bg); color:var(--ink); font:15.5px/1.55 var(--sans); }
+    #progress { position:fixed; inset:0 auto auto 0; height:4px; width:0%; background:linear-gradient(90deg,var(--blue),var(--teal),var(--yellow)); z-index:10; }
+    .layout { display:grid; grid-template-columns:292px minmax(0,1fr); min-height:100vh; }
+    aside { position:sticky; top:0; height:100vh; overflow:auto; padding:22px 18px; border-right:1px solid var(--line); background:var(--paper); }
+    main { max-width:1060px; margin:0 auto; padding:28px 30px 70px; }
+    .brand { font:700 20px/1.1 var(--serif); letter-spacing:.2px; margin:0 0 6px; }
+    .subtitle { color:var(--muted); font-size:12px; margin-bottom:18px; }
+    .tools { display:grid; gap:10px; margin:0 0 18px; }
+    input[type="search"] { width:100%; border:1px solid var(--line); border-radius:6px; padding:10px 11px; color:var(--ink); background:var(--paper); font:inherit; }
+    button,.print-link { border:1px solid var(--line); border-radius:6px; padding:9px 10px; cursor:pointer; background:var(--code); color:var(--ink); font-weight:700; text-align:center; text-decoration:none; }
+    nav a { display:block; padding:7px 8px; border-radius:5px; color:var(--ink); text-decoration:none; font-size:13px; }
+    nav a:hover,nav a.active { background:var(--code); color:var(--blue); }
+    .nav-group { font-size:11px; font-weight:800; text-transform:uppercase; letter-spacing:.08em; color:var(--muted); padding:12px 8px 4px; }
+    .cover { min-height:92vh; display:grid; align-content:center; gap:22px; border:1px solid var(--line); background:var(--paper); box-shadow:var(--shadow); padding:62px; position:relative; overflow:hidden; }
+    .cover:before { content:""; position:absolute; inset:0 auto 0 0; width:16px; background:linear-gradient(var(--blue),var(--teal),var(--yellow),var(--red)); }
+    .kicker { color:var(--blue); font-weight:800; text-transform:uppercase; letter-spacing:.09em; font-size:12px; }
+    h1,h2,h3 { line-height:1.15; margin:0 0 12px; letter-spacing:0; }
+    h1 { font:800 48px/1.03 var(--serif); max-width:780px; }
+    h2 { font:800 30px/1.1 var(--serif); border-bottom:3px solid var(--blue); padding-bottom:9px; }
+    h3 { font-size:20px; margin-top:24px; }
+    h4 { margin:18px 0 6px; font-size:14px; text-transform:uppercase; letter-spacing:.06em; color:var(--blue); }
+    p { margin:0 0 11px; }
+    ul,ol { margin-top:6px; padding-left:22px; }
+    li { margin:4px 0; }
+    section { background:var(--paper); border:1px solid var(--line); border-radius:8px; padding:28px; margin:22px 0; box-shadow:0 2px 8px rgba(9,30,66,.04); }
+    .toc-grid,.stage-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:14px; }
+    .callout { border-left:5px solid var(--blue); background:var(--code); padding:14px 16px; border-radius:0 6px 6px 0; margin:14px 0; }
+    .callout.warn { border-left-color:var(--yellow); }
+    .callout.good { border-left-color:var(--green); }
+    .callout.danger { border-left-color:var(--red); }
+    .metric { font-family:var(--mono); font-weight:800; color:var(--green); }
+    .tag { display:inline-block; border:1px solid var(--line); border-radius:999px; padding:2px 8px; font-size:12px; color:var(--muted); margin:2px 3px 2px 0; }
+    .tag.hard { background:#fff0f0; color:var(--red); border-color:var(--red); }
+    .tag.med { background:#fff7e0; color:#974f0c; border-color:var(--yellow); }
+    .tag.easy { background:#e3fcef; color:var(--green); border-color:var(--green); }
+    .tag.sql { background:#e6f0ff; color:var(--blue); border-color:var(--blue); }
+    details { border:1px solid var(--line); border-radius:8px; margin:14px 0; background:var(--paper); overflow:hidden; }
+    summary { cursor:pointer; padding:15px 18px; font-weight:800; color:var(--ink); background:linear-gradient(90deg,var(--code),transparent); }
+    .detail-body { padding:0 18px 18px; }
+    .mini { color:var(--muted); font-size:13px; }
+    pre { background:var(--code); border:1px solid var(--line); border-radius:6px; padding:16px; overflow-x:auto; font:13px/1.6 var(--mono); margin:12px 0; }
+    code { font-family:var(--mono); font-size:13px; background:var(--code); padding:1px 5px; border-radius:3px; }
+    .complexity { display:flex; gap:16px; flex-wrap:wrap; margin:10px 0; }
+    .cx-item { background:var(--code); border:1px solid var(--line); border-radius:6px; padding:6px 12px; font-family:var(--mono); font-size:12px; }
+    .cx-item b { color:var(--blue); }
+    .approach { border:1px solid var(--line); border-radius:8px; padding:14px 16px; margin:10px 0; background:linear-gradient(180deg,var(--paper),var(--code)); }
+    .approach b { color:var(--blue); }
+    .story-card { border:1px solid var(--line); border-radius:8px; padding:14px 16px; margin:10px 0; background:linear-gradient(180deg,var(--paper),var(--code)); }
+    .story-card b { color:var(--blue); }
+    .stage-card { border:1px solid var(--line); border-radius:8px; padding:16px 18px; background:var(--paper); }
+    .stage-num { font:800 28px/1 var(--serif); color:var(--blue); }
+    .columns { columns:2; column-gap:34px; }
+    mark { background:#fff0b3; color:#172b4d; padding:0 2px; }
+    .hidden { display:none !important; }
+    .oreilly { display:inline-grid; place-items:center; width:92px; height:92px; border:4px solid var(--ink); font:800 20px/1 var(--serif); margin-bottom:8px; }
+    .qa h3 { margin-top:0; }
+    .sol-tabs { display:flex; gap:8px; flex-wrap:wrap; margin:12px 0 4px; }
+    .sol-tab { background:var(--code); border:2px solid var(--line); border-radius:6px; padding:5px 12px; font-size:12px; font-weight:700; cursor:pointer; }
+    .sol-tab.active { border-color:var(--blue); color:var(--blue); }
+    @media (max-width:880px) {
+      .layout { grid-template-columns:1fr; }
+      aside { position:relative; height:auto; }
+      main { padding:16px; }
+      .cover { padding:36px 28px; min-height:72vh; }
+      h1 { font-size:34px; }
+      .toc-grid,.stage-grid,.columns { grid-template-columns:1fr; columns:1; }
+    }
+    @media print {
+      :root { --bg:#fff; --paper:#fff; --ink:#000; --muted:#333; --line:#999; --code:#f2f2f2; --blue:#000; }
+      body { font-size:10.5pt; line-height:1.35; }
+      #progress,aside,.tools,button { display:none !important; }
+      .layout { display:block; }
+      main { max-width:none; padding:0; }
+      section,.cover { box-shadow:none; border:0; padding:0; margin:0 0 14pt; }
+      .cover { min-height:95vh; page-break-after:always; border-left:12pt solid #000; padding-left:24pt; }
+      h1 { font-size:32pt; }
+      h2 { font-size:20pt; page-break-after:avoid; }
+      h3 { font-size:14pt; page-break-after:avoid; }
+      details { page-break-inside:avoid; border:0; }
+      pre { font-size:9pt; }
+    }
+  </style>
+</head>
+<body>
+<div id="progress"></div>
+<div class="layout">
+  <aside>
+    <div class="brand">Technical Interview Handbook</div>
+    <div class="subtitle">Principal Data Engineer — Atlassian</div>
+    <div class="tools">
+      <input id="search" type="search" placeholder="Search problems, patterns, SQL...">
+      <button id="theme">Toggle dark mode</button>
+      <button onclick="window.print()">Print / Save PDF</button>
+    </div>
+    <nav id="nav">
+      <div class="nav-group">Overview</div>
+      <a href="#cover">Cover</a>
+      <a href="#toc">Table of Contents</a>
+      <a href="#process">Interview Process</a>
+      <a href="#coding-strategy">Coding Strategy</a>
+      <div class="nav-group">Stage 1 — Coding</div>
+      <a href="#arrays">Arrays &amp; Strings</a>
+      <a href="#hashmaps">Hash Maps &amp; Sets</a>
+      <a href="#twopointers">Two Pointers</a>
+      <a href="#stacks">Stacks &amp; Queues</a>
+      <a href="#trees">Trees</a>
+      <a href="#dp">Dynamic Programming</a>
+      <a href="#sorting">Sorting &amp; Intervals</a>
+      <a href="#adv-ds">Advanced Data Structures</a>
+      <div class="nav-group">Stage 1 — SQL</div>
+      <a href="#sql-window">Window Functions</a>
+      <a href="#sql-cte">CTEs &amp; Subqueries</a>
+      <a href="#sql-advanced">Advanced Patterns</a>
+      <a href="#sql-perf">SQL Performance &amp; Optimization</a>
+      <div class="nav-group">Data Engineering Deep</div>
+      <a href="#big-data">Big Data Concepts</a>
+      <a href="#distributed-systems">Distributed Systems</a>
+      <a href="#frameworks">Data Processing Frameworks</a>
+      <div class="nav-group">Stage 2</div>
+      <a href="#architecture">Architecture Design</a>
+      <a href="#product-sense">Product Sense</a>
+      <div class="nav-group">Stage 3</div>
+      <a href="#leadership-craft">Leadership Craft</a>
+      <div class="nav-group">Revision</div>
+      <a href="#revision">Revision Sheets</a>
+    </nav>
+  </aside>
+  <main>
+    <article id="content">
+
+      <!-- COVER -->
+      <div class="cover searchable" id="cover">
+        <div class="oreilly">DE<br>TECH</div>
+        <div class="kicker">Atlassian Technical Interview Prep — All 5 Stages</div>
+        <h1>Principal Data Engineer Technical Interview Handbook</h1>
+        <p style="font-size:20px;max-width:760px">Complete prep for Stage 1 (Coding + SQL), Stage 2 (Data Architecture &amp; Design + Product Sense), and Stage 3 (Leadership Craft). Based on Atlassian's official interview guide and calibrated to your Walmart background.</p>
+        <p class="mini">Your stack: Python, PySpark, SQL (BigQuery), Spark, Kafka, GCP. Your anchor projects: 3,000-pipeline GCP migration, eCommerce 360, Fraud Detection, Egregious Pricing, Sarthi Agentic AI, FinOps $20M.</p>
+        <div>
+          <span class="tag">60-min coding</span>
+          <span class="tag">60-min architecture</span>
+          <span class="tag">60-min product sense</span>
+          <span class="tag">60-min leadership craft</span>
+          <span class="tag">No graphs asked</span>
+          <span class="tag">TDD required</span>
+          <span class="tag">HackerRank platform</span>
+        </div>
+      </div>
+
+      <!-- TOC -->
+      <section id="toc" class="searchable">
+        <h2>Table of Contents</h2>
+        <div class="toc-grid">
+          <div><b>1. Interview Process</b><br><span class="mini">5 stages, what each tests, logistics.</span></div>
+          <div><b>2. Coding Strategy</b><br><span class="mini">Communication protocol, TDD pattern, multi-solution approach.</span></div>
+          <div><b>3. DS&amp;A — 8 Topic Areas</b><br><span class="mini">Arrays, HashMaps, Two Pointers, Stacks, Trees, DP, Sorting, Advanced DS (Heaps, Tries, Union-Find, Graphs).</span></div>
+          <div><b>4. SQL — 4 Topic Areas</b><br><span class="mini">Window functions, CTEs, advanced patterns, performance &amp; optimization. Medium–Advanced BigQuery SQL.</span></div>
+          <div><b>5. Big Data Concepts</b><br><span class="mini">HDFS, MapReduce, data lake patterns, Lambda/Kappa architecture, file formats, partitioning strategies.</span></div>
+          <div><b>6. Distributed Systems</b><br><span class="mini">CAP theorem, consistency models, partitioning, replication, distributed transactions, consensus.</span></div>
+          <div><b>7. Data Processing Frameworks</b><br><span class="mini">PySpark internals, Kafka architecture, Flink vs Spark Streaming, Airflow DAG patterns.</span></div>
+          <div><b>8. Data Architecture &amp; Design</b><br><span class="mini">Framework + 3 practice problems mapped to your background.</span></div>
+          <div><b>9. Product Sense</b><br><span class="mini">Product understanding, data acumen, data modeling. Framework + practice.</span></div>
+          <div><b>10. Leadership Craft</b><br><span class="mini">3 areas Atlassian probes + your story bank mapped to each.</span></div>
+          <div><b>11. Revision Sheets</b><br><span class="mini">30-min, 15-min, 5-min rapid review. Cheat sheets for all patterns.</span></div>
+        </div>
+      </section>
+
+      <!-- PROCESS -->
+      <section id="process" class="searchable">
+        <h2>Interview Process</h2>
+        <p>Atlassian runs a staged process. Each stage must pass before the next is scheduled. The values interview handbook covers Stage 3 (Values). This handbook covers everything else.</p>
+        <div class="stage-grid">
+          <div class="stage-card">
+            <div class="stage-num">1</div>
+            <h3 style="margin-top:8px">Data Engineering Coding</h3>
+            <p class="mini">60 minutes · HackerRank · Python preferred</p>
+            <ul>
+              <li>Intermediate DS&amp;A — <mark>no graph questions</mark></li>
+              <li>Intermediate to Advanced SQL</li>
+              <li>LeetCode Easy–Medium Python</li>
+              <li>Medium–Advanced SQL</li>
+              <li>Must write functional, executable code</li>
+              <li>Show all solutions, explain tradeoffs</li>
+              <li><mark>Testing (TDD) is explicitly evaluated</mark></li>
+            </ul>
+          </div>
+          <div class="stage-card">
+            <div class="stage-num">2a</div>
+            <h3 style="margin-top:8px">Data Architecture &amp; Design</h3>
+            <p class="mini">60 minutes · Whiteboard / Zoom</p>
+            <ul>
+              <li>Design a solution to an established problem</li>
+              <li>Start with fundamentals, build complexity</li>
+              <li>Ask clarifying questions upfront</li>
+              <li>Performance, reliability, scalability focus</li>
+              <li>Customer-centric thinking expected</li>
+              <li>Paper + pen or Zoom whiteboard</li>
+            </ul>
+          </div>
+          <div class="stage-card">
+            <div class="stage-num">2b</div>
+            <h3 style="margin-top:8px">Product Sense</h3>
+            <p class="mini">60 minutes · Full-stack DE lens</p>
+            <ul>
+              <li>Product understanding</li>
+              <li>Data acumen: metrics, KPIs, divergent metrics</li>
+              <li>Data modeling: complex data systems</li>
+              <li>Analytical standpoint of a product</li>
+              <li>Decision-making process expected</li>
+            </ul>
+          </div>
+          <div class="stage-card">
+            <div class="stage-num">3a</div>
+            <h3 style="margin-top:8px">Leadership Craft</h3>
+            <p class="mini">60 minutes · Scenario-based · Engineering manager</p>
+            <ul>
+              <li>One or more complex projects, measurable impact</li>
+              <li>Own and drive outcomes at large scale</li>
+              <li>Leadership and direction you bring to teams</li>
+              <li>Knowledge sharing and improved ways of working</li>
+              <li>Not deep technical architecture — but explain WHY choices</li>
+              <li>Career passion and direction</li>
+            </ul>
+          </div>
+        </div>
+        <div class="callout warn" style="margin-top:18px">
+          <b>Critical from the guide:</b> After each stage, recruiter contacts you about progression. Do not assume. Each stage is gated.
+        </div>
+      </section>
+
+      <!-- CODING STRATEGY -->
+      <section id="coding-strategy" class="searchable">
+        <h2>Coding Interview Strategy</h2>
+
+        <h3>The 5-Minute Protocol Before You Write Code</h3>
+        <ol>
+          <li><b>Clarify</b> — Repeat the problem in your words. Ask: edge cases? input range? sorted? nulls? duplicates?</li>
+          <li><b>Examples</b> — Walk through 2–3 examples manually. Include an edge case.</li>
+          <li><b>Brute force first</b> — Name the brute force approach and its complexity. Do NOT code it yet.</li>
+          <li><b>Optimize</b> — State the optimized approach and why it's better. Get interviewer buy-in.</li>
+          <li><b>Code</b> — Only then write clean, functional Python.</li>
+        </ol>
+
+        <h3>The TDD Pattern Atlassian Explicitly Evaluates</h3>
+        <div class="callout good">
+          Atlassian explicitly says: "Testing is crucial to success in the code task. We strongly recommend brushing up on testing, in particular the TDD approach."
+        </div>
+        <p>Write your tests <b>before</b> your solution. Use this pattern in HackerRank:</p>
+        <pre><code>def solution(input):
+    # write this AFTER the tests
+    pass
+
+# Tests — write these FIRST
+def test_solution():
+    # happy path
+    assert solution([2, 7, 11, 15], 9) == [0, 1]
+    # edge: empty input
+    assert solution([], 0) == []
+    # edge: single element
+    assert solution([5], 5) == []
+    # edge: duplicates
+    assert solution([3, 3], 6) == [0, 1]
+
+test_solution()
+print("All tests passed")</code></pre>
+
+        <h3>Multi-Solution Showcase</h3>
+        <div class="callout good">
+          The guide says: "Because problems are rarely limited to a single solution, please showcase all possible solutions and why the approach you selected is the best fit."
+        </div>
+        <p>Always present in this order:</p>
+        <ol>
+          <li><b>Brute force</b> — name it, state complexity, say why it's not ideal</li>
+          <li><b>Better approach</b> — show the key insight (sorting, hashmap, two pointers)</li>
+          <li><b>Optimal</b> — implement this one, state final complexity</li>
+        </ol>
+
+        <h3>Communication Phrases to Use</h3>
+        <ul class="columns">
+          <li>"Let me start by restating the problem to make sure I understand."</li>
+          <li>"A brute force here would be O(n²) — let me think about a better approach."</li>
+          <li>"The key insight is that we can use a hashmap to get O(1) lookups."</li>
+          <li>"Before I code, let me write the tests first."</li>
+          <li>"Let me trace through this with the example input."</li>
+          <li>"Time complexity is O(n), space is O(n) for the hashmap."</li>
+          <li>"An alternative would be sorting first — that gives us O(n log n) time but O(1) space."</li>
+          <li>"Let me check my edge cases: empty input, single element, all same values."</li>
+        </ul>
+      </section>
+
+      <!-- ARRAYS & STRINGS -->
+      <section id="arrays" class="searchable">
+        <h2>DS&amp;A — Arrays &amp; Strings</h2>
+        <p class="mini">Most common topic area. Focus on sliding window, frequency counting, and two-pass techniques. Python string immutability matters.</p>
+
+        <details open class="qa searchable">
+          <summary>Problem 1 — Two Sum <span class="tag easy">Easy</span></summary>
+          <div class="detail-body">
+            <p><b>Problem:</b> Given an array of integers <code>nums</code> and an integer <code>target</code>, return the indices of the two numbers that add up to <code>target</code>. Each input has exactly one solution. You may not use the same element twice.</p>
+            <div class="approach">
+              <b>Brute Force O(n²):</b> Nested loop — for every pair, check if sum == target. Too slow for large inputs.
+            </div>
+            <div class="approach">
+              <b>Optimal O(n):</b> Single pass with a hashmap. For each number, check if <code>target - num</code> is already in the map. If yes, return indices. If no, add current num and index to map.
+            </div>
+            <pre><code>def two_sum(nums: list[int], target: int) -> list[int]:
+    seen = {}  # value -> index
+    for i, num in enumerate(nums):
+        complement = target - num
+        if complement in seen:
+            return [seen[complement], i]
+        seen[num] = i
+    return []
+
+def test_two_sum():
+    assert two_sum([2, 7, 11, 15], 9) == [0, 1]
+    assert two_sum([3, 2, 4], 6) == [1, 2]
+    assert two_sum([3, 3], 6) == [0, 1]
+    assert two_sum([], 0) == []
+
+test_two_sum()
+print("All tests passed")</code></pre>
+            <div class="complexity">
+              <div class="cx-item"><b>Time:</b> O(n)</div>
+              <div class="cx-item"><b>Space:</b> O(n) — hashmap</div>
+            </div>
+          </div>
+        </details>
+
+        <details class="qa searchable">
+          <summary>Problem 2 — Longest Substring Without Repeating Characters <span class="tag med">Medium</span></summary>
+          <div class="detail-body">
+            <p><b>Problem:</b> Given a string <code>s</code>, find the length of the longest substring without repeating characters.</p>
+            <div class="approach">
+              <b>Brute Force O(n³):</b> Check every substring — too slow.
+            </div>
+            <div class="approach">
+              <b>Sliding Window O(n):</b> Maintain a window [left, right]. Expand right; when we hit a duplicate, shrink from left until the duplicate is removed. Track max length.
+            </div>
+            <pre><code>def length_of_longest_substring(s: str) -> int:
+    char_index = {}  # char -> most recent index
+    left = 0
+    max_len = 0
+    for right, char in enumerate(s):
+        if char in char_index and char_index[char] >= left:
+            left = char_index[char] + 1
+        char_index[char] = right
+        max_len = max(max_len, right - left + 1)
+    return max_len
+
+def test_length_of_longest_substring():
+    assert length_of_longest_substring("abcabcbb") == 3
+    assert length_of_longest_substring("bbbbb") == 1
+    assert length_of_longest_substring("pwwkew") == 3
+    assert length_of_longest_substring("") == 0
+    assert length_of_longest_substring("a") == 1
+
+test_length_of_longest_substring()
+print("All tests passed")</code></pre>
+            <div class="complexity">
+              <div class="cx-item"><b>Time:</b> O(n)</div>
+              <div class="cx-item"><b>Space:</b> O(min(n, alphabet))</div>
+            </div>
+          </div>
+        </details>
+
+        <details class="qa searchable">
+          <summary>Problem 3 — Merge Intervals <span class="tag med">Medium</span></summary>
+          <div class="detail-body">
+            <p><b>Problem:</b> Given an array of intervals <code>[[start, end], ...]</code>, merge all overlapping intervals and return the result.</p>
+            <div class="approach">
+              <b>Key insight:</b> Sort by start time. Then scan: if current interval overlaps with last merged (current.start &lt;= last.end), extend last.end. Otherwise, append current as new interval.
+            </div>
+            <pre><code>def merge_intervals(intervals: list[list[int]]) -> list[list[int]]:
+    if not intervals:
+        return []
+    intervals.sort(key=lambda x: x[0])
+    merged = [intervals[0]]
+    for start, end in intervals[1:]:
+        if start <= merged[-1][1]:
+            merged[-1][1] = max(merged[-1][1], end)
+        else:
+            merged.append([start, end])
+    return merged
+
+def test_merge_intervals():
+    assert merge_intervals([[1,3],[2,6],[8,10],[15,18]]) == [[1,6],[8,10],[15,18]]
+    assert merge_intervals([[1,4],[4,5]]) == [[1,5]]
+    assert merge_intervals([[1,4],[2,3]]) == [[1,4]]
+    assert merge_intervals([]) == []
+    assert merge_intervals([[1,1]]) == [[1,1]]
+
+test_merge_intervals()
+print("All tests passed")</code></pre>
+            <div class="complexity">
+              <div class="cx-item"><b>Time:</b> O(n log n) — sort dominates</div>
+              <div class="cx-item"><b>Space:</b> O(n)</div>
+            </div>
+            <div class="callout good"><b>Data engineering angle:</b> Mention this maps to session window computation in Spark Structured Streaming — you've used this concept in inventory reconciliation at Walmart.</div>
+          </div>
+        </details>
+
+        <details class="qa searchable">
+          <summary>Problem 4 — Valid Anagram <span class="tag easy">Easy</span></summary>
+          <div class="detail-body">
+            <p><b>Problem:</b> Given two strings <code>s</code> and <code>t</code>, return true if <code>t</code> is an anagram of <code>s</code>.</p>
+            <pre><code>from collections import Counter
+
+def is_anagram(s: str, t: str) -> bool:
+    if len(s) != len(t):
+        return False
+    return Counter(s) == Counter(t)
+
+# Alternative without Counter — O(26) space for lowercase alpha
+def is_anagram_v2(s: str, t: str) -> bool:
+    if len(s) != len(t):
+        return False
+    counts = [0] * 26
+    for c in s:
+        counts[ord(c) - ord('a')] += 1
+    for c in t:
+        counts[ord(c) - ord('a')] -= 1
+    return all(x == 0 for x in counts)
+
+def test_is_anagram():
+    assert is_anagram("anagram", "nagaram") == True
+    assert is_anagram("rat", "car") == False
+    assert is_anagram("", "") == True
+    assert is_anagram("a", "ab") == False
+
+test_is_anagram()
+print("All tests passed")</code></pre>
+            <div class="complexity">
+              <div class="cx-item"><b>Time:</b> O(n)</div>
+              <div class="cx-item"><b>Space:</b> O(1) — fixed alphabet</div>
+            </div>
+          </div>
+        </details>
+      </section>
+
+      <!-- HASHMAPS -->
+      <section id="hashmaps" class="searchable">
+        <h2>DS&amp;A — Hash Maps &amp; Sets</h2>
+        <p class="mini">Hashmaps trade space for time. Default weapon for reducing O(n²) to O(n). Know <code>collections.defaultdict</code> and <code>Counter</code> cold.</p>
+
+        <details open class="qa searchable">
+          <summary>Problem 5 — Group Anagrams <span class="tag med">Medium</span></summary>
+          <div class="detail-body">
+            <p><b>Problem:</b> Given an array of strings, group the anagrams together.</p>
+            <div class="approach">
+              <b>Key insight:</b> Anagrams have the same sorted characters. Use sorted string as hashmap key.
+            </div>
+            <pre><code>from collections import defaultdict
+
+def group_anagrams(strs: list[str]) -> list[list[str]]:
+    groups = defaultdict(list)
+    for s in strs:
+        key = tuple(sorted(s))  # or ''.join(sorted(s))
+        groups[key].append(s)
+    return list(groups.values())
+
+def test_group_anagrams():
+    result = group_anagrams(["eat","tea","tan","ate","nat","bat"])
+    result_sorted = sorted([sorted(g) for g in result])
+    expected = sorted([sorted(g) for g in [["ate","eat","tea"],["nat","tan"],["bat"]]])
+    assert result_sorted == expected
+    assert group_anagrams([""]) == [[""]]
+    assert group_anagrams(["a"]) == [["a"]]
+
+test_group_anagrams()
+print("All tests passed")</code></pre>
+            <div class="complexity">
+              <div class="cx-item"><b>Time:</b> O(n · k log k) where k = max string length</div>
+              <div class="cx-item"><b>Space:</b> O(n · k)</div>
+            </div>
+          </div>
+        </details>
+
+        <details class="qa searchable">
+          <summary>Problem 6 — Top K Frequent Elements <span class="tag med">Medium</span></summary>
+          <div class="detail-body">
+            <p><b>Problem:</b> Given an integer array and integer k, return the k most frequent elements.</p>
+            <div class="approach">
+              <b>Approach 1 — Sort by frequency O(n log n):</b> Count, sort by count descending, return first k.
+            </div>
+            <div class="approach">
+              <b>Approach 2 — Bucket sort O(n):</b> Count frequencies. Create buckets indexed by frequency (max = n). Iterate buckets from high to low, collect k elements.
+            </div>
+            <pre><code>from collections import Counter
+
+def top_k_frequent(nums: list[int], k: int) -> list[int]:
+    # Approach 1: heap / sort — O(n log n)
+    count = Counter(nums)
+    return [num for num, _ in count.most_common(k)]
+
+def top_k_frequent_optimal(nums: list[int], k: int) -> list[int]:
+    # Approach 2: bucket sort — O(n)
+    count = Counter(nums)
+    buckets = [[] for _ in range(len(nums) + 1)]
+    for num, freq in count.items():
+        buckets[freq].append(num)
+    result = []
+    for freq in range(len(buckets) - 1, 0, -1):
+        result.extend(buckets[freq])
+        if len(result) >= k:
+            return result[:k]
+    return result
+
+def test_top_k_frequent():
+    assert sorted(top_k_frequent([1,1,1,2,2,3], 2)) == [1, 2]
+    assert top_k_frequent([1], 1) == [1]
+
+test_top_k_frequent()
+print("All tests passed")</code></pre>
+            <div class="complexity">
+              <div class="cx-item"><b>Approach 1 Time:</b> O(n log n)</div>
+              <div class="cx-item"><b>Approach 2 Time:</b> O(n)</div>
+              <div class="cx-item"><b>Space:</b> O(n)</div>
+            </div>
+          </div>
+        </details>
+      </section>
+
+      <!-- TWO POINTERS -->
+      <section id="twopointers" class="searchable">
+        <h2>DS&amp;A — Two Pointers / Sliding Window</h2>
+        <p class="mini">Two pointers works on sorted arrays or specific structures. Sliding window works on subarrays/substrings. Identify which by whether you need a fixed or variable window.</p>
+
+        <details open class="qa searchable">
+          <summary>Problem 7 — Container With Most Water <span class="tag med">Medium</span></summary>
+          <div class="detail-body">
+            <p><b>Problem:</b> Given an integer array <code>height</code>, find two lines that together with the x-axis form a container that holds the most water.</p>
+            <div class="approach">
+              <b>Two pointer O(n):</b> Start left=0, right=n-1. Area = min(height[left], height[right]) * (right - left). Move the pointer with the smaller height inward. Repeat until pointers meet.
+            </div>
+            <pre><code>def max_area(height: list[int]) -> int:
+    left, right = 0, len(height) - 1
+    max_water = 0
+    while left < right:
+        water = min(height[left], height[right]) * (right - left)
+        max_water = max(max_water, water)
+        if height[left] < height[right]:
+            left += 1
+        else:
+            right -= 1
+    return max_water
+
+def test_max_area():
+    assert max_area([1,8,6,2,5,4,8,3,7]) == 49
+    assert max_area([1,1]) == 1
+    assert max_area([4,3,2,1,4]) == 16
+    assert max_area([1,2,1]) == 2
+
+test_max_area()
+print("All tests passed")</code></pre>
+            <div class="complexity">
+              <div class="cx-item"><b>Time:</b> O(n)</div>
+              <div class="cx-item"><b>Space:</b> O(1)</div>
+            </div>
+          </div>
+        </details>
+
+        <details class="qa searchable">
+          <summary>Problem 8 — Move Zeroes <span class="tag easy">Easy</span></summary>
+          <div class="detail-body">
+            <p><b>Problem:</b> Given an integer array, move all zeroes to the end while maintaining the relative order of non-zero elements. Do it in-place.</p>
+            <pre><code>def move_zeroes(nums: list[int]) -> None:
+    insert_pos = 0
+    for num in nums:
+        if num != 0:
+            nums[insert_pos] = num
+            insert_pos += 1
+    for i in range(insert_pos, len(nums)):
+        nums[i] = 0
+
+def test_move_zeroes():
+    nums = [0, 1, 0, 3, 12]
+    move_zeroes(nums)
+    assert nums == [1, 3, 12, 0, 0]
+    nums2 = [0]
+    move_zeroes(nums2)
+    assert nums2 == [0]
+    nums3 = [1, 2, 3]
+    move_zeroes(nums3)
+    assert nums3 == [1, 2, 3]
+
+test_move_zeroes()
+print("All tests passed")</code></pre>
+            <div class="complexity">
+              <div class="cx-item"><b>Time:</b> O(n)</div>
+              <div class="cx-item"><b>Space:</b> O(1) — in-place</div>
+            </div>
+          </div>
+        </details>
+      </section>
+
+      <!-- STACKS -->
+      <section id="stacks" class="searchable">
+        <h2>DS&amp;A — Stacks &amp; Queues</h2>
+        <p class="mini">Stacks solve "most recent unresolved" problems. Queues (deque) solve sliding window max and BFS. Use Python's <code>collections.deque</code> for O(1) both ends.</p>
+
+        <details open class="qa searchable">
+          <summary>Problem 9 — Valid Parentheses <span class="tag easy">Easy</span></summary>
+          <div class="detail-body">
+            <p><b>Problem:</b> Given a string containing only <code>()[]{}</code>, determine if the input string is valid. Open brackets must be closed in the correct order.</p>
+            <pre><code>def is_valid(s: str) -> bool:
+    stack = []
+    mapping = {')': '(', '}': '{', ']': '['}
+    for char in s:
+        if char in mapping:
+            top = stack.pop() if stack else '#'
+            if mapping[char] != top:
+                return False
+        else:
+            stack.append(char)
+    return not stack
+
+def test_is_valid():
+    assert is_valid("()") == True
+    assert is_valid("()[]{}") == True
+    assert is_valid("(]") == False
+    assert is_valid("([)]") == False
+    assert is_valid("{[]}") == True
+    assert is_valid("") == True
+    assert is_valid("]") == False
+
+test_is_valid()
+print("All tests passed")</code></pre>
+            <div class="complexity">
+              <div class="cx-item"><b>Time:</b> O(n)</div>
+              <div class="cx-item"><b>Space:</b> O(n)</div>
+            </div>
+          </div>
+        </details>
+
+        <details class="qa searchable">
+          <summary>Problem 10 — Daily Temperatures <span class="tag med">Medium</span></summary>
+          <div class="detail-body">
+            <p><b>Problem:</b> Given an array of daily temperatures, return an array where each element is the number of days until a warmer temperature. If no future warmer day exists, put 0.</p>
+            <div class="approach">
+              <b>Monotonic stack O(n):</b> Maintain a stack of indices with decreasing temperatures. When we find a warmer day, pop and calculate the wait.
+            </div>
+            <pre><code>def daily_temperatures(temps: list[int]) -> list[int]:
+    result = [0] * len(temps)
+    stack = []  # indices, monotonically decreasing temps
+    for i, temp in enumerate(temps):
+        while stack and temp > temps[stack[-1]]:
+            j = stack.pop()
+            result[j] = i - j
+        stack.append(i)
+    return result
+
+def test_daily_temperatures():
+    assert daily_temperatures([73,74,75,71,69,72,76,73]) == [1,1,4,2,1,1,0,0]
+    assert daily_temperatures([30,40,50,60]) == [1,1,1,0]
+    assert daily_temperatures([30,60,90]) == [1,1,0]
+    assert daily_temperatures([]) == []
+
+test_daily_temperatures()
+print("All tests passed")</code></pre>
+            <div class="complexity">
+              <div class="cx-item"><b>Time:</b> O(n)</div>
+              <div class="cx-item"><b>Space:</b> O(n)</div>
+            </div>
+          </div>
+        </details>
+      </section>
+
+      <!-- TREES -->
+      <section id="trees" class="searchable">
+        <h2>DS&amp;A — Trees</h2>
+        <p class="mini">Binary trees are common. Know BFS (level order) and DFS (inorder/preorder/postorder) cold. Atlassian confirmed no graph questions — trees are the upper bound.</p>
+        <pre><code>class TreeNode:
+    def __init__(self, val=0, left=None, right=None):
+        self.val = val
+        self.left = left
+        self.right = right</code></pre>
+
+        <details open class="qa searchable">
+          <summary>Problem 11 — Level Order Traversal (BFS) <span class="tag med">Medium</span></summary>
+          <div class="detail-body">
+            <p><b>Problem:</b> Given the root of a binary tree, return the level order traversal of its nodes' values (i.e., left to right, level by level).</p>
+            <pre><code>from collections import deque
+
+def level_order(root) -> list[list[int]]:
+    if not root:
+        return []
+    result = []
+    queue = deque([root])
+    while queue:
+        level_size = len(queue)
+        level = []
+        for _ in range(level_size):
+            node = queue.popleft()
+            level.append(node.val)
+            if node.left:
+                queue.append(node.left)
+            if node.right:
+                queue.append(node.right)
+        result.append(level)
+    return result
+
+def test_level_order():
+    # Tree:    3
+    #         / \
+    #        9  20
+    #           / \
+    #          15   7
+    root = TreeNode(3, TreeNode(9), TreeNode(20, TreeNode(15), TreeNode(7)))
+    assert level_order(root) == [[3], [9, 20], [15, 7]]
+    assert level_order(None) == []
+    assert level_order(TreeNode(1)) == [[1]]
+
+test_level_order()
+print("All tests passed")</code></pre>
+            <div class="complexity">
+              <div class="cx-item"><b>Time:</b> O(n)</div>
+              <div class="cx-item"><b>Space:</b> O(n) — queue holds one level at a time, max n/2 nodes</div>
+            </div>
+          </div>
+        </details>
+
+        <details class="qa searchable">
+          <summary>Problem 12 — Maximum Depth of Binary Tree <span class="tag easy">Easy</span></summary>
+          <div class="detail-body">
+            <p><b>Problem:</b> Given the root of a binary tree, return its maximum depth.</p>
+            <pre><code>def max_depth(root) -> int:
+    if not root:
+        return 0
+    return 1 + max(max_depth(root.left), max_depth(root.right))
+
+# Iterative BFS alternative
+def max_depth_iterative(root) -> int:
+    if not root:
+        return 0
+    from collections import deque
+    depth = 0
+    queue = deque([root])
+    while queue:
+        depth += 1
+        for _ in range(len(queue)):
+            node = queue.popleft()
+            if node.left: queue.append(node.left)
+            if node.right: queue.append(node.right)
+    return depth
+
+def test_max_depth():
+    root = TreeNode(3, TreeNode(9), TreeNode(20, TreeNode(15), TreeNode(7)))
+    assert max_depth(root) == 3
+    assert max_depth(None) == 0
+    assert max_depth(TreeNode(1)) == 1
+
+test_max_depth()
+print("All tests passed")</code></pre>
+            <div class="complexity">
+              <div class="cx-item"><b>Time:</b> O(n)</div>
+              <div class="cx-item"><b>Space:</b> O(h) — recursion stack, h = height</div>
+            </div>
+          </div>
+        </details>
+
+        <details class="qa searchable">
+          <summary>Problem 13 — Validate Binary Search Tree <span class="tag med">Medium</span></summary>
+          <div class="detail-body">
+            <p><b>Problem:</b> Given the root of a binary tree, determine if it is a valid binary search tree (BST).</p>
+            <div class="approach">
+              <b>Key insight:</b> Pass min/max bounds down the recursion. Left subtree: max bound = current value. Right subtree: min bound = current value.
+            </div>
+            <pre><code>def is_valid_bst(root, min_val=float('-inf'), max_val=float('inf')) -> bool:
+    if not root:
+        return True
+    if root.val <= min_val or root.val >= max_val:
+        return False
+    return (is_valid_bst(root.left, min_val, root.val) and
+            is_valid_bst(root.right, root.val, max_val))
+
+def test_is_valid_bst():
+    # Valid BST: 2 -> (1, 3)
+    root = TreeNode(2, TreeNode(1), TreeNode(3))
+    assert is_valid_bst(root) == True
+    # Invalid: 5 -> (1 -> (None, 4 -> (3, 6)), 4)  — 4 < 5 but is right child
+    root2 = TreeNode(5, TreeNode(1), TreeNode(4, TreeNode(3), TreeNode(6)))
+    assert is_valid_bst(root2) == False
+    assert is_valid_bst(None) == True
+
+test_is_valid_bst()
+print("All tests passed")</code></pre>
+            <div class="complexity">
+              <div class="cx-item"><b>Time:</b> O(n)</div>
+              <div class="cx-item"><b>Space:</b> O(h)</div>
+            </div>
+          </div>
+        </details>
+      </section>
+
+      <!-- DYNAMIC PROGRAMMING -->
+      <section id="dp" class="searchable">
+        <h2>DS&amp;A — Dynamic Programming</h2>
+        <p class="mini">Atlassian DE coding is Easy–Medium. Know the 3 classic DP patterns: 1D linear, 2D grid, and string comparison. Identify overlapping subproblems + optimal substructure.</p>
+
+        <details open class="qa searchable">
+          <summary>Problem 14 — Climbing Stairs <span class="tag easy">Easy</span></summary>
+          <div class="detail-body">
+            <p><b>Problem:</b> You can climb 1 or 2 steps at a time. Given n steps, how many distinct ways can you reach the top?</p>
+            <div class="approach">
+              <b>Key insight:</b> dp[i] = dp[i-1] + dp[i-2]. This is Fibonacci. Can optimize to O(1) space.
+            </div>
+            <pre><code>def climb_stairs(n: int) -> int:
+    if n <= 2:
+        return n
+    prev2, prev1 = 1, 2
+    for _ in range(3, n + 1):
+        prev2, prev1 = prev1, prev1 + prev2
+    return prev1
+
+def test_climb_stairs():
+    assert climb_stairs(1) == 1
+    assert climb_stairs(2) == 2
+    assert climb_stairs(3) == 3
+    assert climb_stairs(4) == 5
+    assert climb_stairs(10) == 89
+
+test_climb_stairs()
+print("All tests passed")</code></pre>
+            <div class="complexity">
+              <div class="cx-item"><b>Time:</b> O(n)</div>
+              <div class="cx-item"><b>Space:</b> O(1)</div>
+            </div>
+          </div>
+        </details>
+
+        <details class="qa searchable">
+          <summary>Problem 15 — House Robber <span class="tag med">Medium</span></summary>
+          <div class="detail-body">
+            <p><b>Problem:</b> Houses in a row contain money. Adjacent houses have security — cannot rob two adjacent houses. Maximize the total amount robbed.</p>
+            <pre><code>def house_robber(nums: list[int]) -> int:
+    if not nums:
+        return 0
+    if len(nums) == 1:
+        return nums[0]
+    prev2, prev1 = 0, 0
+    for num in nums:
+        prev2, prev1 = prev1, max(prev1, prev2 + num)
+    return prev1
+
+def test_house_robber():
+    assert house_robber([1, 2, 3, 1]) == 4
+    assert house_robber([2, 7, 9, 3, 1]) == 12
+    assert house_robber([]) == 0
+    assert house_robber([5]) == 5
+    assert house_robber([1, 2]) == 2
+
+test_house_robber()
+print("All tests passed")</code></pre>
+            <div class="complexity">
+              <div class="cx-item"><b>Time:</b> O(n)</div>
+              <div class="cx-item"><b>Space:</b> O(1)</div>
+            </div>
+          </div>
+        </details>
+
+        <details class="qa searchable">
+          <summary>Problem 16 — Coin Change <span class="tag med">Medium</span></summary>
+          <div class="detail-body">
+            <p><b>Problem:</b> Given coin denominations and a total amount, return the minimum number of coins to make up that amount. Return -1 if not possible.</p>
+            <pre><code>def coin_change(coins: list[int], amount: int) -> int:
+    dp = [float('inf')] * (amount + 1)
+    dp[0] = 0
+    for i in range(1, amount + 1):
+        for coin in coins:
+            if coin <= i:
+                dp[i] = min(dp[i], dp[i - coin] + 1)
+    return dp[amount] if dp[amount] != float('inf') else -1
+
+def test_coin_change():
+    assert coin_change([1, 5, 11], 15) == 3   # 5+5+5
+    assert coin_change([2], 3) == -1
+    assert coin_change([1], 0) == 0
+    assert coin_change([1, 2, 5], 11) == 3    # 5+5+1
+
+test_coin_change()
+print("All tests passed")</code></pre>
+            <div class="complexity">
+              <div class="cx-item"><b>Time:</b> O(amount × coins)</div>
+              <div class="cx-item"><b>Space:</b> O(amount)</div>
+            </div>
+          </div>
+        </details>
+      </section>
+
+      <!-- SORTING -->
+      <section id="sorting" class="searchable">
+        <h2>DS&amp;A — Sorting &amp; Binary Search</h2>
+
+        <details open class="qa searchable">
+          <summary>Pattern — Merge Sort (know the implementation) <span class="tag med">Medium</span></summary>
+          <div class="detail-body">
+            <p>Atlassian may ask you to implement sorting. Merge sort is O(n log n) and stable.</p>
+            <pre><code>def merge_sort(arr: list[int]) -> list[int]:
+    if len(arr) <= 1:
+        return arr
+    mid = len(arr) // 2
+    left = merge_sort(arr[:mid])
+    right = merge_sort(arr[mid:])
+    return merge(left, right)
+
+def merge(left: list[int], right: list[int]) -> list[int]:
+    result = []
+    i = j = 0
+    while i < len(left) and j < len(right):
+        if left[i] <= right[j]:
+            result.append(left[i]); i += 1
+        else:
+            result.append(right[j]); j += 1
+    result.extend(left[i:])
+    result.extend(right[j:])
+    return result
+
+def test_merge_sort():
+    assert merge_sort([5, 2, 8, 1, 9, 3]) == [1, 2, 3, 5, 8, 9]
+    assert merge_sort([]) == []
+    assert merge_sort([1]) == [1]
+    assert merge_sort([3, 1, 2]) == [1, 2, 3]
+
+test_merge_sort()
+print("All tests passed")</code></pre>
+            <div class="complexity">
+              <div class="cx-item"><b>Time:</b> O(n log n)</div>
+              <div class="cx-item"><b>Space:</b> O(n)</div>
+            </div>
+          </div>
+        </details>
+
+        <details class="qa searchable">
+          <summary>Problem 17 — Search in Rotated Sorted Array <span class="tag med">Medium</span></summary>
+          <div class="detail-body">
+            <p><b>Problem:</b> An integer array sorted in ascending order was rotated at an unknown pivot. Search for a target value; return its index or -1.</p>
+            <pre><code>def search_rotated(nums: list[int], target: int) -> int:
+    left, right = 0, len(nums) - 1
+    while left <= right:
+        mid = (left + right) // 2
+        if nums[mid] == target:
+            return mid
+        # Left half is sorted
+        if nums[left] <= nums[mid]:
+            if nums[left] <= target < nums[mid]:
+                right = mid - 1
+            else:
+                left = mid + 1
+        else:  # Right half is sorted
+            if nums[mid] < target <= nums[right]:
+                left = mid + 1
+            else:
+                right = mid - 1
+    return -1
+
+def test_search_rotated():
+    assert search_rotated([4,5,6,7,0,1,2], 0) == 4
+    assert search_rotated([4,5,6,7,0,1,2], 3) == -1
+    assert search_rotated([1], 0) == -1
+    assert search_rotated([1], 1) == 0
+
+test_search_rotated()
+print("All tests passed")</code></pre>
+            <div class="complexity">
+              <div class="cx-item"><b>Time:</b> O(log n)</div>
+              <div class="cx-item"><b>Space:</b> O(1)</div>
+            </div>
+          </div>
+        </details>
+      </section>
+
+      <!-- SQL WINDOW -->
+      <section id="sql-window" class="searchable">
+        <h2>SQL — Window Functions</h2>
+        <p class="mini">Atlassian explicitly requires Medium–Advanced SQL. Window functions are guaranteed. Know ROW_NUMBER, RANK, DENSE_RANK, LAG, LEAD, and frame specs cold.</p>
+
+        <div class="callout">
+          <b>BigQuery syntax note:</b> Your experience is BigQuery. Window functions work identically in BigQuery and standard SQL. Use <code>QUALIFY</code> in BigQuery instead of a subquery to filter window function results.
+        </div>
+
+        <details open class="qa searchable">
+          <summary>SQL Problem 1 — Nth Highest Salary <span class="tag sql">SQL Medium</span></summary>
+          <div class="detail-body">
+            <p><b>Problem:</b> Write a SQL query to find the Nth highest salary from an Employee table. Return NULL if there are fewer than N distinct salaries.</p>
+            <pre><code>-- Table: Employee(id, salary)
+
+-- Approach 1: DENSE_RANK (handles ties correctly)
+WITH ranked AS (
+  SELECT salary,
+         DENSE_RANK() OVER (ORDER BY salary DESC) AS rnk
+  FROM Employee
+)
+SELECT MAX(salary) AS NthHighestSalary
+FROM ranked
+WHERE rnk = N;
+
+-- BigQuery approach with QUALIFY
+SELECT salary
+FROM Employee
+QUALIFY DENSE_RANK() OVER (ORDER BY salary DESC) = N
+LIMIT 1;</code></pre>
+            <div class="callout good"><b>Explain the difference:</b> RANK skips numbers after ties (1,1,3). DENSE_RANK does not skip (1,1,2). ROW_NUMBER never ties. For "Nth highest" always use DENSE_RANK.</div>
+          </div>
+        </details>
+
+        <details class="qa searchable">
+          <summary>SQL Problem 2 — Running Total and Moving Average <span class="tag sql">SQL Medium</span></summary>
+          <div class="detail-body">
+            <p><b>Problem:</b> For a sales table <code>(date, amount)</code>, calculate: (a) running total of amount ordered by date, (b) 7-day moving average.</p>
+            <pre><code>-- Table: sales(date, amount)
+
+-- (a) Running total
+SELECT
+  date,
+  amount,
+  SUM(amount) OVER (ORDER BY date
+                    ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) AS running_total
+FROM sales
+ORDER BY date;
+
+-- (b) 7-day moving average
+SELECT
+  date,
+  amount,
+  AVG(amount) OVER (ORDER BY date
+                    ROWS BETWEEN 6 PRECEDING AND CURRENT ROW) AS moving_avg_7d
+FROM sales
+ORDER BY date;</code></pre>
+            <div class="callout good"><b>Data engineering angle:</b> Connect to your eCommerce 360 or Supplier KPI work — you used window functions extensively in BigQuery for time-series analytics across Walmart International markets.</div>
+          </div>
+        </details>
+
+        <details class="qa searchable">
+          <summary>SQL Problem 3 — First and Previous Value (LAG/LEAD) <span class="tag sql">SQL Medium</span></summary>
+          <div class="detail-body">
+            <p><b>Problem:</b> For each employee, find the previous salary and the difference from current salary.</p>
+            <pre><code>-- Table: salary_history(employee_id, effective_date, salary)
+
+SELECT
+  employee_id,
+  effective_date,
+  salary,
+  LAG(salary) OVER (PARTITION BY employee_id ORDER BY effective_date) AS prev_salary,
+  salary - LAG(salary) OVER (PARTITION BY employee_id ORDER BY effective_date) AS salary_change,
+  LEAD(salary) OVER (PARTITION BY employee_id ORDER BY effective_date) AS next_salary
+FROM salary_history
+ORDER BY employee_id, effective_date;</code></pre>
+            <p><b>LAG/LEAD with offset and default:</b></p>
+            <pre><code>-- LAG(col, offset, default_value)
+LAG(salary, 2, 0) OVER (PARTITION BY employee_id ORDER BY effective_date)
+-- Gets salary 2 rows back; returns 0 if no prior row</code></pre>
+          </div>
+        </details>
+
+        <details class="qa searchable">
+          <summary>SQL Problem 4 — Deduplication with ROW_NUMBER <span class="tag sql">SQL Medium</span></summary>
+          <div class="detail-body">
+            <p><b>Problem:</b> A table has duplicate records. Keep only the most recent record per customer based on created_at.</p>
+            <pre><code>-- Table: orders(order_id, customer_id, amount, created_at)
+
+-- Deduplicate: keep most recent per customer
+WITH ranked AS (
+  SELECT *,
+         ROW_NUMBER() OVER (
+           PARTITION BY customer_id
+           ORDER BY created_at DESC
+         ) AS rn
+  FROM orders
+)
+SELECT order_id, customer_id, amount, created_at
+FROM ranked
+WHERE rn = 1;</code></pre>
+            <div class="callout good"><b>Your story:</b> Connect this to the egregious pricing project — you reduced 20M duplicate item listings to below 1,000. The SQL pattern for identifying duplicates was central to that work. ROW_NUMBER over matching attributes is exactly how you'd detect them.</div>
+          </div>
+        </details>
+      </section>
+
+      <!-- SQL CTEs -->
+      <section id="sql-cte" class="searchable">
+        <h2>SQL — CTEs &amp; Aggregations</h2>
+
+        <details open class="qa searchable">
+          <summary>SQL Problem 5 — Retention Cohort Analysis <span class="tag sql">SQL Advanced</span></summary>
+          <div class="detail-body">
+            <p><b>Problem:</b> Given a user activity table <code>(user_id, activity_date)</code>, calculate Day 1, Day 7, and Day 30 retention for each weekly cohort.</p>
+            <pre><code>-- Table: user_activity(user_id, activity_date)
+
+WITH first_activity AS (
+  SELECT user_id,
+         MIN(activity_date) AS cohort_date
+  FROM user_activity
+  GROUP BY user_id
+),
+activity_with_cohort AS (
+  SELECT a.user_id,
+         f.cohort_date,
+         DATE_DIFF(a.activity_date, f.cohort_date, DAY) AS days_since_first
+  FROM user_activity a
+  JOIN first_activity f ON a.user_id = f.user_id
+)
+SELECT
+  cohort_date,
+  COUNT(DISTINCT user_id) AS cohort_size,
+  COUNT(DISTINCT CASE WHEN days_since_first >= 1 THEN user_id END) AS day_1,
+  COUNT(DISTINCT CASE WHEN days_since_first >= 7 THEN user_id END) AS day_7,
+  COUNT(DISTINCT CASE WHEN days_since_first >= 30 THEN user_id END) AS day_30
+FROM activity_with_cohort
+GROUP BY cohort_date
+ORDER BY cohort_date;</code></pre>
+          </div>
+        </details>
+
+        <details class="qa searchable">
+          <summary>SQL Problem 6 — Consecutive Records / Sessions <span class="tag sql">SQL Advanced</span></summary>
+          <div class="detail-body">
+            <p><b>Problem:</b> Identify consecutive days a user was active (find streaks). Or: find sessions where events are within 30 minutes of each other.</p>
+            <pre><code>-- Consecutive active days — gap-and-island pattern
+WITH dates AS (
+  SELECT DISTINCT user_id, activity_date
+  FROM user_activity
+),
+numbered AS (
+  SELECT user_id,
+         activity_date,
+         ROW_NUMBER() OVER (PARTITION BY user_id ORDER BY activity_date) AS rn
+  FROM dates
+),
+groups AS (
+  SELECT user_id,
+         activity_date,
+         DATE_SUB(activity_date, INTERVAL rn DAY) AS grp  -- same grp = consecutive
+  FROM numbered
+)
+SELECT
+  user_id,
+  MIN(activity_date) AS streak_start,
+  MAX(activity_date) AS streak_end,
+  COUNT(*) AS streak_length
+FROM groups
+GROUP BY user_id, grp
+ORDER BY user_id, streak_start;</code></pre>
+            <div class="callout good"><b>Interview tip:</b> Walk through the "date minus row number = constant for consecutive dates" insight explicitly. It's non-obvious and shows advanced SQL intuition.</div>
+          </div>
+        </details>
+      </section>
+
+      <!-- SQL ADVANCED -->
+      <section id="sql-advanced" class="searchable">
+        <h2>SQL — Advanced Patterns</h2>
+
+        <details open class="qa searchable">
+          <summary>SQL Problem 7 — Pivot / Conditional Aggregation <span class="tag sql">SQL Advanced</span></summary>
+          <div class="detail-body">
+            <p><b>Problem:</b> Given a sales table with <code>(product, region, amount)</code>, pivot regions into columns.</p>
+            <pre><code>-- Table: sales(product, region, amount)
+-- Regions: APAC, EMEA, AMER
+
+SELECT
+  product,
+  SUM(CASE WHEN region = 'APAC' THEN amount ELSE 0 END) AS apac_sales,
+  SUM(CASE WHEN region = 'EMEA' THEN amount ELSE 0 END) AS emea_sales,
+  SUM(CASE WHEN region = 'AMER' THEN amount ELSE 0 END) AS amer_sales,
+  SUM(amount) AS total_sales
+FROM sales
+GROUP BY product
+ORDER BY total_sales DESC;</code></pre>
+          </div>
+        </details>
+
+        <details class="qa searchable">
+          <summary>SQL Problem 8 — Hierarchical / Self-Join <span class="tag sql">SQL Advanced</span></summary>
+          <div class="detail-body">
+            <p><b>Problem:</b> Find all managers who have more than 5 direct reports, and list their names with the count.</p>
+            <pre><code>-- Table: Employee(id, name, manager_id, department_id)
+
+SELECT
+  m.id AS manager_id,
+  m.name AS manager_name,
+  COUNT(e.id) AS direct_reports
+FROM Employee e
+JOIN Employee m ON e.manager_id = m.id
+GROUP BY m.id, m.name
+HAVING COUNT(e.id) > 5
+ORDER BY direct_reports DESC;</code></pre>
+          </div>
+        </details>
+
+        <details class="qa searchable">
+          <summary>SQL Problem 9 — Funnel Analysis <span class="tag sql">SQL Advanced</span></summary>
+          <div class="detail-body">
+            <p><b>Problem:</b> Given an events table <code>(user_id, event_name, event_time)</code>, calculate funnel conversion: page_view → add_to_cart → purchase. Count users at each step and drop-off rates.</p>
+            <pre><code>-- Table: events(user_id, event_name, event_time)
+
+WITH funnel AS (
+  SELECT
+    user_id,
+    MAX(CASE WHEN event_name = 'page_view' THEN 1 ELSE 0 END)   AS viewed,
+    MAX(CASE WHEN event_name = 'add_to_cart' THEN 1 ELSE 0 END) AS carted,
+    MAX(CASE WHEN event_name = 'purchase' THEN 1 ELSE 0 END)    AS purchased
+  FROM events
+  GROUP BY user_id
+)
+SELECT
+  SUM(viewed)                              AS step1_views,
+  SUM(carted)                              AS step2_cart,
+  SUM(purchased)                           AS step3_purchase,
+  ROUND(100.0 * SUM(carted) / NULLIF(SUM(viewed), 0), 2)    AS view_to_cart_pct,
+  ROUND(100.0 * SUM(purchased) / NULLIF(SUM(carted), 0), 2) AS cart_to_purchase_pct
+FROM funnel;</code></pre>
+            <div class="callout good"><b>Your story:</b> Connect to eCommerce 360 — this is exactly the kind of cross-channel customer journey analysis you built for Walmart International. You know this domain cold.</div>
+          </div>
+        </details>
+      </section>
+
+      <!-- ARCHITECTURE -->
+      <section id="architecture" class="searchable">
+        <h2>Data Architecture &amp; Design Interview</h2>
+
+        <div class="callout">
+          <b>Atlassian's guidance:</b> Start with fundamentals, then build complexity. Ask clarifying questions upfront. Keep the customer in mind. Show performance and reliability thinking.
+        </div>
+
+        <h3>Framework: CADR</h3>
+        <ol>
+          <li><b>C — Clarify</b> (5 min): Who are the customers? What are the volumes? Latency requirements? Consistency vs availability tradeoff? What's already in place?</li>
+          <li><b>A — Architecture Overview</b> (10 min): Draw the high-level system. Name the key components. Explain the data flow end-to-end before going deep.</li>
+          <li><b>D — Deep Dive</b> (25 min): Choose the 2–3 most critical components. Explain tradeoffs. Discuss failure modes, scalability, performance, cost.</li>
+          <li><b>R — Review</b> (5 min): Walk back to requirements. Confirm you've addressed them. Identify what you'd improve with more time.</li>
+        </ol>
+
+        <details open class="qa searchable">
+          <summary>Design Problem 1 — Multi-Tenant Data Lakehouse (your home territory)</summary>
+          <div class="detail-body">
+            <h4>Problem</h4>
+            <p>Design a multi-tenant data lakehouse that serves 800+ internal users across analytics, engineering, and data science teams across 5 international markets.</p>
+            <h4>Your Clarifying Questions</h4>
+            <ul>
+              <li>What are the access patterns? Batch analytics, interactive queries, or real-time?</li>
+              <li>What isolation is needed between tenants — data, cost, or compute?</li>
+              <li>What are the SLA requirements for data freshness?</li>
+              <li>What governance controls are required (GDPR, PII, access control)?</li>
+              <li>What is the expected data volume and growth rate?</li>
+            </ul>
+            <h4>Architecture (what you built at Walmart)</h4>
+            <ul>
+              <li><b>Storage layer:</b> GCS as the raw and curated storage layer. Zone-based structure: raw → curated → consumption. Apache Hudi for ACID transactions and time-travel.</li>
+              <li><b>Processing layer:</b> Dataproc (managed Spark) for batch. Spark Structured Streaming for near-real-time. Separate clusters per workload class to avoid noisy neighbors.</li>
+              <li><b>Query layer:</b> BigQuery as the analytical query engine. External tables over GCS for cost efficiency; materialized views for performance-sensitive dashboards.</li>
+              <li><b>Governance:</b> Dataplex for data cataloging, data quality, and lineage. Role-based access control at the dataset and table level. PII tagging and column masking.</li>
+              <li><b>Observability:</b> Dataset-level SLA monitoring, freshness checks, quality validation, anomaly detection. Incident routing to dataset owners.</li>
+              <li><b>Multi-tenancy:</b> GCP projects per market for billing isolation. Shared Dataplex for governance. Common ingestion framework with per-tenant configuration.</li>
+            </ul>
+            <h4>Tradeoffs You'd Discuss</h4>
+            <ul>
+              <li><b>BigQuery vs Spark:</b> BigQuery is serverless and good for ad-hoc; Spark is better for complex transformations and streaming. We use both.</li>
+              <li><b>Real-time vs batch:</b> Most analytics workloads tolerate T+1 latency. Real-time adds cost and complexity — reserve it for fraud detection, inventory, and operational alerting.</li>
+              <li><b>Shared vs isolated clusters:</b> Shared reduces cost but creates noisy-neighbor risk. We use shared for batch with priority queues and isolated for critical SLA workloads.</li>
+            </ul>
+          </div>
+        </details>
+
+        <details class="qa searchable">
+          <summary>Design Problem 2 — Real-Time Fraud Detection Pipeline</summary>
+          <div class="detail-body">
+            <h4>Problem</h4>
+            <p>Design a real-time fraud detection system for eCommerce transactions. Must score each transaction within 200ms and prevent fraudulent transactions across 5 markets.</p>
+            <h4>Architecture</h4>
+            <ul>
+              <li><b>Ingestion:</b> Kafka / Pub/Sub for transaction events. Topic per market for isolation. Exactly-once delivery semantics for financial integrity.</li>
+              <li><b>Stream processing:</b> Spark Structured Streaming or Flink. Apply feature extraction per transaction (user history, device fingerprint, velocity checks, geo-anomaly).</li>
+              <li><b>Feature store:</b> Redis / Bigtable for low-latency feature lookups (user transaction history, known fraud patterns). Pre-computed batch features served via real-time cache.</li>
+              <li><b>ML scoring:</b> Model served via FastAPI microservice. Score returned async within SLA. Model refreshed via offline batch training on BigQuery feature tables.</li>
+              <li><b>Decision:</b> Configurable thresholds per market. Score above threshold → block + alert. Borderline → step-up authentication. Below threshold → allow.</li>
+              <li><b>Audit trail:</b> All decisions written to BigQuery for compliance, backtesting, and model improvement.</li>
+            </ul>
+            <h4>Your Story</h4>
+            <p>This is almost exactly what you built — mention the $200M in fraudulent transaction exposure protected annually. Emphasize the custom ML model, real-time scoring, multi-market rollout, and the partnership with data science teams.</p>
+          </div>
+        </details>
+
+        <details class="qa searchable">
+          <summary>Design Problem 3 — Data Pipeline Migration at Scale (3,000+ pipelines)</summary>
+          <div class="detail-body">
+            <h4>Problem</h4>
+            <p>You need to migrate 3,000+ Hadoop ETL pipelines to a cloud-native platform (GCP). How do you design the migration framework?</p>
+            <h4>Your Architecture</h4>
+            <ul>
+              <li><b>Inventory and classification:</b> Automated pipeline discovery and dependency mapping. Classify by criticality (SLA, downstream consumers, business calendar risk), complexity (custom UDFs, legacy connectors), and migration risk.</li>
+              <li><b>Conversion framework:</b> Custom-built automated conversion tool — Hadoop MapReduce / Hive → Spark on Dataproc. Template-based generation for standard patterns (80% of pipelines). Manual engineering for complex cases (20%).</li>
+              <li><b>Validation layer:</b> Reconciliation framework comparing source vs target output at multiple checkpoints. Row counts, aggregation checksums, schema validation, sample data comparison.</li>
+              <li><b>Wave strategy:</b> Low-risk domains first → build confidence and harden frameworks. Critical SLA pipelines in later waves with dedicated runbooks and rollback plans.</li>
+              <li><b>Dual-run period:</b> Run old and new in parallel for critical pipelines. Automated diff reporting. Cutover only when reconciliation passes threshold.</li>
+              <li><b>Rollback:</b> Every pipeline has a tested rollback path until the old platform is decommissioned. No cutover without a signed rollback runbook.</li>
+            </ul>
+            <h4>Result</h4>
+            <p>3,000+ pipelines migrated with zero production data loss. 60% reduction in migration timeline due to automated conversion framework. This is your strongest architecture story.</p>
+          </div>
+        </details>
+      </section>
+
+      <!-- PRODUCT SENSE -->
+      <section id="product-sense" class="searchable">
+        <h2>Product Sense Interview</h2>
+        <div class="callout">
+          <b>Atlassian's guidance:</b> Three areas — Product understanding, Data acumen, Data modeling. Analytical standpoint of a full-stack data engineer.
+        </div>
+
+        <h3>Framework: METRIC</h3>
+        <ol>
+          <li><b>M — Map the product goal</b> — What is the product trying to achieve? What does success look like?</li>
+          <li><b>E — Enumerate user journeys</b> — What are the key user actions and flows?</li>
+          <li><b>T — Translate to metrics</b> — What metrics represent health across acquisition, engagement, retention, and monetization?</li>
+          <li><b>R — Reason about divergence</b> — When metrics diverge, what are the hypotheses? How do you investigate?</li>
+          <li><b>I — Instrument the data model</b> — What tables, events, and dimensions do you need?</li>
+          <li><b>C — Communicate the insight</b> — How do you present findings to product, engineering, and business stakeholders?</li>
+        </ol>
+
+        <details open class="qa searchable">
+          <summary>Product Sense Problem 1 — Measure Health of Jira's Sprint Analytics Feature</summary>
+          <div class="detail-body">
+            <h4>Step 1: Product Goal</h4>
+            <p>Sprint analytics helps teams track velocity, identify blockers, and improve delivery predictability. Success = teams make better sprint decisions and improve over time.</p>
+            <h4>Step 2: User Journey</h4>
+            <p>Team creates sprint → assigns issues → tracks progress → reviews burndown/velocity → uses insights to plan next sprint.</p>
+            <h4>Step 3: Metrics</h4>
+            <ul>
+              <li><b>Adoption:</b> % of active teams using sprint analytics (not just sprint boards)</li>
+              <li><b>Engagement:</b> Sessions per sprint, burndown chart views per sprint, report exports</li>
+              <li><b>Retention:</b> % of teams using sprint analytics in 3 consecutive sprints</li>
+              <li><b>Outcome:</b> Velocity improvement trend over 6 sprints; issue completion rate vs planned</li>
+              <li><b>NPS / satisfaction:</b> In-product rating on sprint retrospective pages</li>
+            </ul>
+            <h4>Step 4: Data Model</h4>
+            <pre><code>-- fact_sprint_events(event_id, team_id, sprint_id, user_id,
+--                    event_type, event_ts, issue_id, story_points)
+-- dim_team(team_id, org_id, plan_tier, market)
+-- dim_sprint(sprint_id, team_id, start_date, end_date, goal, status)
+-- dim_issue(issue_id, sprint_id, type, story_points, assignee_id,
+--           created_ts, resolved_ts)
+
+-- Velocity per sprint per team:
+SELECT team_id, sprint_id,
+       SUM(story_points) FILTER (WHERE status = 'Done') AS completed_sp,
+       SUM(story_points) AS planned_sp
+FROM fact_sprint_events
+GROUP BY team_id, sprint_id;</code></pre>
+          </div>
+        </details>
+
+        <details class="qa searchable">
+          <summary>Product Sense Problem 2 — DAU Dropped 15%. Walk Me Through Your Analysis.</summary>
+          <div class="detail-body">
+            <h4>Structured Hypothesis Approach</h4>
+            <ol>
+              <li><b>Scope the drop:</b> Is it global or regional? All user segments or specific cohorts (plan tier, market, device)? When exactly did it start?</li>
+              <li><b>Check for instrumentation errors:</b> Did tracking code change? SDK update? Data pipeline delay? Always rule out data quality before business conclusions.</li>
+              <li><b>External factors:</b> Holiday? Competitor launch? Outage? Platform issue (iOS/Android update breaking the app)?</li>
+              <li><b>Internal changes:</b> Feature release? A/B test gone wrong? Notification change? Onboarding change?</li>
+              <li><b>Funnel analysis:</b> Where in the funnel did users drop? Did new user acquisition fall or did retained users churn?</li>
+              <li><b>Resolution:</b> Quantify impact, identify root cause, propose fix, set a recovery target and timeline.</li>
+            </ol>
+            <div class="callout good"><b>Key phrase:</b> "The first thing I always check is whether this is a data quality issue or a real business signal. I have been burned by acting on a metric that turned out to be a tracking bug."</div>
+          </div>
+        </details>
+
+        <details class="qa searchable">
+          <summary>Product Sense Problem 3 — Design a Data Model for Project Management Events</summary>
+          <div class="detail-body">
+            <p><b>Problem:</b> Design a data model to track all user actions in a project management tool (create issue, update issue, comment, transition status, assign, etc.).</p>
+            <h4>Design</h4>
+            <pre><code>-- Event Stream (append-only, immutable)
+fact_events (
+  event_id        STRING,   -- UUID
+  event_type      STRING,   -- 'issue_created', 'status_changed', 'commented'
+  event_ts        TIMESTAMP,
+  actor_user_id   STRING,
+  project_id      STRING,
+  issue_id        STRING,
+  workspace_id    STRING,
+  properties      JSON      -- flexible event-specific payload
+)
+PARTITION BY DATE(event_ts)
+CLUSTER BY workspace_id, project_id;
+
+-- Current State (snapshot, SCD Type 2 for history)
+dim_issue (
+  issue_id        STRING,
+  project_id      STRING,
+  title           STRING,
+  status          STRING,
+  assignee_id     STRING,
+  story_points    INT,
+  created_ts      TIMESTAMP,
+  updated_ts      TIMESTAMP,
+  valid_from      TIMESTAMP,
+  valid_to        TIMESTAMP,  -- NULL = current
+  is_current      BOOL
+);</code></pre>
+            <h4>Key Design Decisions to Explain</h4>
+            <ul>
+              <li><b>Append-only events</b> — events never change; they are a source of truth for audit, debugging, and replay</li>
+              <li><b>Partition by date</b> — reduces scan cost for time-range queries (most analytics queries)</li>
+              <li><b>Cluster by workspace+project</b> — BigQuery clusters reduce I/O for tenant-scoped queries</li>
+              <li><b>SCD Type 2 for dim_issue</b> — preserves full history of issue state changes for historical reporting</li>
+              <li><b>JSON properties</b> — flexible for event-specific data without schema explosion</li>
+            </ul>
+          </div>
+        </details>
+      </section>
+
+      <!-- LEADERSHIP CRAFT -->
+      <section id="leadership-craft" class="searchable">
+        <h2>Leadership Craft Interview</h2>
+        <div class="callout">
+          <b>Atlassian evaluates three areas:</b> (1) Own and drive outcomes across large-scale engineering projects. (2) Leadership and direction you bring to project teams. (3) Positive organizational impact through knowledge sharing and improved ways of working. Come with 2–3 complex projects that best represent your scope and measurable impact.
+        </div>
+
+        <h3>Area 1 — Own and Drive Outcomes at Scale</h3>
+        <div class="story-card">
+          <b>Primary Story: GCP Migration of 3,000+ Pipelines</b>
+          <p>Scope, multi-country, automated conversion framework, wave strategy, dual-run validation, zero data loss. Measurable: 60% reduction in migration timeline, 3,000+ pipelines migrated, stable SLAs post-cutover. This is the strongest scale story.</p>
+        </div>
+        <div class="story-card">
+          <b>Secondary Story: Multi-Tenant Data Lakehouse (800+ users)</b>
+          <p>Architected and governed a peta-scale GCP data lake serving Walmart International. Defined architecture, compliance, security, and RBAC. Show how you made engineering decisions that affected 800+ internal users across 5 markets.</p>
+        </div>
+
+        <h3>Area 2 — Leadership and Direction</h3>
+        <div class="story-card">
+          <b>Team Scaling from 8 → 20+ Engineers</b>
+          <p>GCP competency center, internal certification program, technical mentorship culture. Career frameworks, OKRs, 4 promotions. Show how you shaped engineering culture, not just delivery.</p>
+        </div>
+        <div class="story-card">
+          <b>Agentic AI Practice (Sarthi + Pipeline Generator + Claude Code)</b>
+          <p>Pioneered enterprise Agentic AI at Walmart International. Deployed production multi-agent systems. >40% reduction in manual engineering effort. Led both the technical architecture and the change management for teams adopting AI-assisted engineering.</p>
+        </div>
+
+        <h3>Area 3 — Knowledge Sharing and Improved Ways of Working</h3>
+        <div class="story-card">
+          <b>Reusable Pipeline Generation Framework</b>
+          <p>AI-assisted framework for templated pipeline creation, schema inference, and lineage registration. >40% reduction in new pipeline development time. Enabled team to scale output without headcount growth. This is a knowledge-sharing and ways-of-working story — you changed how the whole team worked.</p>
+        </div>
+        <div class="story-card">
+          <b>Data Governance and Ownership Model</b>
+          <p>Defined and implemented enterprise data ownership, quality standards, SLA metadata, and incident routing. Adopted as Walmart International data engineering standard. Shows how you improved operating model beyond your direct team.</p>
+        </div>
+
+        <h3>Questions Atlassian Asks and Your Answers</h3>
+        <details class="qa searchable">
+          <summary>Tell me about a complex project where you had measurable organizational impact.</summary>
+          <div class="detail-body">
+            <p><b>Use:</b> GCP migration. Frame it as: the problem was 3,000+ pipelines on an aging Hadoop platform that was expensive, brittle, and slowing down every new product initiative. The organizational impact was not just migration — it was unlocking every team's ability to move faster on GCP.</p>
+            <p><b>Key numbers:</b> 3,000+ pipelines, zero data loss, 60% timeline reduction, automated conversion framework, multi-country rollout.</p>
+          </div>
+        </details>
+        <details class="qa searchable">
+          <summary>How did you involve your team in architectural decisions?</summary>
+          <div class="detail-body">
+            <p>I separated architecture decisions by scope. Framework decisions (toolchain, standards, security) involved senior engineers and cross-functional partners — I needed technical depth and buy-in. Implementation decisions were delegated to the engineers closest to the domain. I held design reviews before coding started and used ADRs (Architecture Decision Records) so decisions and their rationale were visible to the whole team, not just the people in the meeting.</p>
+          </div>
+        </details>
+        <details class="qa searchable">
+          <summary>How do you create positive organizational impact beyond your team?</summary>
+          <div class="detail-body">
+            <p>The clearest example is the pipeline generation framework and the data governance model — both were built by my team but adopted across Walmart International data engineering. I treat every framework and standard as a product: it needs to be useful before it is mandatory, and it needs to reduce friction for other teams, not increase it. I also invest in certification programs and mentoring relationships that outlast my direct involvement. Impact through replication, not just execution.</p>
+          </div>
+        </details>
+        <details class="qa searchable">
+          <summary>Where do you want to take your career?</summary>
+          <div class="detail-body">
+            <p>I want to operate at the intersection of data platform strategy, engineering leadership, and enterprise AI adoption — where the decisions I make shape how large-scale teams build and trust data systems. Atlassian interests me because you are both a product company and a platform company, and the Principal DE role operates at that boundary. I also want to work in an environment where the engineering values are explicit — not implied — and Atlassian's published values align closely with how I already operate.</p>
+          </div>
+        </details>
+      </section>
+
+      <!-- ADVANCED DATA STRUCTURES -->
+      <section id="adv-ds" class="searchable">
+        <h2>DS&amp;A — Advanced Data Structures</h2>
+        <p class="mini">Heaps, Tries, Union-Find, and Graphs (BFS/DFS) round out the DS&amp;A toolkit. These appear in system-design-adjacent coding questions at senior/principal level.</p>
+
+        <details open class="qa searchable">
+          <summary>Problem — Kth Largest Element (Min-Heap) <span class="tag med">Medium</span></summary>
+          <div class="detail-body">
+            <p><b>Problem:</b> Find the kth largest element in an unsorted array without full sort.</p>
+            <div class="approach"><b>Min-Heap O(n log k):</b> Maintain a min-heap of size k. Push each element; if heap size exceeds k, pop the smallest. The root is the kth largest.</div>
+            <div class="approach"><b>Quick-select O(n) avg:</b> Partition like quicksort. Recurse only on the side containing the kth position.</div>
+            <pre><code>import heapq
+
+def kth_largest(nums: list[int], k: int) -> int:
+    # Min-heap of size k — heap root is kth largest
+    heap = []
+    for num in nums:
+        heapq.heappush(heap, num)
+        if len(heap) > k:
+            heapq.heappop(heap)
+    return heap[0]
+
+def test_kth_largest():
+    assert kth_largest([3,2,1,5,6,4], 2) == 5
+    assert kth_largest([3,2,3,1,2,4,5,5,6], 4) == 4
+    assert kth_largest([1], 1) == 1
+
+test_kth_largest()
+print("All tests passed")</code></pre>
+            <div class="complexity">
+              <div class="cx-item"><b>Time:</b> O(n log k)</div>
+              <div class="cx-item"><b>Space:</b> O(k)</div>
+            </div>
+            <div class="callout good"><b>Heap cheat:</b> Python's <code>heapq</code> is a min-heap. For max-heap, negate values. <code>heapq.nlargest(k, nums)</code> is the one-liner but O(n log k) internally — same complexity.</div>
+          </div>
+        </details>
+
+        <details class="qa searchable">
+          <summary>Problem — Merge K Sorted Lists (Min-Heap) <span class="tag hard">Hard</span></summary>
+          <div class="detail-body">
+            <p><b>Problem:</b> Merge k sorted linked lists into one sorted list.</p>
+            <div class="approach"><b>Min-Heap O(N log k):</b> Push the head of each list into a heap. Pop minimum, push next node from that list. Repeat.</div>
+            <pre><code>import heapq
+
+def merge_k_sorted(lists: list[list[int]]) -> list[int]:
+    # Using arrays for simplicity (adapt for ListNode)
+    heap = []
+    for i, lst in enumerate(lists):
+        if lst:
+            heapq.heappush(heap, (lst[0], i, 0))
+
+    result = []
+    while heap:
+        val, list_idx, elem_idx = heapq.heappop(heap)
+        result.append(val)
+        next_idx = elem_idx + 1
+        if next_idx < len(lists[list_idx]):
+            heapq.heappush(heap, (lists[list_idx][next_idx], list_idx, next_idx))
+    return result
+
+def test_merge_k_sorted():
+    assert merge_k_sorted([[1,4,5],[1,3,4],[2,6]]) == [1,1,2,3,4,4,5,6]
+    assert merge_k_sorted([]) == []
+    assert merge_k_sorted([[1]]) == [1]
+
+test_merge_k_sorted()
+print("All tests passed")</code></pre>
+            <div class="complexity">
+              <div class="cx-item"><b>Time:</b> O(N log k) — N total elements, k lists</div>
+              <div class="cx-item"><b>Space:</b> O(k) for heap</div>
+            </div>
+          </div>
+        </details>
+
+        <details class="qa searchable">
+          <summary>Problem — Implement Trie (Prefix Tree) <span class="tag med">Medium</span></summary>
+          <div class="detail-body">
+            <p><b>Problem:</b> Implement a Trie with <code>insert</code>, <code>search</code>, and <code>startsWith</code> methods.</p>
+            <div class="approach"><b>Trie node with dict of children + end flag.</b> Each node maps char → child node.</div>
+            <pre><code>class TrieNode:
+    def __init__(self):
+        self.children = {}
+        self.is_end = False
+
+class Trie:
+    def __init__(self):
+        self.root = TrieNode()
+
+    def insert(self, word: str) -> None:
+        node = self.root
+        for ch in word:
+            if ch not in node.children:
+                node.children[ch] = TrieNode()
+            node = node.children[ch]
+        node.is_end = True
+
+    def search(self, word: str) -> bool:
+        node = self._traverse(word)
+        return node is not None and node.is_end
+
+    def starts_with(self, prefix: str) -> bool:
+        return self._traverse(prefix) is not None
+
+    def _traverse(self, s: str):
+        node = self.root
+        for ch in s:
+            if ch not in node.children:
+                return None
+            node = node.children[ch]
+        return node
+
+def test_trie():
+    t = Trie()
+    t.insert("apple")
+    assert t.search("apple") == True
+    assert t.search("app") == False
+    assert t.starts_with("app") == True
+    t.insert("app")
+    assert t.search("app") == True
+
+test_trie()
+print("All tests passed")</code></pre>
+            <div class="complexity">
+              <div class="cx-item"><b>Insert/Search:</b> O(m) where m = word length</div>
+              <div class="cx-item"><b>Space:</b> O(ALPHABET × N × M)</div>
+            </div>
+            <div class="callout good"><b>DE angle:</b> Tries power autocomplete in Jira issue search, Confluence page title lookup — directly relevant to Atlassian's product surface.</div>
+          </div>
+        </details>
+
+        <details class="qa searchable">
+          <summary>Problem — Number of Connected Components / Union-Find <span class="tag med">Medium</span></summary>
+          <div class="detail-body">
+            <p><b>Problem:</b> Given n nodes and a list of edges, find the number of connected components.</p>
+            <div class="approach"><b>Union-Find (DSU):</b> Each node starts as its own parent. Union merges components. Find with path compression returns the root. Count nodes where node == parent.</div>
+            <pre><code>def count_components(n: int, edges: list[list[int]]) -> int:
+    parent = list(range(n))
+    rank = [0] * n
+
+    def find(x):
+        if parent[x] != x:
+            parent[x] = find(parent[x])  # path compression
+        return parent[x]
+
+    def union(x, y):
+        rx, ry = find(x), find(y)
+        if rx == ry:
+            return False
+        if rank[rx] < rank[ry]:
+            rx, ry = ry, rx
+        parent[ry] = rx
+        if rank[rx] == rank[ry]:
+            rank[rx] += 1
+        return True
+
+    components = n
+    for u, v in edges:
+        if union(u, v):
+            components -= 1
+    return components
+
+def test_count_components():
+    assert count_components(5, [[0,1],[1,2],[3,4]]) == 2
+    assert count_components(5, [[0,1],[1,2],[2,3],[3,4]]) == 1
+    assert count_components(4, []) == 4
+
+test_count_components()
+print("All tests passed")</code></pre>
+            <div class="complexity">
+              <div class="cx-item"><b>Time:</b> O(E · α(N)) ≈ O(E) with path compression</div>
+              <div class="cx-item"><b>Space:</b> O(N)</div>
+            </div>
+          </div>
+        </details>
+
+        <details class="qa searchable">
+          <summary>Problem — BFS Shortest Path in Graph <span class="tag med">Medium</span></summary>
+          <div class="detail-body">
+            <p><b>Problem:</b> Given an adjacency list for an undirected graph, find the shortest path (by number of edges) between source and target.</p>
+            <div class="approach"><b>BFS O(V+E):</b> BFS guarantees shortest path in an unweighted graph. Use a deque and a visited set.</div>
+            <pre><code>from collections import deque
+
+def shortest_path(graph: dict, src: int, dst: int) -> int:
+    if src == dst:
+        return 0
+    visited = {src}
+    queue = deque([(src, 0)])
+    while queue:
+        node, dist = queue.popleft()
+        for neighbor in graph.get(node, []):
+            if neighbor == dst:
+                return dist + 1
+            if neighbor not in visited:
+                visited.add(neighbor)
+                queue.append((neighbor, dist + 1))
+    return -1  # unreachable
+
+def test_shortest_path():
+    g = {0:[1,2], 1:[0,3], 2:[0,3], 3:[1,2,4], 4:[3]}
+    assert shortest_path(g, 0, 4) == 2
+    assert shortest_path(g, 0, 0) == 0
+    assert shortest_path(g, 0, 99) == -1
+
+test_shortest_path()
+print("All tests passed")</code></pre>
+            <div class="complexity">
+              <div class="cx-item"><b>Time:</b> O(V + E)</div>
+              <div class="cx-item"><b>Space:</b> O(V) for visited + queue</div>
+            </div>
+            <div class="callout warn"><b>Note:</b> Atlassian's guide says no graphs in Stage 1 coding. But graphs appear in architecture and system design. Know BFS/DFS conceptually — you may not need to code them from scratch.</div>
+          </div>
+        </details>
+      </section>
+
+      <!-- SQL PERFORMANCE -->
+      <section id="sql-perf" class="searchable">
+        <h2>SQL — Performance &amp; Optimization</h2>
+        <p class="mini">Principal-level SQL goes beyond writing correct queries — you must explain execution plans, indexes, partition pruning, and query rewrites. Expect this in the architecture round, not just the coding round.</p>
+
+        <details open class="qa searchable">
+          <summary>Query Optimization — Explain Plan &amp; Index Strategy <span class="tag sql">SQL Advanced</span></summary>
+          <div class="detail-body">
+            <p><b>Question:</b> This query runs for 45 minutes on a 500M-row table. How do you diagnose and fix it?</p>
+            <pre><code>-- Slow query
+SELECT u.user_id, u.email, SUM(o.amount) AS total_spent
+FROM users u
+JOIN orders o ON u.user_id = o.user_id
+WHERE o.created_at >= '2025-01-01'
+  AND u.country = 'US'
+GROUP BY u.user_id, u.email
+ORDER BY total_spent DESC
+LIMIT 100;</code></pre>
+            <h4>Diagnosis Steps</h4>
+            <ol>
+              <li><b>Run EXPLAIN / EXPLAIN ANALYZE</b> — look for full table scans (Seq Scan), hash joins on large tables, sort spills.</li>
+              <li><b>Check cardinality</b> — how many rows survive the WHERE before the JOIN? If filter selectivity is low, the join is huge.</li>
+              <li><b>Identify missing indexes</b> — <code>orders.created_at</code> and <code>orders.user_id</code> need a composite index; <code>users.country</code> needs an index.</li>
+              <li><b>Partition pruning</b> — is <code>orders</code> partitioned by <code>created_at</code>? If yes, confirm the planner prunes old partitions.</li>
+              <li><b>Statistics freshness</b> — run ANALYZE to update planner statistics after bulk loads.</li>
+            </ol>
+            <h4>Fixes</h4>
+            <pre><code>-- 1. Add indexes (PostgreSQL / BigQuery clustering equivalent)
+CREATE INDEX idx_orders_date_user ON orders(created_at, user_id);
+CREATE INDEX idx_users_country ON users(country);
+
+-- 2. Filter early — push predicates before join
+WITH filtered_orders AS (
+  SELECT user_id, amount
+  FROM orders
+  WHERE created_at >= '2025-01-01'   -- partition prune here
+),
+us_users AS (
+  SELECT user_id, email
+  FROM users
+  WHERE country = 'US'               -- index scan here
+)
+SELECT u.user_id, u.email, SUM(o.amount) AS total_spent
+FROM us_users u
+JOIN filtered_orders o ON u.user_id = o.user_id
+GROUP BY u.user_id, u.email
+ORDER BY total_spent DESC
+LIMIT 100;
+
+-- 3. BigQuery: cluster orders BY user_id, PARTITION BY DATE(created_at)
+-- Then the WHERE clause triggers partition pruning automatically.</code></pre>
+            <div class="callout good"><b>Your story hook:</b> In the GCP migration, you re-engineered 3,000 pipelines. Many legacy queries were full-table-scan jobs — you partitioned and clustered BigQuery tables, reducing scan costs by significant margins. Use that.</div>
+          </div>
+        </details>
+
+        <details class="qa searchable">
+          <summary>Advanced SQL — Recursive CTE (Hierarchy Traversal) <span class="tag sql">SQL Hard</span></summary>
+          <div class="detail-body">
+            <p><b>Problem:</b> Given an <code>employees</code> table with <code>employee_id</code> and <code>manager_id</code> (self-referential), find all direct and indirect reports of a given manager.</p>
+            <pre><code>-- Table: employees(employee_id, name, manager_id)
+
+WITH RECURSIVE org_tree AS (
+  -- Anchor: start with the given manager
+  SELECT employee_id, name, manager_id, 0 AS depth
+  FROM employees
+  WHERE employee_id = :root_manager_id
+
+  UNION ALL
+
+  -- Recursive: find all reports of already-found employees
+  SELECT e.employee_id, e.name, e.manager_id, ot.depth + 1
+  FROM employees e
+  INNER JOIN org_tree ot ON e.manager_id = ot.employee_id
+)
+SELECT employee_id, name, depth
+FROM org_tree
+WHERE employee_id != :root_manager_id
+ORDER BY depth, name;
+
+-- BigQuery equivalent (BigQuery supports recursive CTEs since 2023):
+-- Same syntax, replace :param with CAST(your_value AS INT64)</code></pre>
+            <div class="callout good"><b>When to use:</b> org charts, bill-of-materials trees, folder/page hierarchies (Confluence pages are a tree — directly relevant to Atlassian).</div>
+          </div>
+        </details>
+
+        <details class="qa searchable">
+          <summary>Advanced SQL — Slowly Changing Dimension (SCD Type 2) <span class="tag sql">SQL Hard</span></summary>
+          <div class="detail-body">
+            <p><b>Problem:</b> Write a query to identify records in a customer dimension that have changed and need a new SCD Type 2 row, then generate the INSERT and UPDATE statements.</p>
+            <pre><code>-- Source: customer_staging(customer_id, name, email, city, updated_at)
+-- Target: customer_dim(sk, customer_id, name, email, city,
+--                       effective_from, effective_to, is_current)
+
+-- Step 1: Find changed records (join on business key, compare attributes)
+WITH changes AS (
+  SELECT
+    s.customer_id,
+    s.name      AS new_name,
+    s.email     AS new_email,
+    s.city      AS new_city,
+    s.updated_at,
+    d.sk        AS old_sk
+  FROM customer_staging s
+  JOIN customer_dim d
+    ON s.customer_id = d.customer_id AND d.is_current = TRUE
+  WHERE s.name   != d.name
+     OR s.email  != d.email
+     OR s.city   != d.city
+),
+-- Step 2: Also find brand new customers (no existing row)
+new_customers AS (
+  SELECT s.*
+  FROM customer_staging s
+  LEFT JOIN customer_dim d ON s.customer_id = d.customer_id AND d.is_current = TRUE
+  WHERE d.sk IS NULL
+)
+
+-- Expire old rows
+UPDATE customer_dim
+SET is_current = FALSE,
+    effective_to = c.updated_at
+FROM changes c
+WHERE customer_dim.sk = c.old_sk;
+
+-- Insert new rows for changed + new customers
+INSERT INTO customer_dim (customer_id, name, email, city, effective_from, effective_to, is_current)
+SELECT customer_id, new_name, new_email, new_city, updated_at, '9999-12-31', TRUE
+FROM changes
+UNION ALL
+SELECT customer_id, name, email, city, updated_at, '9999-12-31', TRUE
+FROM new_customers;</code></pre>
+            <div class="callout good"><b>Your anchor:</b> The eCommerce 360 data model at Walmart maintained supplier and product dimensions with SCD Type 2 logic in BigQuery using Dataform/dbt-style transformations.</div>
+          </div>
+        </details>
+
+        <details class="qa searchable">
+          <summary>Advanced SQL — Pivot, Unpivot, and Conditional Aggregation <span class="tag sql">SQL Advanced</span></summary>
+          <div class="detail-body">
+            <p><b>Problem:</b> Given <code>sales(date, region, amount)</code>, pivot to show each region as a column per week.</p>
+            <pre><code>-- Conditional aggregation pivot (works in all SQL dialects)
+SELECT
+  DATE_TRUNC('week', date) AS week,
+  SUM(CASE WHEN region = 'APAC'   THEN amount ELSE 0 END) AS apac,
+  SUM(CASE WHEN region = 'EMEA'   THEN amount ELSE 0 END) AS emea,
+  SUM(CASE WHEN region = 'NA'     THEN amount ELSE 0 END) AS na,
+  SUM(CASE WHEN region = 'LATAM'  THEN amount ELSE 0 END) AS latam
+FROM sales
+GROUP BY 1
+ORDER BY 1;
+
+-- BigQuery: same pattern. Use FORMAT_DATE('%Y-W%V', date) for ISO week.
+
+-- Unpivot (reverse): use UNPIVOT or CROSS JOIN UNNEST
+-- BigQuery:
+SELECT week, region, amount
+FROM pivoted_table
+UNPIVOT(amount FOR region IN (apac, emea, na, latam));</code></pre>
+            <div class="complexity">
+              <div class="cx-item"><b>Pivot:</b> O(n) single pass — one GROUP BY</div>
+              <div class="cx-item"><b>Unpivot:</b> O(n × columns)</div>
+            </div>
+          </div>
+        </details>
+
+        <details class="qa searchable">
+          <summary>Advanced SQL — Gap and Island Detection <span class="tag sql">SQL Hard</span></summary>
+          <div class="detail-body">
+            <p><b>Problem:</b> Find users with 7 or more consecutive daily active days.</p>
+            <pre><code>-- Table: activity(user_id, activity_date)
+
+WITH deduped AS (
+  SELECT DISTINCT user_id, activity_date FROM activity
+),
+island_groups AS (
+  SELECT
+    user_id,
+    activity_date,
+    -- Subtract row number to get a constant "island id" per consecutive streak
+    DATE_SUB(
+      activity_date,
+      INTERVAL ROW_NUMBER() OVER (PARTITION BY user_id ORDER BY activity_date) DAY
+    ) AS island_id
+  FROM deduped
+),
+streaks AS (
+  SELECT
+    user_id,
+    island_id,
+    MIN(activity_date) AS streak_start,
+    MAX(activity_date) AS streak_end,
+    COUNT(*) AS streak_length
+  FROM island_groups
+  GROUP BY user_id, island_id
+)
+SELECT DISTINCT user_id, streak_start, streak_end, streak_length
+FROM streaks
+WHERE streak_length >= 7
+ORDER BY user_id, streak_start;</code></pre>
+            <div class="callout good"><b>Pattern to memorize:</b> Gap-and-island = DATE_SUB(date, INTERVAL ROW_NUMBER() DAY). The subtracted value is constant within a consecutive group — that's the island ID.</div>
+          </div>
+        </details>
+      </section>
+
+      <!-- BIG DATA CONCEPTS -->
+      <section id="big-data" class="searchable">
+        <h2>Big Data Concepts</h2>
+        <p class="mini">Principal DE interview questions test whether you understand the WHY behind big data infrastructure — not just how to use it. Connect every answer to trade-offs at Walmart/GCP scale.</p>
+
+        <details open class="qa searchable">
+          <summary>HDFS Architecture &amp; Data Locality <span class="tag hard">DE Deep</span></summary>
+          <div class="detail-body">
+            <p><b>Question:</b> Explain HDFS architecture. How does data locality work, and why does it matter for Spark?</p>
+            <h4>Architecture</h4>
+            <ul>
+              <li><b>NameNode:</b> Single master — stores file system metadata (block locations, permissions). Failure = cluster failure. Mitigated by HA NameNode with ZooKeeper failover.</li>
+              <li><b>DataNodes:</b> Store actual 128MB blocks (default). Report block health via heartbeats to NameNode every 3 seconds.</li>
+              <li><b>Replication factor 3:</b> 1st replica on same rack node, 2nd on different rack, 3rd on different rack. Tolerates one full rack failure.</li>
+              <li><b>Secondary NameNode:</b> NOT a hot standby — it periodically merges the edit log with the fsimage to prevent edit log growth. Common misconception in interviews.</li>
+            </ul>
+            <h4>Data Locality</h4>
+            <ul>
+              <li><b>NODE_LOCAL:</b> Task runs on the node where the data block lives. Zero network I/O. Best case.</li>
+              <li><b>RACK_LOCAL:</b> Task runs on a node in the same rack. Intra-rack bandwidth (~1Gbps). Acceptable.</li>
+              <li><b>ANY:</b> Data must be transferred over inter-rack network. Slowest — avoided by the YARN scheduler.</li>
+            </ul>
+            <div class="callout good"><b>Spark connection:</b> Spark's DAGScheduler tries NODE_LOCAL first, waits for a configurable locality wait time (<code>spark.locality.wait</code>), then falls back to RACK_LOCAL, then ANY. On GCP Dataproc, HDFS is replaced by GCS — there's no data locality. Google compensates with high-bandwidth internal network, but this is a key architectural difference you should name.</div>
+            <div class="callout warn"><b>GCP migration insight:</b> When you moved from on-prem HDFS to GCS, the data-locality advantage disappeared. You compensated by using Dataproc autoscaling, pre-warming clusters, and tuning <code>spark.executor.cores</code> and <code>spark.default.parallelism</code> to maximize CPU utilization over the high-bandwidth GCS network.</div>
+          </div>
+        </details>
+
+        <details class="qa searchable">
+          <summary>MapReduce — Internals, Shuffle, and When NOT to Use It <span class="tag med">DE Deep</span></summary>
+          <div class="detail-body">
+            <p><b>Question:</b> Explain MapReduce internals. When would Spark outperform MapReduce and when might MapReduce still be appropriate?</p>
+            <h4>MapReduce Internals</h4>
+            <ol>
+              <li><b>Map phase:</b> Each mapper reads input splits. Applies user function. Outputs (key, value) pairs. Output is partitioned by key using the partitioner (default: hash(key) % reducers).</li>
+              <li><b>Shuffle &amp; Sort:</b> The bottleneck. Framework sorts map outputs by key on disk, then transfers them over the network to the correct reducer. This is disk I/O intensive.</li>
+              <li><b>Reduce phase:</b> Each reducer receives all values for its key range in sorted order. Applies reduce function. Writes to HDFS.</li>
+              <li><b>Combiner (optional):</b> A mini-reducer that runs on the mapper side before shuffle to reduce network traffic.</li>
+            </ol>
+            <h4>Spark vs MapReduce</h4>
+            <table style="width:100%;border-collapse:collapse;font-size:13px">
+              <tr style="background:var(--code)"><th style="text-align:left;padding:8px;border:1px solid var(--line)">Dimension</th><th style="padding:8px;border:1px solid var(--line)">MapReduce</th><th style="padding:8px;border:1px solid var(--line)">Spark</th></tr>
+              <tr><td style="padding:8px;border:1px solid var(--line)">Intermediate storage</td><td style="padding:8px;border:1px solid var(--line)">Disk after every stage</td><td style="padding:8px;border:1px solid var(--line)">Memory (spills to disk if needed)</td></tr>
+              <tr style="background:var(--code)"><td style="padding:8px;border:1px solid var(--line)">Iterative algorithms (ML)</td><td style="padding:8px;border:1px solid var(--line)">Re-reads HDFS every pass — slow</td><td style="padding:8px;border:1px solid var(--line)">Caches RDD in memory — 10-100x faster</td></tr>
+              <tr><td style="padding:8px;border:1px solid var(--line)">DAG support</td><td style="padding:8px;border:1px solid var(--line)">No — linear only</td><td style="padding:8px;border:1px solid var(--line)">Full DAG with optimizations</td></tr>
+              <tr style="background:var(--code)"><td style="padding:8px;border:1px solid var(--line)">Failure recovery</td><td style="padding:8px;border:1px solid var(--line)">Restarts from HDFS checkpoint</td><td style="padding:8px;border:1px solid var(--line)">RDD lineage — recomputes lost partitions</td></tr>
+              <tr><td style="padding:8px;border:1px solid var(--line)">Maturity / stability</td><td style="padding:8px;border:1px solid var(--line)">Extremely stable</td><td style="padding:8px;border:1px solid var(--line)">Mature but more moving parts</td></tr>
+            </table>
+            <div class="callout good"><b>When MR still wins:</b> Very large ETL jobs that must not OOM and where disk I/O cost is acceptable. Extremely long jobs where fault tolerance of per-stage HDFS checkpoints is preferable to Spark's RDD lineage recomputation. Historical systems that aren't being migrated.</div>
+          </div>
+        </details>
+
+        <details class="qa searchable">
+          <summary>Lambda vs Kappa Architecture <span class="tag med">DE Deep</span></summary>
+          <div class="detail-body">
+            <p><b>Question:</b> When would you choose Lambda architecture over Kappa, and vice versa? What are the operational tradeoffs?</p>
+            <h4>Lambda Architecture</h4>
+            <ul>
+              <li><b>Batch layer:</b> Reprocesses all historical data on schedule. Source of truth. High latency (hours).</li>
+              <li><b>Speed layer:</b> Processes real-time stream for low latency. Approximate or incomplete.</li>
+              <li><b>Serving layer:</b> Merges batch and speed layer outputs to serve queries.</li>
+              <li><b>Problem:</b> Two codebases to maintain — batch logic and streaming logic must produce identical results. Debugging drift between layers is painful.</li>
+            </ul>
+            <h4>Kappa Architecture</h4>
+            <ul>
+              <li>Single streaming pipeline handles all data. Reprocess historical data by replaying the event log (Kafka retention).</li>
+              <li><b>Advantage:</b> One codebase, one processing model. Simpler ops.</li>
+              <li><b>Problem:</b> Reprocessing large history through streaming is slow. Kafka must retain very long history. Streaming frameworks are harder to tune for complex batch-style aggregations.</li>
+            </ul>
+            <div class="callout good"><b>Decision framework:</b> Choose Lambda when: (1) batch correctness matters more than operational simplicity, (2) reprocessing is rare, (3) the speed layer only needs approximate results. Choose Kappa when: (1) the team can maintain only one codebase, (2) Kafka can retain enough history, (3) your streaming framework (Flink) handles batch semantics well. At Walmart, your fraud detection system was effectively Kappa — Kafka + Spark Structured Streaming was the single path, with replay capability for model retraining.</div>
+          </div>
+        </details>
+
+        <details class="qa searchable">
+          <summary>File Formats — Parquet vs ORC vs Avro vs Delta/Hudi <span class="tag med">DE Deep</span></summary>
+          <div class="detail-body">
+            <p><b>Question:</b> Compare Parquet, ORC, Avro, and Delta Lake/Hudi. When do you use each?</p>
+            <table style="width:100%;border-collapse:collapse;font-size:13px">
+              <tr style="background:var(--code)"><th style="text-align:left;padding:8px;border:1px solid var(--line)">Format</th><th style="padding:8px;border:1px solid var(--line)">Storage</th><th style="padding:8px;border:1px solid var(--line)">Best for</th><th style="padding:8px;border:1px solid var(--line)">Weakness</th></tr>
+              <tr><td style="padding:8px;border:1px solid var(--line)"><b>Parquet</b></td><td style="padding:8px;border:1px solid var(--line)">Columnar</td><td style="padding:8px;border:1px solid var(--line)">Analytics, BI, SQL (BigQuery native)</td><td style="padding:8px;border:1px solid var(--line)">No ACID, no updates</td></tr>
+              <tr style="background:var(--code)"><td style="padding:8px;border:1px solid var(--line)"><b>ORC</b></td><td style="padding:8px;border:1px solid var(--line)">Columnar</td><td style="padding:8px;border:1px solid var(--line)">Hive workloads, tighter compression than Parquet</td><td style="padding:8px;border:1px solid var(--line)">Less ecosystem support outside Hive</td></tr>
+              <tr><td style="padding:8px;border:1px solid var(--line)"><b>Avro</b></td><td style="padding:8px;border:1px solid var(--line)">Row-based</td><td style="padding:8px;border:1px solid var(--line)">Kafka messages, schema evolution, write-heavy</td><td style="padding:8px;border:1px solid var(--line)">Poor analytics performance (full row scan)</td></tr>
+              <tr style="background:var(--code)"><td style="padding:8px;border:1px solid var(--line)"><b>Delta Lake</b></td><td style="padding:8px;border:1px solid var(--line)">Parquet + transaction log</td><td style="padding:8px;border:1px solid var(--line)">ACID on data lake, upserts, time-travel, CDC</td><td style="padding:8px;border:1px solid var(--line)">Databricks-centric; GCS support exists but Hudi is GCP-friendlier</td></tr>
+              <tr><td style="padding:8px;border:1px solid var(--line)"><b>Apache Hudi</b></td><td style="padding:8px;border:1px solid var(--line)">Parquet + index files</td><td style="padding:8px;border:1px solid var(--line)">Incremental CDC on GCS, upserts, compaction</td><td style="padding:8px;border:1px solid var(--line)">Compaction overhead, operational complexity</td></tr>
+            </table>
+            <div class="callout good"><b>Your anchor:</b> In the GCP migration you used Apache Hudi on GCS for tables requiring upserts (supplier master data with late-arriving corrections). Delta Lake was evaluated but Hudi had better first-class Dataproc support at the time of your migration.</div>
+          </div>
+        </details>
+
+        <details class="qa searchable">
+          <summary>Partitioning Strategies — How to Partition a 10TB Table <span class="tag med">DE Deep</span></summary>
+          <div class="detail-body">
+            <p><b>Question:</b> You have a 10TB orders table that's queried by date range, by country, and occasionally by product category. How do you partition it and why?</p>
+            <h4>Decision Framework</h4>
+            <ol>
+              <li><b>Identify the dominant query pattern</b> — date range filters appear in 90% of queries → partition by date.</li>
+              <li><b>Choose partition granularity</b> — daily partitions for a table scanned monthly means ~30 partitions per query scan. Monthly partitions would mean fewer, larger partitions. Rule of thumb: partition size should be ≥ 1GB per partition to avoid "small file" problems.</li>
+              <li><b>Secondary clustering</b> — BigQuery supports cluster columns within partitions. Add <code>CLUSTER BY country</code> to co-locate rows by country within each daily partition. The planner then prunes blocks within a partition for country-filtered queries.</li>
+              <li><b>Avoid over-partitioning</b> — partitioning by product_category (high cardinality) would create thousands of tiny partitions — the metadata overhead kills the NameNode (HDFS) or BigQuery's partition metadata layer.</li>
+            </ol>
+            <pre><code>-- BigQuery recommended DDL
+CREATE TABLE orders (
+  order_id STRING,
+  created_at TIMESTAMP,
+  country STRING,
+  product_category STRING,
+  amount NUMERIC
+)
+PARTITION BY DATE(created_at)   -- date partition: prunes by date range
+CLUSTER BY country, product_category  -- cluster: prunes blocks within partition
+OPTIONS (
+  partition_expiration_days = 1095  -- 3-year retention
+);</code></pre>
+            <div class="callout good"><b>Metrics to mention:</b> At Walmart, partitioning + clustering reduced average query scan from full-table to <5% of data scanned, cutting BigQuery compute costs materially for downstream BI teams.</div>
+          </div>
+        </details>
+      </section>
+
+      <!-- DISTRIBUTED SYSTEMS -->
+      <section id="distributed-systems" class="searchable">
+        <h2>Distributed Systems</h2>
+        <p class="mini">Principal DE interviews probe distributed systems when discussing architecture design. You don't need to implement Raft — you need to reason clearly about tradeoffs and make defensible design decisions.</p>
+
+        <details open class="qa searchable">
+          <summary>CAP Theorem — Practical Application <span class="tag hard">DS Deep</span></summary>
+          <div class="detail-body">
+            <p><b>Question:</b> Explain the CAP theorem. When would you choose CP over AP for a data engineering system? Give a concrete example.</p>
+            <h4>CAP Theorem</h4>
+            <ul>
+              <li><b>Consistency (C):</b> Every read receives the most recent write or an error. All nodes see the same data at the same time.</li>
+              <li><b>Availability (A):</b> Every request receives a (non-error) response — though it may not contain the most recent write.</li>
+              <li><b>Partition Tolerance (P):</b> The system continues to operate even if network messages between nodes are dropped or delayed.</li>
+            </ul>
+            <div class="callout warn"><b>The nuance:</b> Partition tolerance is not optional in distributed systems — network partitions happen. The real choice is: when a partition occurs, do you prioritize consistency (CP) or availability (AP)?</div>
+            <h4>CP vs AP Decision</h4>
+            <table style="width:100%;border-collapse:collapse;font-size:13px">
+              <tr style="background:var(--code)"><th style="text-align:left;padding:8px;border:1px solid var(--line)">Choose CP when</th><th style="text-align:left;padding:8px;border:1px solid var(--line)">Choose AP when</th></tr>
+              <tr><td style="padding:8px;border:1px solid var(--line)">Financial transactions — double-spend must not occur</td><td style="padding:8px;border:1px solid var(--line)">Shopping cart — stale data is acceptable temporarily</td></tr>
+              <tr style="background:var(--code)"><td style="padding:8px;border:1px solid var(--line)">Inventory deduction — overselling is a business problem</td><td style="padding:8px;border:1px solid var(--line)">Product catalog — few-second staleness is fine</td></tr>
+              <tr><td style="padding:8px;border:1px solid var(--line)">Fraud flags — must be immediately consistent across nodes</td><td style="padding:8px;border:1px solid var(--line)">Analytics dashboards — eventual consistency is sufficient</td></tr>
+              <tr style="background:var(--code)"><td style="padding:8px;border:1px solid var(--line)">Config management — all nodes must see same config</td><td style="padding:8px;border:1px solid var(--line)">User session state — availability is more important</td></tr>
+            </table>
+            <div class="callout good"><b>Your anchor:</b> Your Fraud Detection system at Walmart required CP behavior for the fraud decision store — a fraud flag once written had to be visible to all checkout nodes immediately. You used a Redis cluster with <code>WAIT 2 0</code> (synchronous replication to 2 replicas before ACK) to achieve strong consistency for fraud flags, while using an AP Cassandra cluster for lower-priority feature store data.</div>
+          </div>
+        </details>
+
+        <details class="qa searchable">
+          <summary>Consistency Models — Strong, Eventual, Causal <span class="tag med">DS Deep</span></summary>
+          <div class="detail-body">
+            <p><b>Question:</b> Explain strong consistency, eventual consistency, and causal consistency. Where does each appear in a data platform?</p>
+            <ul>
+              <li><b>Strong consistency:</b> All reads reflect the most recent completed write. Requires coordination (locks, 2PC, Paxos/Raft). Latency penalty. Use: financial ledgers, metadata stores (Hive Metastore), config systems.</li>
+              <li><b>Eventual consistency:</b> Given no new writes, all replicas will converge to the same value — eventually. No coordination overhead. Use: DNS, shopping carts, analytics event stores, Cassandra default, DynamoDB default.</li>
+              <li><b>Causal consistency:</b> Operations that are causally related are seen in causal order by all nodes. Writes that are not causally related may be seen in different orders. Stronger than eventual, weaker than strong. Use: social media timelines (a reply must appear after its parent post), distributed collaboration tools (like Confluence page edits).</li>
+              <li><b>Read-your-writes consistency:</b> After you write, you always read your own write. Critical for user-facing apps — a user who updates a Jira ticket must see their own update immediately.</li>
+            </ul>
+            <div class="callout good"><b>Atlassian context:</b> Atlassian products like Jira and Confluence operate in multi-region deployments. Read-your-writes and causal consistency matter for user experience — this is a conversation you can have in the architecture round about what consistency guarantees Atlassian's own platform needs.</div>
+          </div>
+        </details>
+
+        <details class="qa searchable">
+          <summary>Partitioning Strategies — Hash, Range, Directory <span class="tag med">DS Deep</span></summary>
+          <div class="detail-body">
+            <p><b>Question:</b> How does Kafka partition data? How does Cassandra? What problems does each solve, and what anti-patterns do they create?</p>
+            <h4>Hash Partitioning</h4>
+            <ul>
+              <li>Assign partition by <code>hash(key) % num_partitions</code>. Even data distribution. No range queries possible across partitions — must query all partitions.</li>
+              <li><b>Kafka:</b> Default behavior — messages with the same key go to the same partition, preserving per-key ordering. No key → round-robin across partitions.</li>
+              <li><b>Cassandra:</b> Uses consistent hashing (Murmur3 hash of partition key maps to a token ring position). Enables adding nodes without full re-shuffle.</li>
+              <li><b>Hot partition problem:</b> If 80% of traffic is for one user (e.g., a celebrity account), that partition is hot. Solution: add a random suffix to the key (salt) and query all salted partitions — trades query complexity for even distribution.</li>
+            </ul>
+            <h4>Range Partitioning</h4>
+            <ul>
+              <li>Partitions own a contiguous range of key values. Supports efficient range scans. Risk: monotonically increasing keys (timestamps, IDs) cause the last partition to always be the write hotspot.</li>
+              <li><b>Mitigation:</b> Reverse the timestamp bytes, add randomness to the key, or use write-distribution strategies like Kafka key salting.</li>
+            </ul>
+            <div class="callout good"><b>Your story:</b> In your Kafka-based fraud pipeline, you partitioned by <code>transaction_id</code> (hash) to distribute load, not by <code>user_id</code> — because a power user would create a hot partition. You explicitly designed the partitioning strategy to achieve even distribution and ordered processing at the transaction level.</div>
+          </div>
+        </details>
+
+        <details class="qa searchable">
+          <summary>Distributed Transactions — 2PC, Saga, Outbox Pattern <span class="tag hard">DS Deep</span></summary>
+          <div class="detail-body">
+            <p><b>Question:</b> How do you ensure a data pipeline that writes to both BigQuery and Kafka stays consistent without distributed transactions?</p>
+            <h4>2-Phase Commit (2PC)</h4>
+            <ul>
+              <li>Phase 1 — Prepare: coordinator asks all participants to lock resources and vote yes/no.</li>
+              <li>Phase 2 — Commit/Abort: if all vote yes, coordinator sends commit. If any vote no, abort.</li>
+              <li><b>Problems:</b> Blocking — if coordinator fails after phase 1, participants hold locks indefinitely. Low throughput due to synchronous coordination. Not practical at data engineering scale.</li>
+            </ul>
+            <h4>Saga Pattern</h4>
+            <ul>
+              <li>Break a distributed transaction into a sequence of local transactions. Each step publishes an event/message to trigger the next. If a step fails, compensating transactions undo prior steps.</li>
+              <li><b>Choreography:</b> Each service listens for events and acts autonomously. Simple but hard to track state.</li>
+              <li><b>Orchestration:</b> A central saga orchestrator sends commands to each service. Easier to track but single point of failure.</li>
+            </ul>
+            <h4>Transactional Outbox Pattern</h4>
+            <pre><code># Problem: write to DB and publish to Kafka atomically
+# Solution: write to an outbox table in the same DB transaction,
+# then a separate process reads the outbox and publishes to Kafka.
+
+BEGIN TRANSACTION;
+  INSERT INTO orders(id, user_id, amount) VALUES (...);
+  INSERT INTO outbox(event_type, payload, status)
+    VALUES ('ORDER_CREATED', '{"id":...}', 'PENDING');
+COMMIT;
+
+-- Separate Outbox Poller (Debezium CDC or custom):
+-- Reads outbox WHERE status = 'PENDING', publishes to Kafka,
+-- then marks status = 'SENT'. Idempotency key prevents duplicates.</code></pre>
+            <div class="callout good"><b>Your anchor:</b> In your eCommerce 360 pipeline, you used a CDC-based approach (Debezium on MySQL → Kafka) effectively implementing the outbox pattern — the MySQL binlog was the outbox. This gave you exactly-once delivery semantics between the transactional database and the streaming layer.</div>
+          </div>
+        </details>
+
+        <details class="qa searchable">
+          <summary>Replication — Leader-Follower vs Multi-Leader vs Leaderless <span class="tag med">DS Deep</span></summary>
+          <div class="detail-body">
+            <p><b>Question:</b> Explain the three replication topologies. What are the failure scenarios and how do you handle them?</p>
+            <ul>
+              <li><b>Leader-Follower (Primary-Replica):</b> All writes go to leader. Leader replicates to followers. Followers serve reads. On leader failure, a follower is promoted (automatic with tools like Patroni for Postgres, Kafka controller election). Risk: replication lag — reads from followers may be stale.</li>
+              <li><b>Multi-Leader:</b> Multiple leaders accept writes. Each leader replicates to the others. Used in multi-datacenter setups. Problem: write conflicts when same record is written to two leaders concurrently. Must resolve conflicts (last-write-wins, CRDTs, application-level merge). Used by Cassandra, CouchDB, Atlassian Confluence's offline mode.</li>
+              <li><b>Leaderless (Dynamo-style):</b> Any node accepts writes. Reads and writes use quorum (W + R > N). Example: Cassandra, DynamoDB. Read-repair and anti-entropy daemons keep replicas in sync. No single point of failure but complex consistency guarantees.</li>
+            </ul>
+            <div class="complexity">
+              <div class="cx-item"><b>Quorum:</b> W + R > N guarantees overlap</div>
+              <div class="cx-item"><b>Strong:</b> W = N (write all replicas)</div>
+              <div class="cx-item"><b>Fast:</b> W = 1 (write one, eventual)</div>
+            </div>
+          </div>
+        </details>
+      </section>
+
+      <!-- DATA PROCESSING FRAMEWORKS -->
+      <section id="frameworks" class="searchable">
+        <h2>Data Processing Frameworks</h2>
+        <p class="mini">Your stack is PySpark + Kafka + GCP (Dataproc, BigQuery, Pub/Sub). These questions test whether you understand the internals well enough to debug, tune, and architect — not just write jobs.</p>
+
+        <details open class="qa searchable">
+          <summary>PySpark Internals — DAG, Stages, Shuffles, and Optimization <span class="tag hard">Frameworks</span></summary>
+          <div class="detail-body">
+            <p><b>Question:</b> A Spark job is slow. Walk me through how you would diagnose and fix it.</p>
+            <h4>Spark Execution Model</h4>
+            <ol>
+              <li><b>Driver</b> submits a job. Spark builds a DAG of RDD/DataFrame transformations.</li>
+              <li>DAG Scheduler divides the DAG into <b>stages</b> — a new stage begins at every shuffle boundary (wide transformation: groupBy, join, distinct).</li>
+              <li>Each stage is split into <b>tasks</b> (one per partition). Tasks run on Executor cores.</li>
+              <li><b>Shuffle</b> = data redistributed across the network between stages. The most expensive operation.</li>
+            </ol>
+            <h4>Diagnosis Checklist (Spark UI)</h4>
+            <ul>
+              <li><b>Jobs tab:</b> Which job is slow? Which stage inside it?</li>
+              <li><b>Stages tab:</b> Is one task taking 10x longer than others? → Data skew.</li>
+              <li><b>Storage tab:</b> Is the cached RDD fitting in memory? Spill to disk = slow.</li>
+              <li><b>SQL/DataFrame tab:</b> Look for BroadcastHashJoin vs SortMergeJoin — BHJ is faster when one side fits in memory.</li>
+              <li><b>Executor tab:</b> GC time >20% of task time = memory pressure, need to increase executor memory or reduce partition size.</li>
+            </ul>
+            <h4>Common Fixes</h4>
+            <pre><code># 1. Data skew: add salting
+from pyspark.sql import functions as F
+
+# Skewed key: user_id '999' has 50% of data
+df_salted = df.withColumn(
+    'salted_key',
+    F.concat(F.col('user_id'), F.lit('_'), (F.rand() * 10).cast('int'))
+)
+
+# 2. Broadcast join for small dimension table
+from pyspark.sql.functions import broadcast
+result = large_df.join(broadcast(small_df), 'key')
+
+# 3. Repartition to reduce shuffle partition size
+# Default: spark.sql.shuffle.partitions = 200
+# For large data: increase to ~2-4x the number of executor cores
+spark.conf.set("spark.sql.shuffle.partitions", "800")
+
+# 4. Persist/cache intermediate DataFrames used multiple times
+df_filtered = df.filter(...).cache()
+df_filtered.count()  # trigger cache
+
+# 5. Coalesce before writing (avoid tiny files)
+df_result.coalesce(50).write.parquet("gs://bucket/output/")</code></pre>
+            <div class="callout good"><b>Your anchor:</b> In the 3,000-pipeline GCP migration, you tuned Spark jobs on Dataproc — you encountered skew in supplier transaction data (a handful of large suppliers dominated data volume). You implemented salting with a configurable salt factor, reducing that job's runtime from 4 hours to 35 minutes.</div>
+          </div>
+        </details>
+
+        <details class="qa searchable">
+          <summary>Kafka Architecture — Producers, Consumers, Partitions, and Delivery Guarantees <span class="tag hard">Frameworks</span></summary>
+          <div class="detail-body">
+            <p><b>Question:</b> Explain Kafka's architecture. How do you achieve exactly-once delivery end-to-end?</p>
+            <h4>Core Architecture</h4>
+            <ul>
+              <li><b>Topic:</b> Named log of records. Divided into partitions. Partitions are the unit of parallelism.</li>
+              <li><b>Partition:</b> Immutable, ordered, append-only log. Each record has an offset. Replicated across brokers.</li>
+              <li><b>Producer:</b> Writes to a partition. Key → deterministic partition (same key → same partition, ordering guaranteed). No key → round-robin.</li>
+              <li><b>Consumer Group:</b> A group of consumers that collectively consume a topic. Each partition is consumed by exactly one consumer in the group at a time. Max parallelism = number of partitions.</li>
+              <li><b>Controller (KRaft mode):</b> Manages partition leadership and metadata. ZooKeeper removed in Kafka 3.3+ (KRaft mode is now default).</li>
+            </ul>
+            <h4>Delivery Guarantees</h4>
+            <table style="width:100%;border-collapse:collapse;font-size:13px">
+              <tr style="background:var(--code)"><th style="text-align:left;padding:8px;border:1px solid var(--line)">Guarantee</th><th style="padding:8px;border:1px solid var(--line)">Setting</th><th style="padding:8px;border:1px solid var(--line)">Risk</th></tr>
+              <tr><td style="padding:8px;border:1px solid var(--line)">At-most-once</td><td style="padding:8px;border:1px solid var(--line)">acks=0, no retries</td><td style="padding:8px;border:1px solid var(--line)">Data loss possible</td></tr>
+              <tr style="background:var(--code)"><td style="padding:8px;border:1px solid var(--line)">At-least-once</td><td style="padding:8px;border:1px solid var(--line)">acks=all, retries=MAX</td><td style="padding:8px;border:1px solid var(--line)">Duplicates possible</td></tr>
+              <tr><td style="padding:8px;border:1px solid var(--line)">Exactly-once (producer)</td><td style="padding:8px;border:1px solid var(--line)">enable.idempotence=true</td><td style="padding:8px;border:1px solid var(--line)">Single producer, single partition</td></tr>
+              <tr style="background:var(--code)"><td style="padding:8px;border:1px solid var(--line)">Exactly-once (end-to-end)</td><td style="padding:8px;border:1px solid var(--line)">Kafka Transactions + consumer isolation=read_committed</td><td style="padding:8px;border:1px solid var(--line)">Throughput penalty ~10%</td></tr>
+            </table>
+            <pre><code># Exactly-once producer in Python (confluent-kafka)
+from confluent_kafka import Producer
+
+producer = Producer({
+    'bootstrap.servers': 'broker:9092',
+    'enable.idempotence': True,       # sequence numbers + dedup
+    'acks': 'all',                     # wait for all ISR replicas
+    'max.in.flight.requests.per.connection': 5,  # max for idempotence
+    'transactional.id': 'pipeline-tx-001'  # for transactions
+})
+
+producer.init_transactions()
+producer.begin_transaction()
+try:
+    producer.produce('orders', key='user-1', value='...')
+    producer.produce('audit-log', key='user-1', value='...')
+    producer.commit_transaction()
+except Exception as e:
+    producer.abort_transaction()</code></pre>
+            <div class="callout good"><b>Your anchor:</b> Your fraud detection pipeline required exactly-once for the fraud decision write-back to Kafka. You used Kafka Transactions with <code>transactional.id</code> scoped per pipeline instance, and Spark Structured Streaming's Kafka sink with <code>processing.guarantee=exactly_once</code>.</div>
+          </div>
+        </details>
+
+        <details class="qa searchable">
+          <summary>Spark Structured Streaming vs Apache Flink <span class="tag med">Frameworks</span></summary>
+          <div class="detail-body">
+            <p><b>Question:</b> When would you choose Apache Flink over Spark Structured Streaming? What are the key architectural differences?</p>
+            <table style="width:100%;border-collapse:collapse;font-size:13px">
+              <tr style="background:var(--code)"><th style="text-align:left;padding:8px;border:1px solid var(--line)">Dimension</th><th style="padding:8px;border:1px solid var(--line)">Spark Structured Streaming</th><th style="padding:8px;border:1px solid var(--line)">Apache Flink</th></tr>
+              <tr><td style="padding:8px;border:1px solid var(--line)">Processing model</td><td style="padding:8px;border:1px solid var(--line)">Micro-batch (default). Continuous mode in beta.</td><td style="padding:8px;border:1px solid var(--line)">True event-by-event streaming. Record-at-a-time.</td></tr>
+              <tr style="background:var(--code)"><td style="padding:8px;border:1px solid var(--line)">Latency</td><td style="padding:8px;border:1px solid var(--line)">100ms–few seconds (micro-batch interval)</td><td style="padding:8px;border:1px solid var(--line)">&lt;10ms achievable</td></tr>
+              <tr><td style="padding:8px;border:1px solid var(--line)">State management</td><td style="padding:8px;border:1px solid var(--line)">RocksDB state store. State TTL supported.</td><td style="padding:8px;border:1px solid var(--line)">First-class stateful operations. Queryable state. Exactly-once state with checkpointing.</td></tr>
+              <tr style="background:var(--code)"><td style="padding:8px;border:1px solid var(--line)">Event time + watermarks</td><td style="padding:8px;border:1px solid var(--line)">Watermarks via <code>withWatermark()</code>. Less flexible.</td><td style="padding:8px;border:1px solid var(--line)">Rich watermark APIs. Allowable lateness. Custom watermark strategies.</td></tr>
+              <tr><td style="padding:8px;border:1px solid var(--line)">Batch + streaming unification</td><td style="padding:8px;border:1px solid var(--line)">Same DataFrame API. Easy for Spark shops.</td><td style="padding:8px;border:1px solid var(--line)">Table API unifies, but separate runtime historically.</td></tr>
+              <tr style="background:var(--code)"><td style="padding:8px;border:1px solid var(--line)">GCP integration</td><td style="padding:8px;border:1px solid var(--line)">Dataproc, Dataflow (via Spark runner) — strong</td><td style="padding:8px;border:1px solid var(--line)">Dataflow (Apache Beam/Flink runner). Maturing.</td></tr>
+              <tr><td style="padding:8px;border:1px solid var(--line)">Team familiarity (your stack)</td><td style="padding:8px;border:1px solid var(--line)">Your primary streaming engine</td><td style="padding:8px;border:1px solid var(--line)">Evaluated but not primary</td></tr>
+            </table>
+            <div class="callout good"><b>Decision rule:</b> Choose Flink when latency must be &lt;100ms and complex event-time windowing / stateful processing is required. Choose Spark Streaming when the team already owns Spark, latency of 1-5 seconds is acceptable, and batch-streaming code unification matters for operational simplicity.</div>
+            <div class="callout good"><b>At Atlassian:</b> Jira real-time notification delivery and Confluence search index updates would be Flink territory if they needed sub-100ms latency. Analytics pipelines behind dashboards are Spark territory.</div>
+          </div>
+        </details>
+
+        <details class="qa searchable">
+          <summary>Airflow — DAG Design, Idempotency, and Common Anti-Patterns <span class="tag med">Frameworks</span></summary>
+          <div class="detail-body">
+            <p><b>Question:</b> How do you design an Airflow DAG for a daily batch pipeline that processes yesterday's data? What makes it production-ready?</p>
+            <h4>Production-Ready DAG Checklist</h4>
+            <ul>
+              <li><b>Idempotency:</b> Re-running the same DAG run for the same <code>ds</code> (execution date) must produce the same result. Use <code>execution_date</code> as a partition key. Delete before insert, not append.</li>
+              <li><b>Catchup disabled by default:</b> Set <code>catchup=False</code> unless you specifically need backfill. An unintended catchup on a 30-day DAG runs 30 concurrent DAG runs and kills your database.</li>
+              <li><b>SLA misses:</b> Set <code>sla</code> on tasks to get alerts when a task takes longer than expected.</li>
+              <li><b>Retries + backoff:</b> <code>retries=3, retry_delay=timedelta(minutes=5)</code>. Use exponential backoff for flaky external APIs.</li>
+              <li><b>XComs only for small metadata:</b> Never pass DataFrames through XComs. Pass file paths, BigQuery table names, or row counts only.</li>
+              <li><b>Use datasets/data-aware scheduling</b> (Airflow 2.4+) to trigger downstream DAGs when upstream data is ready — decouples scheduling from clock time.</li>
+            </ul>
+            <pre><code">from airflow import DAG
+from airflow.providers.google.cloud.operators.bigquery import BigQueryInsertJobOperator
+from airflow.providers.google.cloud.operators.dataproc import DataprocSubmitJobOperator
+from datetime import datetime, timedelta
+
+default_args = {
+    'owner': 'data-engineering',
+    'retries': 3,
+    'retry_delay': timedelta(minutes=5),
+    'retry_exponential_backoff': True,
+    'sla': timedelta(hours=2),  # alert if task takes > 2h
+    'on_failure_callback': alert_slack,
+}
+
+with DAG(
+    dag_id='daily_orders_pipeline',
+    default_args=default_args,
+    schedule_interval='0 3 * * *',  # 3am UTC daily
+    start_date=datetime(2025, 1, 1),
+    catchup=False,                  # prevent accidental backfill
+    tags=['orders', 'daily', 'production'],
+) as dag:
+
+    extract = DataprocSubmitJobOperator(
+        task_id='extract_orders',
+        job={
+            'pyspark_job': {
+                'main_python_file_uri': 'gs://bucket/jobs/extract_orders.py',
+                'args': ['--execution-date', '{{ ds }}'],  # idempotent key
+            }
+        },
+        region='us-central1',
+        project_id='my-project',
+    )
+
+    load_bq = BigQueryInsertJobOperator(
+        task_id='load_to_bigquery',
+        configuration={
+            'query': {
+                'query': """
+                    DELETE FROM orders_daily WHERE partition_date = '{{ ds }}';
+                    INSERT INTO orders_daily
+                    SELECT * FROM orders_staging WHERE partition_date = '{{ ds }}';
+                """,
+                'useLegacySql': False,
+            }
+        },
+    )
+
+    extract >> load_bq</code></pre>
+            <div class="callout good"><b>Your anchor:</b> Your 3,000-pipeline migration involved migrating legacy cron jobs and Oozie workflows to Airflow on GCP Composer. You built a DAG factory pattern — a single Python template generated parameterized DAGs for each pipeline, ensuring consistency and reducing YAML/DAG boilerplate by 80%.</div>
+          </div>
+        </details>
+
+        <details class="qa searchable">
+          <summary>Data Quality at Scale — Great Expectations, dbt Tests, and SLA Enforcement <span class="tag med">Frameworks</span></summary>
+          <div class="detail-body">
+            <p><b>Question:</b> How do you implement data quality checks for a pipeline that feeds 15 downstream teams? What happens when a check fails?</p>
+            <h4>Three-Layer Quality Model</h4>
+            <ol>
+              <li><b>Schema validation (at ingestion):</b> Check column names, types, not-null constraints before data enters the warehouse. Use Avro/Protobuf schemas in Kafka schema registry, or dbt schema.yml definitions.</li>
+              <li><b>Statistical validation (post-load):</b> Row count within expected range? Null rate below threshold? Numeric columns within historical percentile bounds? Great Expectations or dbt tests handle this.</li>
+              <li><b>Business logic validation (domain-specific):</b> Total sales today within ±20% of 30-day average? No negative inventory? These require custom SQL assertions.</li>
+            </ol>
+            <pre><code"># Great Expectations example — statistical checks
+import great_expectations as gx
+
+context = gx.get_context()
+batch = context.get_batch({"path": "gs://bucket/orders/2025-01-01/"}, "orders_suite")
+
+results = context.run_checkpoint(
+    checkpoint_name="daily_orders_checkpoint",
+    batch_request=batch,
+    expectation_suite_name="orders_suite",
+)
+
+# Fail the pipeline if quality checks fail
+if not results["success"]:
+    raise ValueError(f"Data quality failed: {results['statistics']}")</code></pre>
+            <h4>Failure Protocol</h4>
+            <ul>
+              <li><b>Block:</b> Hard failures (wrong schema, zero rows) → halt pipeline, alert on-call, do not load to warehouse.</li>
+              <li><b>Warn:</b> Soft failures (row count 5% below average) → load to staging, alert owner, do not promote to production.</li>
+              <li><b>Log:</b> Statistical anomalies → load to production, log in quality dashboard, do not alert unless trend persists 3 days.</li>
+              <li><b>Downstream protection:</b> Use Airflow data-aware scheduling — downstream DAGs only trigger after an upstream quality gate passes. Never let bad data silently propagate.</li>
+            </ul>
+            <div class="callout good"><b>Your anchor:</b> In your Walmart pipeline framework (the one you built for knowledge sharing / standardization), you included data quality gates as a first-class feature — every pipeline that used the framework automatically got schema validation, row count checks, and null rate monitoring. Downstream teams were shielded from upstream quality issues by design.</div>
+          </div>
+        </details>
+      </section>
+
+      <!-- REVISION -->
+      <section id="revision" class="searchable">
+        <h2>Revision Sheets</h2>
+
+        <h3>30-Minute Technical Revision</h3>
+        <ol>
+          <li><b>Coding protocol:</b> Clarify → Example → Brute force → Optimal → Tests first → Code → Complexity.</li>
+          <li><b>TDD pattern:</b> Write all test cases before the function body. Name edge cases out loud.</li>
+          <li><b>DS&amp;A cheat:</b> HashMap = O(n) time at O(n) space cost. Two pointers = O(n) without extra space. Sliding window = variable-size subarray/substring problems. Min-heap = Kth largest. Trie = prefix search. Union-Find = connected components.</li>
+          <li><b>SQL cheat:</b> Window functions need OVER(). DENSE_RANK for Nth highest. ROW_NUMBER for dedup. LAG/LEAD for time-series comparison. Recursive CTE for hierarchies. Gap-and-island = DATE_SUB(date, INTERVAL ROW_NUMBER() DAY).</li>
+          <li><b>Big data:</b> Parquet = columnar analytics. Avro = Kafka/schema evolution. Hudi/Delta = ACID on data lake. Lambda = batch+speed. Kappa = stream-only with replay. Partition by date, cluster by secondary filters.</li>
+          <li><b>Distributed systems:</b> CAP = CP for financial/fraud, AP for analytics/catalog. Exactly-once in Kafka = idempotent producer + transactions. Outbox pattern for dual writes. 2PC blocks → use Saga instead.</li>
+          <li><b>Frameworks:</b> Spark skew → salting + broadcast join. Spark slow → check shuffle partitions, GC time, data spill. Kafka ordering = key determines partition. Airflow = catchup=False, idempotent tasks, no DataFrames in XCom.</li>
+          <li><b>Architecture:</b> CADR — Clarify, Architecture, Deep-dive, Review. Always start with: who is the customer, what is the volume, what are the latency and consistency requirements.</li>
+          <li><b>Product sense:</b> METRIC framework. Always check data quality before business conclusions when a metric drops.</li>
+          <li><b>Leadership craft:</b> Have 3 stories ready — GCP migration (scale), Agentic AI (innovation/direction), pipeline framework (knowledge sharing). Know the numbers cold.</li>
+        </ol>
+
+        <h3>15-Minute Technical Revision</h3>
+        <ul>
+          <li>No graphs — trees are the upper bound.</li>
+          <li>Always show brute force first, then optimize. Never skip it.</li>
+          <li>TDD: write tests before the function. Say "let me write the tests first" out loud.</li>
+          <li>Multiple solutions: name them all, implement the best, explain why.</li>
+          <li>SQL: WINDOW FUNCTION syntax is <code>FUNCTION() OVER (PARTITION BY ... ORDER BY ... ROWS BETWEEN ...)</code></li>
+          <li>Architecture: start with fundamentals, build complexity, keep the customer in the room.</li>
+        </ul>
+
+        <h3>5-Minute Revision</h3>
+        <ul>
+          <li>Communicate before you code. Always.</li>
+          <li>Test before you submit. Always.</li>
+          <li>Multiple solutions. Tradeoffs. Pick the best. Explain why.</li>
+          <li>Architecture: clarify first. Draw the whole system before any component.</li>
+          <li>Product sense: data quality check before business conclusion.</li>
+          <li>Leadership: GCP migration = scale. Sarthi/AI = innovation. Framework = knowledge sharing.</li>
+        </ul>
+
+        <h3>DS&amp;A Pattern Cheat Sheet</h3>
+        <ul class="columns">
+          <li><b>Array/String, O(n):</b> Hashmap for O(1) lookup</li>
+          <li><b>Sorted array, two elements:</b> Two pointers</li>
+          <li><b>Substring/subarray:</b> Sliding window</li>
+          <li><b>"Most recent unresolved":</b> Stack</li>
+          <li><b>Level-by-level tree:</b> BFS with deque</li>
+          <li><b>Tree path/search:</b> DFS recursion</li>
+          <li><b>"Overlapping subproblems":</b> DP with memo/table</li>
+          <li><b>Duplicates:</b> Sort + adjacent compare, or Set</li>
+          <li><b>Frequency:</b> Counter / defaultdict(int)</li>
+          <li><b>Anagram / group:</b> sorted() as key</li>
+          <li><b>Intervals:</b> Sort by start, then merge</li>
+          <li><b>Nth largest/smallest:</b> heapq or sorted()</li>
+        </ul>
+
+        <h3>SQL Quick Reference</h3>
+        <pre><code>-- Deduplication
+ROW_NUMBER() OVER (PARTITION BY key ORDER BY ts DESC) = 1
+
+-- Nth highest
+DENSE_RANK() OVER (ORDER BY salary DESC) = N
+
+-- Running total
+SUM(amount) OVER (ORDER BY date ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW)
+
+-- 7-day moving average
+AVG(amount) OVER (ORDER BY date ROWS BETWEEN 6 PRECEDING AND CURRENT ROW)
+
+-- Previous value
+LAG(col, 1, default) OVER (PARTITION BY id ORDER BY date)
+
+-- Consecutive days (gap-and-island)
+DATE_SUB(activity_date, INTERVAL ROW_NUMBER() OVER (PARTITION BY user ORDER BY date) DAY)
+
+-- Conditional aggregation (pivot)
+SUM(CASE WHEN region = 'APAC' THEN amount ELSE 0 END) AS apac</code></pre>
+
+        <h3>Architecture Design Cheat Sheet</h3>
+        <ul>
+          <li><b>Real-time &lt;200ms:</b> Kafka + Spark Streaming + Redis feature store + ML microservice</li>
+          <li><b>Batch analytics T+1:</b> GCS → Dataproc (Spark) → BigQuery → dashboards</li>
+          <li><b>Multi-tenant isolation:</b> GCP projects per tenant + shared governance layer (Dataplex)</li>
+          <li><b>ACID at scale:</b> Apache Hudi on GCS (upserts, deletes, time-travel)</li>
+          <li><b>Cost optimization:</b> Partition + cluster tables; Spot instances for batch; workload profiling; right-sizing</li>
+          <li><b>Reliability:</b> Exactly-once for financial; idempotent pipelines; reconciliation before cutover; tested rollback</li>
+        </ul>
+
+        <h3>Big Data &amp; Distributed Systems Cheat Sheet</h3>
+        <ul class="columns">
+          <li><b>HDFS single NameNode failure:</b> HA NameNode + ZooKeeper</li>
+          <li><b>Spark slow — check first:</b> Spark UI → Stages → straggler tasks</li>
+          <li><b>Data skew fix:</b> Salt the key + increase partitions</li>
+          <li><b>Small table join:</b> broadcast() — eliminates shuffle</li>
+          <li><b>Tiny output files:</b> coalesce(n) before write</li>
+          <li><b>Kafka ordering guarantee:</b> Within partition only (same key = same partition)</li>
+          <li><b>Kafka exactly-once:</b> enable.idempotence=true + transactions</li>
+          <li><b>CP examples:</b> Redis (WAIT 2), ZooKeeper, HBase, etcd</li>
+          <li><b>AP examples:</b> Cassandra (QUORUM), DynamoDB, CouchDB</li>
+          <li><b>Dual write safe pattern:</b> Outbox → CDC → Kafka (not write-both-directly)</li>
+          <li><b>Partition by:</b> Date/time for time-series. Hash for even distribution.</li>
+          <li><b>Hot partition mitigation:</b> Salt key → scatter-gather on read</li>
+          <li><b>File format decision:</b> Parquet for analytics, Avro for Kafka, Hudi for CDC/upserts</li>
+          <li><b>Lambda vs Kappa:</b> Lambda = two codebases. Kappa = one, needs long Kafka retention.</li>
+          <li><b>Airflow idempotency:</b> Delete-then-insert with {{ ds }} partition key</li>
+          <li><b>Data quality layers:</b> Schema (ingestion) → Statistical (post-load) → Business logic (domain)</li>
+        </ul>
+
+        <h3>Advanced DS&amp;A Cheat Sheet</h3>
+        <ul class="columns">
+          <li><b>Kth largest/smallest:</b> min-heap of size k → root is answer</li>
+          <li><b>Merge k sorted:</b> min-heap with (val, list_idx, elem_idx)</li>
+          <li><b>Prefix search / autocomplete:</b> Trie — O(m) insert &amp; search</li>
+          <li><b>Connected components:</b> Union-Find with path compression</li>
+          <li><b>Shortest path unweighted:</b> BFS — guarantees fewest edges</li>
+          <li><b>Shortest path weighted:</b> Dijkstra (non-negative weights)</li>
+          <li><b>Cycle detection:</b> DFS with color (white/gray/black)</li>
+          <li><b>Topological sort:</b> DFS post-order reverse OR Kahn's BFS</li>
+        </ul>
+      </section>
+
+    </article>
+  </main>
+</div>
+
+<script>
+  // Progress bar
+  window.addEventListener('scroll', () => {
+    const p = document.getElementById('progress');
+    const h = document.documentElement;
+    const pct = h.scrollTop / (h.scrollHeight - h.clientHeight) * 100;
+    p.style.width = pct + '%';
+  });
+
+  // Dark mode
+  document.getElementById('theme').addEventListener('click', () => {
+    const html = document.documentElement;
+    html.dataset.theme = html.dataset.theme === 'dark' ? '' : 'dark';
+  });
+
+  // Search
+  document.getElementById('search').addEventListener('input', function() {
+    const q = this.value.trim().toLowerCase();
+    document.querySelectorAll('.searchable').forEach(el => {
+      el.classList.toggle('hidden', q.length > 0 && !el.textContent.toLowerCase().includes(q));
+    });
+  });
+
+  // Active nav link on scroll
+  const sections = document.querySelectorAll('section[id], .cover[id]');
+  const navLinks = document.querySelectorAll('nav a');
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        navLinks.forEach(a => a.classList.remove('active'));
+        const active = document.querySelector(`nav a[href="#${entry.target.id}"]`);
+        if (active) active.classList.add('active');
+      }
+    });
+  }, { threshold: 0.2 });
+  sections.forEach(s => observer.observe(s));
+</script>
+</body>
+</html>
