@@ -139,9 +139,17 @@
       <div class="nav-group">Stage 1 — Python DE</div>
       <a href="#python-de">Python DE Patterns</a>
       <div class="nav-group">Stage 2 — Architecture</div>
+      <a href="#atlassian-datalake">Atlassian Data Lake</a>
+      <a href="#cloud-comparison">AWS vs GCP vs Azure</a>
+      <a href="#format-comparison">File &amp; Table Formats</a>
       <a href="#big-data">Big Data Concepts</a>
       <a href="#distributed-systems">Distributed Systems</a>
       <a href="#frameworks">Data Processing Frameworks</a>
+      <a href="#scala-de">Scala DE &amp; Streaming</a>
+      <a href="#realtime-analytics">Real-Time Analytics at Scale</a>
+      <a href="#hudi-delta">Hudi / Delta / Iceberg</a>
+      <div class="nav-group">Interview Intel</div>
+      <a href="#interview-intel">Recent Interview Patterns</a>
       <div class="nav-group">Stage 2 — Design</div>
       <a href="#architecture">Architecture Design</a>
       <a href="#product-sense">Product Sense</a>
@@ -2220,6 +2228,825 @@ ORDER BY user_id, streak_start;</code></pre>
         </details>
       </section>
 
+      <!-- ATLASSIAN DATA LAKE ARCHITECTURE -->
+      <section id="atlassian-datalake" class="searchable">
+        <h2>Atlassian's Multi-Region Data Lake Architecture</h2>
+        <p class="mini">Directly from Atlassian's engineering blog: how they built a unified customer data lake at scale. This is the architecture you will reference in Stage 2 discussions — it is Atlassian's own production system.</p>
+        <div class="callout good"><b>Why this matters:</b> Atlassian interviewers will ask you to design systems like this one. Knowing their actual production architecture lets you have a peer-level conversation rather than a generic answer.</div>
+
+        <details open class="qa searchable">
+          <summary>The Three Problems Atlassian Solved <span class="tag">Architecture</span></summary>
+          <div class="detail-body">
+            <ol>
+              <li><b>Analytics gap:</b> Each product (Jira, Confluence, Bitbucket) maintained siloed databases. No unified analytics layer existed. Cross-product metrics were impossible.</li>
+              <li><b>Cloud migration blocker:</b> On-prem customers had direct DB access for data exports. Cloud customers couldn't export data — a major adoption barrier.</li>
+              <li><b>Operational database strain:</b> Analytics queries ran against production OLTP databases, degrading transaction performance.</li>
+            </ol>
+            <div class="callout good"><b>Your connection:</b> You solved all three at Walmart — GCP migration = unified analytics layer, eCommerce 360 = self-serve access, pipeline framework = moved analytics off operational DBs.</div>
+          </div>
+        </details>
+
+        <details class="qa searchable">
+          <summary>Logical vs Physical Replication — The Key Architecture Decision <span class="tag">Architecture</span></summary>
+          <div class="detail-body">
+            <p>Atlassian chose <b>logical (application-level) replication</b> over physical (database-level / Debezium CDC).</p>
+            <table style="width:100%;border-collapse:collapse;font-size:13px">
+              <tr style="background:var(--code)"><th style="text-align:left;padding:8px;border:1px solid var(--line)">Dimension</th><th style="padding:8px;border:1px solid var(--line)">Physical Replication (Debezium CDC)</th><th style="padding:8px;border:1px solid var(--line)">Logical / Application-Level (Atlassian)</th></tr>
+              <tr><td style="padding:8px;border:1px solid var(--line)">DB compatibility</td><td style="padding:8px;border:1px solid var(--line)">Tied to one engine's binary log</td><td style="padding:8px;border:1px solid var(--line)">Works across Postgres, DynamoDB, MongoDB</td></tr>
+              <tr style="background:var(--code)"><td style="padding:8px;border:1px solid var(--line)">Schema changes</td><td style="padding:8px;border:1px solid var(--line)">Can break downstream without warning</td><td style="padding:8px;border:1px solid var(--line)">Producers control contract; evolution is managed</td></tr>
+              <tr><td style="padding:8px;border:1px solid var(--line)">Upfront cost</td><td style="padding:8px;border:1px solid var(--line)">Low — plug in connector</td><td style="padding:8px;border:1px solid var(--line)">High — teams instrument their apps with events</td></tr>
+              <tr style="background:var(--code)"><td style="padding:8px;border:1px solid var(--line)">Long-term flexibility</td><td style="padding:8px;border:1px solid var(--line)">Lower — tied to DB implementation details</td><td style="padding:8px;border:1px solid var(--line)">Higher — analytics contract independent of DB schema</td></tr>
+            </table>
+            <div class="callout warn"><b>Interview question:</b> "When would you choose application-level events over Debezium CDC?" Answer: heterogeneous DB stack, teams need independent analytics contract, or computed/derived fields needed in events.</div>
+          </div>
+        </details>
+
+        <details class="qa searchable">
+          <summary>The Replication Bus — Kinesis + Protobuf + Last-Write-Wins <span class="tag">Architecture</span></summary>
+          <div class="detail-body">
+            <pre><code>// Atlassian Replication Event envelope (Protobuf)
+message ReplicationEvent {
+  string entity_type = 1;          // e.g. "jira.Issue"
+  string entity_id   = 2;
+  enum Operation { CREATED=0; UPDATED=1; DELETED=2; }
+  Operation operation = 3;
+  int64  version      = 4;         // monotonically increasing → last-write-wins
+  google.protobuf.Any payload = 5;
+  string tenant_id    = 6;         // for row-level security
+}
+// Large payloads (>1MB Kinesis limit): upload to S3, embed S3 reference</code></pre>
+            <ol>
+              <li>Application emits <code>ReplicationEvent</code> → <b>Replication Bus API</b></li>
+              <li>API writes to <b>AWS Kinesis</b> (sharded by product/domain)</li>
+              <li>Bulk initial loads bypass Kinesis — dumped to <b>S3</b> directly (avoids shard throttling)</li>
+              <li><b>Flink</b> reads from Kinesis, deserializes Protobuf</li>
+              <li>Applies <b>last-write-wins</b> on version field during Delta MERGE: <code>source.version &gt; target.version</code></li>
+            </ol>
+          </div>
+        </details>
+
+        <details class="qa searchable">
+          <summary>Two-Layer Delta Lake Table Model — Raw + Refined <span class="tag">Architecture</span></summary>
+          <div class="detail-body">
+            <table style="width:100%;border-collapse:collapse;font-size:13px">
+              <tr style="background:var(--code)"><th style="text-align:left;padding:8px;border:1px solid var(--line)">Layer</th><th style="padding:8px;border:1px solid var(--line)">Raw Tables</th><th style="padding:8px;border:1px solid var(--line)">Refined Tables</th></tr>
+              <tr><td style="padding:8px;border:1px solid var(--line)">Write mode</td><td style="padding:8px;border:1px solid var(--line)">Append-only (immutable log)</td><td style="padding:8px;border:1px solid var(--line)">MERGE upsert — current state</td></tr>
+              <tr style="background:var(--code)"><td style="padding:8px;border:1px solid var(--line)">Purpose</td><td style="padding:8px;border:1px solid var(--line)">Audit trail, reprocessing, recovery, debugging</td><td style="padding:8px;border:1px solid var(--line)">Customer-facing analytics and dashboards</td></tr>
+              <tr><td style="padding:8px;border:1px solid var(--line)">Access</td><td style="padding:8px;border:1px solid var(--line)">Internal only</td><td style="padding:8px;border:1px solid var(--line)">Customer-facing (row-level security by tenant_id)</td></tr>
+              <tr style="background:var(--code)"><td style="padding:8px;border:1px solid var(--line)">Transformation</td><td style="padding:8px;border:1px solid var(--line)">None — events as-is</td><td style="padding:8px;border:1px solid var(--line)">DBT SQL — joins, business rules, normalization</td></tr>
+            </table>
+            <pre><code>-- DBT incremental model: refined jira_issues (current state, customer-facing)
+{{ config(materialized='incremental', unique_key='issue_id') }}
+
+WITH latest_events AS (
+  SELECT *,
+         ROW_NUMBER() OVER (PARTITION BY entity_id ORDER BY version DESC) AS rn
+  FROM {{ ref('raw_jira_issue_events') }}
+  {% if is_incremental() %}
+  WHERE ingested_at > (SELECT MAX(ingested_at) FROM {{ this }})
+  {% endif %}
+)
+SELECT
+  entity_id AS issue_id,
+  JSON_EXTRACT_SCALAR(payload, '$.summary') AS summary,
+  JSON_EXTRACT_SCALAR(payload, '$.status')  AS status,
+  tenant_id, version
+FROM latest_events
+WHERE rn = 1 AND operation != 'DELETED'</code></pre>
+          </div>
+        </details>
+
+        <details class="qa searchable">
+          <summary>Multi-Region + GDPR Tombstone Deletion <span class="tag">Architecture</span></summary>
+          <div class="detail-body">
+            <ul>
+              <li><b>Each region:</b> own Kinesis streams, S3 buckets, Flink jobs, Delta tables — full stack via Terraform IaC</li>
+              <li><b>Compliance:</b> Data residency (GDPR EU, APAC regulations), fault isolation, latency reduction</li>
+              <li><b>Migration:</b> Control plane signals move → job replays raw Delta events into destination region Kinesis (throttled) → source emits tombstone DELETE events</li>
+            </ul>
+            <pre><code># GDPR "right to erasure" + region migration: same tombstone mechanism
+def emit_tombstone_events(customer_id, entity_type, kinesis_client):
+    for entity_id in get_customer_entities(customer_id, entity_type):
+        event = build_event(entity_type, entity_id, operation="DELETED",
+                            version=get_max_version(entity_id) + 1,
+                            tenant_id=customer_id)
+        kinesis_client.put_record(
+            StreamName=f'replication-{entity_type}',
+            Data=event.SerializeToString(),
+            PartitionKey=entity_id,
+        )</code></pre>
+            <div class="callout good"><b>One mechanism, two uses:</b> Tombstone events handle both GDPR erasure and customer region migration. Flink processes → MERGE deletes rows from refined tables → Delta VACUUM purges raw files after retention period.</div>
+          </div>
+        </details>
+
+        <details class="qa searchable">
+          <summary>Delta Sharing for Enterprise Data Export <span class="tag">Architecture</span></summary>
+          <div class="detail-body">
+            <p>Atlassian replaces legacy direct-DB access with the open <b>Delta Sharing protocol</b>. Customers get a read-only bearer-token view of their tenant's refined Delta partition. Databricks, Snowflake, Power BI, and pandas all consume it natively — no data copy.</p>
+            <pre><code># Provider side (Atlassian): share.yaml
+shares:
+  - name: "jira_analytics_acme"
+    schemas:
+      - name: "jira"
+        tables:
+          - name: "issues"
+            location: "s3://atlassian-datalake-us/refined/jira/issues/"
+            partition_values:
+              - tenant_id: "acme-corp"   # row-level isolation per customer
+
+# Consumer side (any Delta-compatible client):
+import delta_sharing
+df = delta_sharing.load_as_pandas("profile.json#jira_analytics_acme.jira.issues")</code></pre>
+          </div>
+        </details>
+      </section>
+
+      <!-- CLOUD COMPARISON -->
+      <section id="cloud-comparison" class="searchable">
+        <h2>AWS vs GCP vs Azure — Data Lake Tech Stack Comparison</h2>
+        <p class="mini">Atlassian runs on AWS. Your background is GCP. Know the equivalences cold so you can map your experience to their stack in 30 seconds.</p>
+
+        <details open class="qa searchable">
+          <summary>Full Stack Service Comparison <span class="tag">Cloud</span></summary>
+          <div class="detail-body">
+            <table style="width:100%;border-collapse:collapse;font-size:13px">
+              <tr style="background:var(--code)"><th style="text-align:left;padding:8px;border:1px solid var(--line)">Layer</th><th style="padding:8px;border:1px solid var(--line)">AWS (Atlassian's cloud)</th><th style="padding:8px;border:1px solid var(--line)">GCP (your stack)</th><th style="padding:8px;border:1px solid var(--line)">Azure</th></tr>
+              <tr><td style="padding:8px;border:1px solid var(--line)"><b>Object Storage</b></td><td style="padding:8px;border:1px solid var(--line)">S3</td><td style="padding:8px;border:1px solid var(--line)">GCS</td><td style="padding:8px;border:1px solid var(--line)">ADLS Gen2</td></tr>
+              <tr style="background:var(--code)"><td style="padding:8px;border:1px solid var(--line)"><b>Managed Spark</b></td><td style="padding:8px;border:1px solid var(--line)">EMR / AWS Glue</td><td style="padding:8px;border:1px solid var(--line)">Dataproc</td><td style="padding:8px;border:1px solid var(--line)">HDInsight / Azure Databricks</td></tr>
+              <tr><td style="padding:8px;border:1px solid var(--line)"><b>Spark SaaS</b></td><td style="padding:8px;border:1px solid var(--line)">Databricks on AWS</td><td style="padding:8px;border:1px solid var(--line)">Databricks on GCP</td><td style="padding:8px;border:1px solid var(--line)">Azure Databricks</td></tr>
+              <tr style="background:var(--code)"><td style="padding:8px;border:1px solid var(--line)"><b>Streaming Ingest</b></td><td style="padding:8px;border:1px solid var(--line)">Kinesis Data Streams</td><td style="padding:8px;border:1px solid var(--line)">Pub/Sub</td><td style="padding:8px;border:1px solid var(--line)">Azure Event Hubs</td></tr>
+              <tr><td style="padding:8px;border:1px solid var(--line)"><b>Managed Kafka</b></td><td style="padding:8px;border:1px solid var(--line)">MSK</td><td style="padding:8px;border:1px solid var(--line)">No native — Confluent Cloud on GCP</td><td style="padding:8px;border:1px solid var(--line)">Event Hubs (Kafka-compatible)</td></tr>
+              <tr style="background:var(--code)"><td style="padding:8px;border:1px solid var(--line)"><b>Stream Processing</b></td><td style="padding:8px;border:1px solid var(--line)">Kinesis Analytics (Flink) / Flink on EMR</td><td style="padding:8px;border:1px solid var(--line)">Dataflow (Apache Beam) / Dataproc Flink</td><td style="padding:8px;border:1px solid var(--line)">Azure Stream Analytics / Databricks SS</td></tr>
+              <tr><td style="padding:8px;border:1px solid var(--line)"><b>Data Warehouse</b></td><td style="padding:8px;border:1px solid var(--line)">Redshift</td><td style="padding:8px;border:1px solid var(--line)">BigQuery</td><td style="padding:8px;border:1px solid var(--line)">Azure Synapse Analytics</td></tr>
+              <tr style="background:var(--code)"><td style="padding:8px;border:1px solid var(--line)"><b>Serverless SQL on Lake</b></td><td style="padding:8px;border:1px solid var(--line)">Athena (queries S3)</td><td style="padding:8px;border:1px solid var(--line)">BigQuery external tables / BigLake</td><td style="padding:8px;border:1px solid var(--line)">Synapse Serverless SQL Pool</td></tr>
+              <tr><td style="padding:8px;border:1px solid var(--line)"><b>Orchestration</b></td><td style="padding:8px;border:1px solid var(--line)">MWAA (Managed Airflow) / Step Functions</td><td style="padding:8px;border:1px solid var(--line)">Cloud Composer (Managed Airflow)</td><td style="padding:8px;border:1px solid var(--line)">Azure Data Factory / MWAA</td></tr>
+              <tr style="background:var(--code)"><td style="padding:8px;border:1px solid var(--line)"><b>Data Catalog / Governance</b></td><td style="padding:8px;border:1px solid var(--line)">Glue Data Catalog + Lake Formation</td><td style="padding:8px;border:1px solid var(--line)">Dataplex + Data Catalog</td><td style="padding:8px;border:1px solid var(--line)">Microsoft Purview</td></tr>
+              <tr><td style="padding:8px;border:1px solid var(--line)"><b>Native Table Format</b></td><td style="padding:8px;border:1px solid var(--line)">Iceberg (Athena/Glue/EMR native)</td><td style="padding:8px;border:1px solid var(--line)">Iceberg (BigLake), Hudi (Dataproc)</td><td style="padding:8px;border:1px solid var(--line)">Delta Lake (Databricks), Iceberg (Synapse)</td></tr>
+              <tr style="background:var(--code)"><td style="padding:8px;border:1px solid var(--line)"><b>CDC / Replication</b></td><td style="padding:8px;border:1px solid var(--line)">AWS DMS + Glue / Debezium on MSK</td><td style="padding:8px;border:1px solid var(--line)">Datastream (managed CDC → BQ/GCS)</td><td style="padding:8px;border:1px solid var(--line)">ADF CDC / Debezium on Event Hubs</td></tr>
+              <tr><td style="padding:8px;border:1px solid var(--line)"><b>Real-Time Analytics</b></td><td style="padding:8px;border:1px solid var(--line)">Kinesis → Flink → Redshift Streaming</td><td style="padding:8px;border:1px solid var(--line)">Pub/Sub → Dataflow → BQ Streaming Insert</td><td style="padding:8px;border:1px solid var(--line)">Event Hubs → Stream Analytics → Synapse / ADX</td></tr>
+              <tr style="background:var(--code)"><td style="padding:8px;border:1px solid var(--line)"><b>ML Platform</b></td><td style="padding:8px;border:1px solid var(--line)">SageMaker + SageMaker Feature Store</td><td style="padding:8px;border:1px solid var(--line)">Vertex AI + Vertex AI Feature Store</td><td style="padding:8px;border:1px solid var(--line)">Azure ML + Azure ML Feature Store</td></tr>
+              <tr><td style="padding:8px;border:1px solid var(--line)"><b>Pricing model</b></td><td style="padding:8px;border:1px solid var(--line)">Per-instance + data transfer — complex</td><td style="padding:8px;border:1px solid var(--line)">BQ: $5/TB scanned or flat-rate slots. Simpler for analytics.</td><td style="padding:8px;border:1px solid var(--line)">Per-DWU (Synapse) or per-core (Databricks)</td></tr>
+            </table>
+          </div>
+        </details>
+
+        <details class="qa searchable">
+          <summary>Bridging GCP → AWS for Atlassian Interviewers <span class="tag">Cloud</span></summary>
+          <div class="detail-body">
+            <table style="width:100%;border-collapse:collapse;font-size:13px">
+              <tr style="background:var(--code)"><th style="text-align:left;padding:8px;border:1px solid var(--line)">Function</th><th style="padding:8px;border:1px solid var(--line)">Atlassian (AWS)</th><th style="padding:8px;border:1px solid var(--line)">Your Walmart (GCP)</th><th style="padding:8px;border:1px solid var(--line)">Key difference</th></tr>
+              <tr><td style="padding:8px;border:1px solid var(--line)">Object store</td><td style="padding:8px;border:1px solid var(--line)">S3</td><td style="padding:8px;border:1px solid var(--line)">GCS</td><td style="padding:8px;border:1px solid var(--line)">Identical semantics — durable, geo-redundant, eventual consistency for list ops</td></tr>
+              <tr style="background:var(--code)"><td style="padding:8px;border:1px solid var(--line)">Streaming ingest</td><td style="padding:8px;border:1px solid var(--line)">Kinesis</td><td style="padding:8px;border:1px solid var(--line)">Kafka / Pub/Sub</td><td style="padding:8px;border:1px solid var(--line)">Kinesis = managed, no consumer-group model, 7-day retention. Kafka = full control, replay.</td></tr>
+              <tr><td style="padding:8px;border:1px solid var(--line)">Stream processor</td><td style="padding:8px;border:1px solid var(--line)">Apache Flink</td><td style="padding:8px;border:1px solid var(--line)">Spark Structured Streaming</td><td style="padding:8px;border:1px solid var(--line)">Flink: true event-by-event, &lt;10ms latency. Spark SS: micro-batch, unified batch/stream API.</td></tr>
+              <tr style="background:var(--code)"><td style="padding:8px;border:1px solid var(--line)">Table format</td><td style="padding:8px;border:1px solid var(--line)">Delta Lake (Databricks)</td><td style="padding:8px;border:1px solid var(--line)">Apache Hudi (Dataproc)</td><td style="padding:8px;border:1px solid var(--line)">Both = ACID on object storage. Delta = richer SQL, Delta Sharing. Hudi = better CDC/incremental pull.</td></tr>
+              <tr><td style="padding:8px;border:1px solid var(--line)">Transformation</td><td style="padding:8px;border:1px solid var(--line)">DBT on Databricks</td><td style="padding:8px;border:1px solid var(--line)">Dataform / dbt on BigQuery</td><td style="padding:8px;border:1px solid var(--line)">Identical SQL transformation model — both compile to SQL on the warehouse.</td></tr>
+              <tr style="background:var(--code)"><td style="padding:8px;border:1px solid var(--line)">Query engine</td><td style="padding:8px;border:1px solid var(--line)">Databricks SQL / Athena</td><td style="padding:8px;border:1px solid var(--line)">BigQuery</td><td style="padding:8px;border:1px solid var(--line)">BQ = serverless, auto-scaled, per-TB pricing. Databricks = cluster, more tuning control.</td></tr>
+            </table>
+            <div class="callout good"><b>Your interview line:</b> "I built equivalent capabilities on GCP — your Kinesis is my Kafka, your S3+Delta is my GCS+Hudi, your Flink is my Spark Streaming. Same patterns, different managed services. I can transfer immediately."</div>
+          </div>
+        </details>
+
+        <details class="qa searchable">
+          <summary>BigQuery vs Redshift vs Synapse — Analytics Engine Deep Dive <span class="tag">Cloud</span></summary>
+          <div class="detail-body">
+            <table style="width:100%;border-collapse:collapse;font-size:13px">
+              <tr style="background:var(--code)"><th style="text-align:left;padding:8px;border:1px solid var(--line)">Dimension</th><th style="padding:8px;border:1px solid var(--line)">BigQuery</th><th style="padding:8px;border:1px solid var(--line)">Redshift (AWS)</th><th style="padding:8px;border:1px solid var(--line)">Synapse (Azure)</th></tr>
+              <tr><td style="padding:8px;border:1px solid var(--line)">Architecture</td><td style="padding:8px;border:1px solid var(--line)">Serverless, storage/compute separated</td><td style="padding:8px;border:1px solid var(--line)">MPP cluster; RA3 separates storage+compute. Serverless mode available.</td><td style="padding:8px;border:1px solid var(--line)">Dedicated pool (DWU) or Serverless SQL Pool</td></tr>
+              <tr style="background:var(--code)"><td style="padding:8px;border:1px solid var(--line)">Pricing</td><td style="padding:8px;border:1px solid var(--line)">$5/TB scanned or flat-rate slots. No cluster.</td><td style="padding:8px;border:1px solid var(--line)">Per node-hour or RPU-second (serverless)</td><td style="padding:8px;border:1px solid var(--line)">Per DWU-hour or TB scanned</td></tr>
+              <tr><td style="padding:8px;border:1px solid var(--line)">Streaming ingest</td><td style="padding:8px;border:1px solid var(--line)">Native streaming insert — rows queryable in seconds</td><td style="padding:8px;border:1px solid var(--line)">Kinesis Firehose → COPY (~minutes). Redshift Streaming native (preview).</td><td style="padding:8px;border:1px solid var(--line)">Event Hubs → Stream Analytics → Synapse (minutes)</td></tr>
+              <tr style="background:var(--code)"><td style="padding:8px;border:1px solid var(--line)">Concurrency</td><td style="padding:8px;border:1px solid var(--line)">Unlimited (serverless auto-scales)</td><td style="padding:8px;border:1px solid var(--line)">Limited by cluster; WLM queues required</td><td style="padding:8px;border:1px solid var(--line)">Limited by DWU; workload management needed</td></tr>
+              <tr><td style="padding:8px;border:1px solid var(--line)">Semi-structured</td><td style="padding:8px;border:1px solid var(--line)">Native JSON, ARRAY, STRUCT; JSON_EXTRACT</td><td style="padding:8px;border:1px solid var(--line)">SUPER type (PartiQL); JSON_EXTRACT_PATH_TEXT</td><td style="padding:8px;border:1px solid var(--line)">OPENJSON, JSON_VALUE</td></tr>
+              <tr style="background:var(--code)"><td style="padding:8px;border:1px solid var(--line)">ML integration</td><td style="padding:8px;border:1px solid var(--line)">BQML — train/predict in SQL</td><td style="padding:8px;border:1px solid var(--line)">Redshift ML (SageMaker-backed)</td><td style="padding:8px;border:1px solid var(--line)">Synapse ML (Azure ML-backed)</td></tr>
+              <tr><td style="padding:8px;border:1px solid var(--line)">Best for</td><td style="padding:8px;border:1px solid var(--line)">Ad-hoc, variable workloads, no DBA overhead</td><td style="padding:8px;border:1px solid var(--line)">Consistent heavy workloads, AWS-native stack</td><td style="padding:8px;border:1px solid var(--line)">Microsoft ecosystem, Power BI integration</td></tr>
+            </table>
+          </div>
+        </details>
+      </section>
+
+      <!-- FILE AND TABLE FORMAT COMPARISON -->
+      <section id="format-comparison" class="searchable">
+        <h2>File Formats, Table Formats &amp; Compression — Complete Comparison</h2>
+        <p class="mini">The correct format choice affects query performance, storage cost, write throughput, and schema evolution. This is tested in Stage 2 architecture discussions.</p>
+
+        <details open class="qa searchable">
+          <summary>Row vs Columnar vs Table Formats — The Full Picture <span class="tag">Formats</span></summary>
+          <div class="detail-body">
+            <table style="width:100%;border-collapse:collapse;font-size:13px">
+              <tr style="background:var(--code)"><th style="text-align:left;padding:8px;border:1px solid var(--line)">Category</th><th style="padding:8px;border:1px solid var(--line)">Storage layout</th><th style="padding:8px;border:1px solid var(--line)">Best for</th><th style="padding:8px;border:1px solid var(--line)">Weak at</th><th style="padding:8px;border:1px solid var(--line)">Examples</th></tr>
+              <tr><td style="padding:8px;border:1px solid var(--line)"><b>Row format</b></td><td style="padding:8px;border:1px solid var(--line)">All columns of a row together</td><td style="padding:8px;border:1px solid var(--line)">Write-heavy, full-row reads, OLTP, streaming events</td><td style="padding:8px;border:1px solid var(--line)">Analytics (reads too many columns)</td><td style="padding:8px;border:1px solid var(--line)">CSV, JSON, Avro, Postgres heap</td></tr>
+              <tr style="background:var(--code)"><td style="padding:8px;border:1px solid var(--line)"><b>Columnar format</b></td><td style="padding:8px;border:1px solid var(--line)">Each column stored separately</td><td style="padding:8px;border:1px solid var(--line)">Analytics — read few columns, high compression, vectorized execution</td><td style="padding:8px;border:1px solid var(--line)">Write-heavy, full-row random reads</td><td style="padding:8px;border:1px solid var(--line)">Parquet, ORC, BigQuery native</td></tr>
+              <tr><td style="padding:8px;border:1px solid var(--line)"><b>Table format</b></td><td style="padding:8px;border:1px solid var(--line)">Metadata + protocol on top of Parquet</td><td style="padding:8px;border:1px solid var(--line)">ACID on data lake, upserts, time travel, schema evolution, CDC</td><td style="padding:8px;border:1px solid var(--line)">Adds operational overhead vs raw Parquet</td><td style="padding:8px;border:1px solid var(--line)">Delta Lake, Apache Iceberg, Apache Hudi</td></tr>
+            </table>
+            <div class="callout good"><b>Rule:</b> Kafka → Avro (row, schema evolution). GCS/S3 analytics layer → Parquet (columnar). CDC/upserts → Parquet + table format (Delta/Hudi/Iceberg).</div>
+          </div>
+        </details>
+
+        <details class="qa searchable">
+          <summary>File Format Deep Dive — CSV, JSON, Avro, Parquet, ORC <span class="tag">Formats</span></summary>
+          <div class="detail-body">
+            <table style="width:100%;border-collapse:collapse;font-size:13px">
+              <tr style="background:var(--code)"><th style="text-align:left;padding:8px;border:1px solid var(--line)">Format</th><th style="padding:8px;border:1px solid var(--line)">Type</th><th style="padding:8px;border:1px solid var(--line)">Schema</th><th style="padding:8px;border:1px solid var(--line)">Compression</th><th style="padding:8px;border:1px solid var(--line)">Use when</th></tr>
+              <tr><td style="padding:8px;border:1px solid var(--line)"><b>CSV</b></td><td style="padding:8px;border:1px solid var(--line)">Row, text</td><td style="padding:8px;border:1px solid var(--line)">None (inferred)</td><td style="padding:8px;border:1px solid var(--line)">External gzip</td><td style="padding:8px;border:1px solid var(--line)">Human-readable exchange, legacy, small data. Never for production analytics.</td></tr>
+              <tr style="background:var(--code)"><td style="padding:8px;border:1px solid var(--line)"><b>JSON/JSONL</b></td><td style="padding:8px;border:1px solid var(--line)">Row, text, semi-structured</td><td style="padding:8px;border:1px solid var(--line)">Self-describing</td><td style="padding:8px;border:1px solid var(--line)">External gzip</td><td style="padding:8px;border:1px solid var(--line)">API responses, nested schema, logs. JSONL for streaming writes.</td></tr>
+              <tr><td style="padding:8px;border:1px solid var(--line)"><b>Avro</b></td><td style="padding:8px;border:1px solid var(--line)">Row, binary</td><td style="padding:8px;border:1px solid var(--line)">Embedded (Schema Registry)</td><td style="padding:8px;border:1px solid var(--line)">Snappy / Deflate</td><td style="padding:8px;border:1px solid var(--line)">Kafka messages, schema evolution (add fields with defaults), write-heavy streams.</td></tr>
+              <tr style="background:var(--code)"><td style="padding:8px;border:1px solid var(--line)"><b>Parquet</b></td><td style="padding:8px;border:1px solid var(--line)">Columnar, binary</td><td style="padding:8px;border:1px solid var(--line)">Embedded</td><td style="padding:8px;border:1px solid var(--line)">Snappy / ZSTD / Gzip</td><td style="padding:8px;border:1px solid var(--line)">Analytics at rest — BQ, Athena, Spark. Wide tables, read few columns.</td></tr>
+              <tr><td style="padding:8px;border:1px solid var(--line)"><b>ORC</b></td><td style="padding:8px;border:1px solid var(--line)">Columnar, binary</td><td style="padding:8px;border:1px solid var(--line)">Embedded</td><td style="padding:8px;border:1px solid var(--line)">ZLIB / Snappy</td><td style="padding:8px;border:1px solid var(--line)">Hive-centric workloads. Better compression than Parquet for low-cardinality columns.</td></tr>
+            </table>
+            <pre><code>import pyarrow.parquet as pq
+
+# Optimal Parquet write settings
+pq.write_table(
+    table,
+    'output.parquet',
+    compression='snappy',           # fast; use 'zstd' for 30% better ratio
+    use_dictionary=True,            # dict encoding for low-cardinality columns
+    row_group_size=128*1024*1024,   # 128MB row groups
+    write_statistics=True,          # min/max stats → predicate pushdown
+)</code></pre>
+          </div>
+        </details>
+
+        <details class="qa searchable">
+          <summary>Table Formats — Delta Lake vs Apache Iceberg vs Apache Hudi <span class="tag hard">Formats</span></summary>
+          <div class="detail-body">
+            <p>Table formats are <b>NOT file formats</b> — they are metadata + protocol layers on top of Parquet that add ACID transactions to object storage.</p>
+            <table style="width:100%;border-collapse:collapse;font-size:13px">
+              <tr style="background:var(--code)"><th style="text-align:left;padding:8px;border:1px solid var(--line)">Feature</th><th style="padding:8px;border:1px solid var(--line)">Delta Lake</th><th style="padding:8px;border:1px solid var(--line)">Apache Iceberg</th><th style="padding:8px;border:1px solid var(--line)">Apache Hudi</th></tr>
+              <tr><td style="padding:8px;border:1px solid var(--line)">Origin</td><td style="padding:8px;border:1px solid var(--line)">Databricks (2019)</td><td style="padding:8px;border:1px solid var(--line)">Netflix (2018/Apache 2020)</td><td style="padding:8px;border:1px solid var(--line)">Uber (2019)</td></tr>
+              <tr style="background:var(--code)"><td style="padding:8px;border:1px solid var(--line)">Metadata</td><td style="padding:8px;border:1px solid var(--line)"><code>_delta_log/</code> JSON transaction log</td><td style="padding:8px;border:1px solid var(--line)">Snapshot → manifest list → manifest → data files</td><td style="padding:8px;border:1px solid var(--line)">Timeline + bloom filter / HFile index</td></tr>
+              <tr><td style="padding:8px;border:1px solid var(--line)">Upsert</td><td style="padding:8px;border:1px solid var(--line)">MERGE INTO (rewrites affected Parquet files)</td><td style="padding:8px;border:1px solid var(--line)">MERGE INTO (COW default, MOR optional)</td><td style="padding:8px;border:1px solid var(--line)">COW or MOR (tunable per table)</td></tr>
+              <tr style="background:var(--code)"><td style="padding:8px;border:1px solid var(--line)">Time travel</td><td style="padding:8px;border:1px solid var(--line)"><code>VERSION AS OF n</code> / <code>TIMESTAMP AS OF ts</code></td><td style="padding:8px;border:1px solid var(--line)"><code>FOR SYSTEM_TIME AS OF ts</code></td><td style="padding:8px;border:1px solid var(--line)">Point-in-time via timeline</td></tr>
+              <tr><td style="padding:8px;border:1px solid var(--line)">Partition evolution</td><td style="padding:8px;border:1px solid var(--line)">Requires data rewrite</td><td style="padding:8px;border:1px solid var(--line)"><b>Hidden partitioning — no data rewrite needed</b></td><td style="padding:8px;border:1px solid var(--line)">Supported but complex</td></tr>
+              <tr style="background:var(--code)"><td style="padding:8px;border:1px solid var(--line)">Incremental pull</td><td style="padding:8px;border:1px solid var(--line)">Change Data Feed (CDF) — changes since version N</td><td style="padding:8px;border:1px solid var(--line)">Snapshot diffs</td><td style="padding:8px;border:1px solid var(--line)"><b>First-class incremental pull — Hudi's killer feature</b></td></tr>
+              <tr><td style="padding:8px;border:1px solid var(--line)">Compaction</td><td style="padding:8px;border:1px solid var(--line)">OPTIMIZE + ZORDER</td><td style="padding:8px;border:1px solid var(--line)">Rewrite data files action</td><td style="padding:8px;border:1px solid var(--line)">Async compaction service (mandatory for MOR)</td></tr>
+              <tr style="background:var(--code)"><td style="padding:8px;border:1px solid var(--line)">Best cloud</td><td style="padding:8px;border:1px solid var(--line)">Databricks (all clouds); Unity Catalog; Delta Sharing</td><td style="padding:8px;border:1px solid var(--line)">AWS native (Athena/Glue/EMR); also BQ BigLake, Snowflake</td><td style="padding:8px;border:1px solid var(--line)">GCP (Dataproc+GCS); AWS (EMR+S3)</td></tr>
+              <tr><td style="padding:8px;border:1px solid var(--line)"><b>Choose when</b></td><td style="padding:8px;border:1px solid var(--line)">Databricks shop; need Delta Sharing; GDPR deletes; best BI/SQL support</td><td style="padding:8px;border:1px solid var(--line)">Multi-engine (Athena + Spark + Snowflake on same table); partition evolution</td><td style="padding:8px;border:1px solid var(--line)">High-frequency CDC upserts; incremental pipelines; GCP primary</td></tr>
+            </table>
+            <h4>Hudi COW vs MOR</h4>
+            <table style="width:100%;border-collapse:collapse;font-size:13px;margin-top:10px">
+              <tr style="background:var(--code)"><th style="text-align:left;padding:8px;border:1px solid var(--line)"></th><th style="padding:8px;border:1px solid var(--line)">Copy-on-Write (COW)</th><th style="padding:8px;border:1px solid var(--line)">Merge-on-Read (MOR)</th></tr>
+              <tr><td style="padding:8px;border:1px solid var(--line)">Write</td><td style="padding:8px;border:1px solid var(--line)">Rewrites entire Parquet file on update</td><td style="padding:8px;border:1px solid var(--line)">Appends Avro delta log; no Parquet rewrite</td></tr>
+              <tr style="background:var(--code)"><td style="padding:8px;border:1px solid var(--line)">Read</td><td style="padding:8px;border:1px solid var(--line)">Fast (pure Parquet)</td><td style="padding:8px;border:1px solid var(--line)">Slower (merges base Parquet + deltas at read time until compaction)</td></tr>
+              <tr><td style="padding:8px;border:1px solid var(--line)">Use when</td><td style="padding:8px;border:1px solid var(--line)">Read-heavy; infrequent updates</td><td style="padding:8px;border:1px solid var(--line)">Write-heavy CDC; frequent upserts; tolerate read amplification</td></tr>
+            </table>
+          </div>
+        </details>
+
+        <details class="qa searchable">
+          <summary>Compression Algorithm Comparison <span class="tag">Formats</span></summary>
+          <div class="detail-body">
+            <table style="width:100%;border-collapse:collapse;font-size:13px">
+              <tr style="background:var(--code)"><th style="text-align:left;padding:8px;border:1px solid var(--line)">Algorithm</th><th style="padding:8px;border:1px solid var(--line)">Speed</th><th style="padding:8px;border:1px solid var(--line)">Ratio</th><th style="padding:8px;border:1px solid var(--line)">Splittable?</th><th style="padding:8px;border:1px solid var(--line)">Use when</th></tr>
+              <tr><td style="padding:8px;border:1px solid var(--line)"><b>Snappy</b></td><td style="padding:8px;border:1px solid var(--line)">Very fast</td><td style="padding:8px;border:1px solid var(--line)">Moderate</td><td style="padding:8px;border:1px solid var(--line)">No (Parquet row-group splits)</td><td style="padding:8px;border:1px solid var(--line)">Default Parquet/ORC in Spark. Low CPU. Good all-around.</td></tr>
+              <tr style="background:var(--code)"><td style="padding:8px;border:1px solid var(--line)"><b>ZSTD</b></td><td style="padding:8px;border:1px solid var(--line)">Fast</td><td style="padding:8px;border:1px solid var(--line)">Best (30-40% better than Snappy)</td><td style="padding:8px;border:1px solid var(--line)">No</td><td style="padding:8px;border:1px solid var(--line)">Long-term cold storage. Parquet 2.0+ recommended default.</td></tr>
+              <tr><td style="padding:8px;border:1px solid var(--line)"><b>Gzip/Deflate</b></td><td style="padding:8px;border:1px solid var(--line)">Slow</td><td style="padding:8px;border:1px solid var(--line)">High</td><td style="padding:8px;border:1px solid var(--line)">Yes (raw files)</td><td style="padding:8px;border:1px solid var(--line)">Raw CSV/JSON on S3 — splittable at file level. High CPU cost.</td></tr>
+              <tr style="background:var(--code)"><td style="padding:8px;border:1px solid var(--line)"><b>LZ4</b></td><td style="padding:8px;border:1px solid var(--line)">Fastest</td><td style="padding:8px;border:1px solid var(--line)">Lowest</td><td style="padding:8px;border:1px solid var(--line)">No</td><td style="padding:8px;border:1px solid var(--line)">Kafka messages, in-memory Spark shuffles, temp data.</td></tr>
+            </table>
+          </div>
+        </details>
+      </section>
+
+      <!-- SCALA DATA ENGINEERING -->
+      <section id="scala-de" class="searchable">
+        <h2>Scala Data Engineering — Batch &amp; Streaming End-to-End</h2>
+        <p class="mini">Atlassian uses Scala/Java for Flink streaming pipelines. Scala's Dataset API gives compile-time type safety. These are production-style programs showing full pipeline structure.</p>
+
+        <details open class="qa searchable">
+          <summary>Scala Spark — Full Batch ETL Pipeline (Orders → Delta Lake) <span class="tag hard">Scala</span></summary>
+          <div class="detail-body">
+            <pre><code>// build.sbt: "org.apache.spark" %% "spark-sql" % "3.5.0", "io.delta" %% "delta-spark" % "3.1.0"
+import org.apache.spark.sql.{SparkSession, DataFrame, Dataset}
+import org.apache.spark.sql.functions._
+import io.delta.tables.DeltaTable
+
+case class Order(order_id: String, customer_id: String, amount: Double,
+                 status: String, created_at: java.sql.Timestamp, region: String)
+case class CustomerSummary(customer_id: String, region: String,
+                           total_orders: Long, total_spend: Double,
+                           avg_order_value: Double, last_order_date: java.sql.Timestamp)
+
+object OrdersBatchPipeline {
+  def main(args: Array[String]): Unit = {
+    val executionDate = if (args.nonEmpty) args(0) else "2025-01-15"
+    val spark = SparkSession.builder()
+      .appName(s"OrdersBatchPipeline-$executionDate")
+      .config("spark.sql.extensions", "io.delta.sql.DeltaSparkSessionExtension")
+      .config("spark.sql.catalog.spark_catalog",
+              "org.apache.spark.sql.delta.catalog.DeltaCatalog")
+      .config("spark.sql.adaptive.enabled", "true")          // AQE
+      .config("spark.sql.shuffle.partitions", "400")
+      .getOrCreate()
+    import spark.implicits._
+
+    try {
+      val rawOrders: Dataset[Order] = spark.read
+        .schema(Encoders.product[Order].schema)   // type-safe schema from case class
+        .parquet(s"gs://warehouse/raw/orders/dt=$executionDate/")
+        .as[Order]
+
+      val summaries: Dataset[CustomerSummary] = transform(rawOrders)
+      validate(summaries, executionDate)
+      upsertDelta(spark, summaries.toDF(), "gs://warehouse/delta/customer_summaries/")
+      println(s"Pipeline complete: ${summaries.count()} customers")
+    } finally { spark.stop() }
+  }
+
+  def transform(orders: Dataset[Order]): Dataset[CustomerSummary] = {
+    import orders.sparkSession.implicits._
+    orders.filter($"status" =!= "CANCELLED").filter($"amount" > 0)
+      .groupBy($"customer_id", $"region")
+      .agg(count("*").as("total_orders"), sum($"amount").as("total_spend"),
+           avg($"amount").as("avg_order_value"), max($"created_at").as("last_order_date"))
+      .as[CustomerSummary]
+  }
+
+  def validate(ds: Dataset[CustomerSummary], date: String): Unit = {
+    val count = ds.count()
+    require(count > 0, s"No records for $date")
+    require(ds.filter($"total_spend" < 0).count() == 0, "Negative spend detected")
+  }
+
+  def upsertDelta(spark: SparkSession, df: DataFrame, path: String): Unit = {
+    import spark.implicits._
+    if (!DeltaTable.isDeltaTable(spark, path)) {
+      df.write.format("delta").partitionBy("region").save(path)
+    } else {
+      DeltaTable.forPath(spark, path).as("t")
+        .merge(df.as("s"), "t.customer_id = s.customer_id")
+        .whenMatched().updateAll()
+        .whenNotMatched().insertAll()
+        .execute()
+    }
+    spark.sql(s"OPTIMIZE delta.`$path` ZORDER BY (customer_id, last_order_date)")
+  }
+}</code></pre>
+            <div class="callout good"><b>Key Scala patterns:</b> Case classes + <code>Dataset[T]</code> = compile-time type safety. <code>Encoders.product[T].schema</code> derives schema from case class — no manual StructType. Use <code>DataFrame</code> for aggregations, <code>Dataset[T]</code> for domain logic.</div>
+          </div>
+        </details>
+
+        <details class="qa searchable">
+          <summary>Scala Spark Structured Streaming — Kafka → Windowed Metrics → Delta <span class="tag hard">Scala</span></summary>
+          <div class="detail-body">
+            <pre><code>import org.apache.spark.sql.{SparkSession, DataFrame}
+import org.apache.spark.sql.functions._
+import org.apache.spark.sql.streaming.{StreamingQuery, Trigger}
+import org.apache.spark.sql.types._
+
+object RealtimeOrdersStreaming {
+  val ORDER_SCHEMA: StructType = StructType(Seq(
+    StructField("order_id",   StringType,    false),
+    StructField("customer_id",StringType,    false),
+    StructField("amount",     DoubleType,    false),
+    StructField("status",     StringType,    true),
+    StructField("region",     StringType,    true),
+    StructField("event_time", TimestampType, false),
+  ))
+
+  def main(args: Array[String]): Unit = {
+    val spark = SparkSession.builder()
+      .appName("RealtimeOrdersStreaming")
+      .config("spark.sql.extensions", "io.delta.sql.DeltaSparkSessionExtension")
+      .config("spark.sql.catalog.spark_catalog",
+              "org.apache.spark.sql.delta.catalog.DeltaCatalog")
+      .config("spark.sql.adaptive.enabled", "true")
+      .getOrCreate()
+
+    val kafkaStream: DataFrame = spark.readStream
+      .format("kafka")
+      .option("kafka.bootstrap.servers", "kafka-broker:9092")
+      .option("subscribe", "orders-events")
+      .option("startingOffsets", "latest")
+      .option("failOnDataLoss", "false")
+      .load()
+
+    val orders: DataFrame = kafkaStream
+      .selectExpr("CAST(value AS STRING) as json_str", "timestamp as kafka_ts")
+      .withColumn("data", from_json(col("json_str"), ORDER_SCHEMA))
+      .select("data.*", "kafka_ts")
+      .withWatermark("event_time", "10 minutes")   // tolerate 10-min late arrivals
+
+    val windowedMetrics: DataFrame = orders
+      .groupBy(window(col("event_time"), "5 minutes"), col("region"))
+      .agg(count("*").as("order_count"), sum("amount").as("revenue"),
+           approx_count_distinct("customer_id").as("unique_customers"))
+      .select(col("window.start").as("window_start"),
+              col("window.end").as("window_end"),
+              col("region"), col("order_count"), col("revenue"), col("unique_customers"))
+
+    val query: StreamingQuery = windowedMetrics.writeStream
+      .format("delta")
+      .outputMode("append")
+      .option("checkpointLocation", "gs://warehouse/checkpoints/orders-streaming/")
+      .option("mergeSchema", "true")
+      .trigger(Trigger.ProcessingTime("60 seconds"))
+      .partitionBy("region")
+      .start("gs://warehouse/delta/order_metrics_rt/")
+
+    spark.streams.awaitAnyTermination()
+  }
+}</code></pre>
+            <div class="complexity">
+              <div class="cx-item"><b>Watermark:</b> 10-min late arrival tolerance</div>
+              <div class="cx-item"><b>Trigger:</b> 60s micro-batch</div>
+              <div class="cx-item"><b>Checkpoint:</b> GCS — survives restarts exactly-once</div>
+            </div>
+          </div>
+        </details>
+      </section>
+
+      <!-- REAL-TIME ANALYTICS -->
+      <section id="realtime-analytics" class="searchable">
+        <h2>Real-Time Analytics at Scale — PySpark, BigQuery &amp; AWS</h2>
+        <p class="mini">End-to-end production programs for batch and streaming. Covers your GCP stack and the Atlassian AWS equivalent side-by-side.</p>
+
+        <details open class="qa searchable">
+          <summary>PySpark Full Batch Pipeline — GCS Parquet → Transform → BigQuery <span class="tag hard">PySpark</span></summary>
+          <div class="detail-body">
+            <pre><code>"""Production PySpark batch: GCS Parquet → window functions → BigQuery (idempotent)"""
+import logging, sys
+from dataclasses import dataclass
+from pyspark.sql import SparkSession, DataFrame
+from pyspark.sql import functions as F
+from pyspark.sql.window import Window
+from pyspark.sql.types import StructType, StructField, StringType, DoubleType, TimestampType
+
+log = logging.getLogger(__name__)
+
+@dataclass
+class PipelineConfig:
+    execution_date: str
+    source_bucket: str = "gs://walmart-raw"
+    dest_project: str  = "walmart-analytics"
+    dest_dataset: str  = "ecommerce"
+    dest_table: str    = "order_metrics"
+
+ORDER_SCHEMA = StructType([
+    StructField("order_id",    StringType(),    False),
+    StructField("customer_id", StringType(),    False),
+    StructField("amount",      DoubleType(),    False),
+    StructField("status",      StringType(),    True),
+    StructField("region",      StringType(),    True),
+    StructField("created_at",  TimestampType(), False),
+])
+
+def create_spark(app_name: str) -> SparkSession:
+    return (SparkSession.builder.appName(app_name)
+        .config("spark.sql.adaptive.enabled", "true")
+        .config("spark.sql.adaptive.coalescePartitions.enabled", "true")
+        .config("spark.sql.adaptive.skewJoin.enabled", "true")
+        .config("spark.sql.shuffle.partitions", "400")
+        .config("spark.datasource.bigquery.temporaryGcsBucket", "walmart-bq-temp")
+        .getOrCreate())
+
+def extract(spark: SparkSession, config: PipelineConfig) -> DataFrame:
+    return spark.read.schema(ORDER_SCHEMA)\
+        .parquet(f"{config.source_bucket}/orders/dt={config.execution_date}/")
+
+def transform(df: DataFrame) -> DataFrame:
+    customer_window = Window.partitionBy("customer_id", F.to_date("created_at"))\
+                            .orderBy("created_at")
+    return (df
+        .filter((F.col("status") != "CANCELLED") & (F.col("amount") > 0))
+        .withColumn("order_date", F.to_date("created_at"))
+        .withColumn("cumulative_spend",
+            F.sum("amount").over(customer_window.rowsBetween(
+                Window.unboundedPreceding, Window.currentRow)))
+        .withColumn("order_rank_today", F.rank().over(customer_window))
+        .groupBy("customer_id", "region", "order_date")
+        .agg(
+            F.count("*").alias("order_count"),
+            F.sum("amount").alias("total_spend"),
+            F.avg("amount").alias("avg_order_value"),
+            F.max("cumulative_spend").alias("daily_cumulative_spend"),
+            F.max("created_at").alias("last_order_ts"),
+        )
+        .withColumn("pipeline_ts", F.current_timestamp()))
+
+def validate(df: DataFrame, date: str) -> None:
+    count = df.count()
+    assert count > 0, f"Zero records for {date}"
+    assert df.filter(F.col("total_spend") &lt; 0).count() == 0, "Negative spend found"
+
+def load_bq(df: DataFrame, config: PipelineConfig) -> None:
+    (df.write.format("bigquery")
+        .option("table", f"{config.dest_project}.{config.dest_dataset}.{config.dest_table}")
+        .option("partitionField", "order_date")
+        .option("partitionType", "DAY")
+        .option("clusteredFields", "region,customer_id")
+        .option("writeDisposition", "WRITE_TRUNCATE")  # idempotent
+        .option("createDisposition", "CREATE_IF_NEEDED")
+        .save())
+
+def main(execution_date: str):
+    config = PipelineConfig(execution_date=execution_date)
+    spark  = create_spark(f"orders-batch-{execution_date}")
+    try:
+        raw = extract(spark, config)
+        t   = transform(raw)
+        validate(t, execution_date)
+        load_bq(t, config)
+    finally:
+        spark.stop()
+
+if __name__ == "__main__":
+    main(sys.argv[1])</code></pre>
+          </div>
+        </details>
+
+        <details class="qa searchable">
+          <summary>PySpark Structured Streaming — Kafka → 1-min Windows → BigQuery <span class="tag hard">PySpark</span></summary>
+          <div class="detail-body">
+            <pre><code>"""Real-time: Kafka → Spark Structured Streaming → BigQuery (foreachBatch)"""
+from pyspark.sql import SparkSession
+from pyspark.sql import functions as F
+from pyspark.sql.types import StructType, StructField, StringType, DoubleType, TimestampType
+
+ORDER_SCHEMA = StructType([
+    StructField("order_id",   StringType(),    False),
+    StructField("customer_id",StringType(),    False),
+    StructField("amount",     DoubleType(),    False),
+    StructField("status",     StringType(),    True),
+    StructField("region",     StringType(),    True),
+    StructField("event_time", TimestampType(), False),
+])
+
+def main():
+    spark = (SparkSession.builder.appName("RealtimeOrdersStreaming")
+        .config("spark.sql.adaptive.enabled", "true")
+        .getOrCreate())
+
+    kafka_df = (spark.readStream.format("kafka")
+        .option("kafka.bootstrap.servers", "kafka:9092")
+        .option("subscribe", "orders")
+        .option("startingOffsets", "latest")
+        .option("maxOffsetsPerTrigger", 100_000)  # back-pressure control
+        .load())
+
+    orders = (kafka_df
+        .selectExpr("CAST(value AS STRING) as json_str")
+        .withColumn("data", F.from_json("json_str", ORDER_SCHEMA))
+        .select("data.*")
+        .withWatermark("event_time", "10 minutes"))
+
+    metrics = (orders
+        .filter(F.col("status").isin("COMPLETED", "SHIPPED"))
+        .groupBy(F.window("event_time", "1 minute"), F.col("region"))
+        .agg(F.count("*").alias("order_count"),
+             F.sum("amount").alias("revenue"),
+             F.approx_count_distinct("customer_id").alias("unique_customers"))
+        .select(F.col("window.start").alias("window_start"),
+                F.col("window.end").alias("window_end"),
+                "region", "order_count", "revenue", "unique_customers",
+                F.current_timestamp().alias("processed_at")))
+
+    def write_to_bq(batch_df, batch_id):
+        if batch_df.isEmpty(): return
+        (batch_df.write.format("bigquery")
+            .option("table", "walmart-analytics.realtime.order_metrics_1m")
+            .option("writeDisposition", "WRITE_APPEND")
+            .option("temporaryGcsBucket", "walmart-bq-temp")
+            .save())
+
+    (metrics.writeStream
+        .foreachBatch(write_to_bq)
+        .option("checkpointLocation", "gs://warehouse/checkpoints/orders-rt-bq/")
+        .trigger(processingTime="60 seconds")
+        .outputMode("append")
+        .start()
+        .awaitTermination())
+
+if __name__ == "__main__":
+    main()</code></pre>
+            <div class="callout good"><b>BigQuery real-time:</b> Rows visible in seconds via streaming insert. Add BigQuery BI Engine for sub-second dashboard refresh. For exactly-once + higher throughput use BQ Storage Write API (COMMITTED stream).</div>
+          </div>
+        </details>
+
+        <details class="qa searchable">
+          <summary>GCP vs AWS Real-Time Pattern Comparison + Latency Table <span class="tag hard">Architecture</span></summary>
+          <div class="detail-body">
+            <pre><code># GCP: BigQuery Storage Write API — exactly-once, high throughput
+from google.cloud.bigquery_storage_v1 import BigQueryWriteClient, types
+import json
+
+class BQStreamWriter:
+    def __init__(self, project, dataset, table):
+        self.client = BigQueryWriteClient()
+        self.table  = f"projects/{project}/datasets/{dataset}/tables/{table}"
+
+    def write_committed(self, rows: list[dict]):
+        """COMMITTED stream = exactly-once, rows visible immediately after finalize."""
+        ws = types.WriteStream(type_=types.WriteStream.Type.COMMITTED)
+        stream = self.client.create_write_stream(parent=self.table, write_stream=ws)
+        req = types.AppendRowsRequest(
+            write_stream=stream.name,
+            proto_rows=types.AppendRowsRequest.ProtoData(
+                rows=types.ProtoRows(
+                    serialized_rows=[json.dumps(r).encode() for r in rows])))
+        self.client.append_rows(iter([req]))
+        self.client.finalize_write_stream(name=stream.name)
+
+# AWS: Kinesis Firehose → Redshift (simplest path, ~60s latency)
+import boto3, json
+
+def send_to_firehose(records: list[dict], stream_name: str):
+    fh = boto3.client('firehose', region_name='us-east-1')
+    resp = fh.put_record_batch(
+        DeliveryStreamName=stream_name,
+        Records=[{'Data': (json.dumps(r) + '\n').encode()} for r in records])
+    if resp.get('FailedPutCount', 0) > 0:
+        raise RuntimeError(f"{resp['FailedPutCount']} records failed")
+
+# AWS: Redshift Streaming Ingestion (native, ~5s latency)
+# CREATE EXTERNAL SCHEMA kinesis FROM KINESIS IAM_ROLE '...';
+# CREATE MATERIALIZED VIEW order_metrics_rt AS
+#   SELECT JSON_EXTRACT_PATH_TEXT(from_varbyte(kinesis_data,'utf-8'),'region') AS region, ...
+#   FROM kinesis.orders_stream;
+# REFRESH MATERIALIZED VIEW order_metrics_rt;  -- auto-refreshed</code></pre>
+            <table style="width:100%;border-collapse:collapse;font-size:13px;margin-top:12px">
+              <tr style="background:var(--code)"><th style="text-align:left;padding:8px;border:1px solid var(--line)">Pattern</th><th style="padding:8px;border:1px solid var(--line)">GCP equivalent</th><th style="padding:8px;border:1px solid var(--line)">AWS equivalent</th><th style="padding:8px;border:1px solid var(--line)">Latency</th></tr>
+              <tr><td style="padding:8px;border:1px solid var(--line)">Native streaming insert</td><td style="padding:8px;border:1px solid var(--line)">BQ Storage Write API (COMMITTED)</td><td style="padding:8px;border:1px solid var(--line)">Redshift Streaming Ingestion</td><td style="padding:8px;border:1px solid var(--line)">&lt;5 seconds</td></tr>
+              <tr style="background:var(--code)"><td style="padding:8px;border:1px solid var(--line)">Managed stream processor</td><td style="padding:8px;border:1px solid var(--line)">Pub/Sub → Dataflow → BQ</td><td style="padding:8px;border:1px solid var(--line)">Kinesis → Kinesis Analytics (Flink) → Redshift</td><td style="padding:8px;border:1px solid var(--line)">30–120 seconds</td></tr>
+              <tr><td style="padding:8px;border:1px solid var(--line)">Managed delivery</td><td style="padding:8px;border:1px solid var(--line)">Pub/Sub → BQ Subscription</td><td style="padding:8px;border:1px solid var(--line)">Kinesis Firehose → Redshift COPY</td><td style="padding:8px;border:1px solid var(--line)">60–300 seconds</td></tr>
+              <tr style="background:var(--code)"><td style="padding:8px;border:1px solid var(--line)">Spark micro-batch</td><td style="padding:8px;border:1px solid var(--line)">Spark SS on Dataproc → BQ foreachBatch</td><td style="padding:8px;border:1px solid var(--line)">Spark SS on EMR → Redshift JDBC</td><td style="padding:8px;border:1px solid var(--line)">60–180 seconds</td></tr>
+            </table>
+          </div>
+        </details>
+
+        <details class="qa searchable">
+          <summary>Hudi + Delta Lake — End-to-End Upsert Programs (PySpark) <span class="tag hard">Hudi / Delta</span></summary>
+          <div class="detail-body">
+            <h4>Apache Hudi — CDC Upsert (COW table)</h4>
+            <pre><code>"""Hudi COW upsert — CDC from Kafka → GCS. Handles INSERT/UPDATE/DELETE."""
+from pyspark.sql import SparkSession
+from pyspark.sql import functions as F
+
+spark = SparkSession.builder.appName("HudiCdcPipeline") \
+    .config("spark.serializer", "org.apache.spark.serializer.KryoSerializer") \
+    .config("spark.sql.extensions",
+            "org.apache.spark.sql.hudi.HoodieSparkSessionExtension") \
+    .config("spark.sql.catalog.spark_catalog",
+            "org.apache.spark.sql.hudi.catalog.HoodieCatalog") \
+    .getOrCreate()
+
+HUDI_OPTS = {
+    "hoodie.table.name": "orders",
+    "hoodie.datasource.write.recordkey.field":   "order_id",
+    "hoodie.datasource.write.partitionpath.field": "region",
+    "hoodie.datasource.write.table.type":        "COPY_ON_WRITE",
+    "hoodie.datasource.write.operation":         "upsert",
+    "hoodie.datasource.write.precombine.field":  "updated_at",  # last-write-wins
+    "hoodie.upsert.shuffle.parallelism":         "200",
+    "hoodie.metadata.enable":                    "true",         # faster file listing
+    "hoodie.clean.automatic":                    "true",
+    "hoodie.keep.min.commits":                   "20",
+    "hoodie.keep.max.commits":                   "30",
+}
+
+def upsert_hudi(df, base_path: str):
+    df.withColumn("_hoodie_is_deleted",
+        F.when(F.col("operation") == "DELETE", F.lit(True)).otherwise(F.lit(False))) \
+      .write.format("hudi").options(**HUDI_OPTS).mode("append").save(base_path)
+
+def incremental_pull(spark, base_path: str, begin_ts: str):
+    return spark.read.format("hudi") \
+        .option("hoodie.datasource.query.type", "incremental") \
+        .option("hoodie.datasource.read.begin.instanttime", begin_ts) \
+        .load(base_path)
+
+# Usage
+df_cdc = spark.read.parquet("gs://bucket/cdc/orders/")
+upsert_hudi(df_cdc, "gs://warehouse/hudi/orders/")
+changes = incremental_pull(spark, "gs://warehouse/hudi/orders/", "20250114000000")
+print(f"Changed records: {changes.count():,}")</code></pre>
+            <h4>Delta Lake — MERGE + OPTIMIZE + Change Data Feed</h4>
+            <pre><code>"""Delta Lake: upsert with last-write-wins, OPTIMIZE, time travel, CDF."""
+from pyspark.sql import SparkSession
+from pyspark.sql import functions as F
+from delta.tables import DeltaTable
+
+spark = SparkSession.builder.appName("DeltaLakePipeline") \
+    .config("spark.sql.extensions", "io.delta.sql.DeltaSparkSessionExtension") \
+    .config("spark.sql.catalog.spark_catalog",
+            "org.apache.spark.sql.delta.catalog.DeltaCatalog") \
+    .getOrCreate()
+
+TARGET = "gs://warehouse/delta/orders/"
+
+def merge_updates(updates_df):
+    DeltaTable.forPath(spark, TARGET).alias("t").merge(
+        updates_df.alias("s"), "t.order_id = s.order_id"
+    ).whenMatchedUpdate(
+        condition="s.updated_at > t.updated_at",   # last-write-wins
+        set={"status": "s.status", "amount": "s.amount", "updated_at": "s.updated_at"}
+    ).whenNotMatchedInsertAll() \
+     .whenMatchedDelete(condition="s.operation = 'DELETE'") \
+     .execute()
+
+def optimize():
+    spark.sql(f"OPTIMIZE delta.`{TARGET}` ZORDER BY (customer_id, region)")
+    spark.sql(f"VACUUM delta.`{TARGET}` RETAIN 168 HOURS")  # 7-day retention
+
+def time_travel(as_of_ts: str):
+    return spark.read.format("delta").option("timestampAsOf", as_of_ts).load(TARGET)
+
+def read_cdf(start_version: int):
+    return (spark.read.format("delta")
+        .option("readChangeFeed", "true")
+        .option("startingVersion", start_version)
+        .load(TARGET))
+
+# Run
+merge_updates(spark.read.parquet("gs://bucket/updates/"))
+optimize()
+changes = read_cdf(100)
+changes.filter(F.col("_change_type") == "update_postimage").show()</code></pre>
+          </div>
+        </details>
+      </section>
+
+      <!-- INTERVIEW INTEL -->
+      <section id="interview-intel" class="searchable">
+        <h2>Recent Atlassian Interview Patterns (2024–2026)</h2>
+        <p class="mini">Synthesized from LeetCode discussions, Glassdoor, Exponent, Prepfully, and the official guide. Real documented questions from the past 18 months.</p>
+
+        <div class="callout danger">
+          <b>HR-confirmed topics (these WILL be tested):</b> Big data · Distributed systems · Data structures · Advanced SQL · Data processing frameworks · String &amp; dict manipulation in Python · Data transformation from API requests · Window functions, cumulative sums, recursion in SQL · Spark optimization · Hash maps · Parsing · Sorting
+        </div>
+
+        <details open class="qa searchable">
+          <summary>Confirmed Coding Questions from Real Atlassian Interviews <span class="tag">Intel</span></summary>
+          <div class="detail-body">
+            <h4>Python Coding — Stage 1 (confirmed asked)</h4>
+            <ul>
+              <li>"Fetch API data and create 2D lists in Python" — paginated API response → 2D matrix. See Python DE Patterns section.</li>
+              <li>"Web scraping to CSV" — parse HTML/JSON, write CSV with <code>csv.DictWriter</code>.</li>
+              <li>"File path directory operations" — parse path string, extract dir/filename/extension. <code>pathlib.Path</code>.</li>
+              <li>"Advanced JSON/dict parsing" — deeply nested JSON, missing keys, safe traversal.</li>
+              <li>Group Anagrams (P40 interview) — hashmap. See HashMaps section.</li>
+              <li>Two Sum variant (P50 interview, Jan 2025) — slight variation.</li>
+            </ul>
+            <h4>SQL — Stage 1 (confirmed asked)</h4>
+            <ul>
+              <li>"Given two subtotals, add them in SQL using built-in functions" → <code>ROLLUP</code> / <code>GROUPING SETS</code> (see below)</li>
+              <li>Window functions — ROW_NUMBER, RANK, running totals: confirmed asked.</li>
+              <li>"Difference between Snowflake schema and Star schema" — data modeling theory.</li>
+              <li>"OLTP vs OLAP differences" — asked at P40 level.</li>
+              <li>Recursive CTE for hierarchy traversal — Confluence page tree context.</li>
+            </ul>
+            <h4>System Design — Stage 2 (confirmed asked)</h4>
+            <ul>
+              <li>"Design a scalable, fault-tolerant architecture for ingesting, processing, and storing real-time streaming data."</li>
+              <li>"Design a Confluence-like page system with tags, likes, dislikes, views — find the most interacted page."</li>
+              <li>"Design for multi-region data with compliance requirements."</li>
+            </ul>
+            <pre><code>-- "Add two subtotals in SQL" — confirmed asked question
+-- Answer: ROLLUP or GROUPING SETS
+
+SELECT
+  COALESCE(region, 'ALL_REGIONS') AS region,
+  COALESCE(product, 'ALL_PRODUCTS') AS product,
+  SUM(amount) AS total
+FROM sales
+GROUP BY GROUPING SETS (
+  (region, product),  -- detail level
+  (region),           -- subtotal per region
+  ()                  -- grand total
+);
+
+-- ROLLUP (hierarchical — same result, more concise):
+GROUP BY ROLLUP(region, product);  -- (region,product) → (region) → ()
+
+-- CUBE (all combinations):
+GROUP BY CUBE(region, product);    -- 4 groupings
+
+-- BigQuery: ROLLUP/GROUPING SETS supported since 2022. Same syntax.</code></pre>
+          </div>
+        </details>
+
+        <details class="qa searchable">
+          <summary>What Atlassian Concentrates On — Engineering Manager / Principal Level <span class="tag">Intel</span></summary>
+          <div class="detail-body">
+            <div class="callout warn"><b>Platform note:</b> Interviews use Coderbyte (not always HackerRank). 5-7 test cases. 60 min: 30-45 min coding, 15-30 min discussion. Confirm platform with recruiter.</div>
+            <h4>EM-Level Focus Areas (documented)</h4>
+            <ul>
+              <li><b>Cross-functional impact:</b> "How did it change how the org operates?" Measurable org impact, not just delivery.</li>
+              <li><b>Architecture decision-making:</b> Why A over B — the decision process, not just the result.</li>
+              <li><b>Team capability building:</b> How you raised the bar — frameworks, documentation, training.</li>
+              <li><b>Conflict / difficult decisions:</b> Technical disagreements, pushing back on leadership.</li>
+              <li><b>Career trajectory:</b> Alignment with Atlassian's product/platform direction.</li>
+            </ul>
+            <table style="width:100%;border-collapse:collapse;font-size:13px;margin-top:10px">
+              <tr style="background:var(--code)"><th style="text-align:left;padding:8px;border:1px solid var(--line)">EM Area</th><th style="padding:8px;border:1px solid var(--line)">Your Story</th><th style="padding:8px;border:1px solid var(--line)">Metric</th></tr>
+              <tr><td style="padding:8px;border:1px solid var(--line)">Own &amp; drive outcomes at scale</td><td style="padding:8px;border:1px solid var(--line)">3,000-pipeline GCP migration</td><td style="padding:8px;border:1px solid var(--line)">Zero data loss, 40% cost reduction</td></tr>
+              <tr style="background:var(--code)"><td style="padding:8px;border:1px solid var(--line)">Leadership &amp; direction</td><td style="padding:8px;border:1px solid var(--line)">Sarthi Agentic AI — defined vision</td><td style="padding:8px;border:1px solid var(--line)">First agentic AI in Walmart Global Tech DE</td></tr>
+              <tr><td style="padding:8px;border:1px solid var(--line)">Knowledge sharing</td><td style="padding:8px;border:1px solid var(--line)">Pipeline framework for 3,000 pipelines</td><td style="padding:8px;border:1px solid var(--line)">80% boilerplate reduction; onboarding halved</td></tr>
+              <tr style="background:var(--code)"><td style="padding:8px;border:1px solid var(--line)">Be the change you seek</td><td style="padding:8px;border:1px solid var(--line)">FinOps $20M — advocated when unpopular</td><td style="padding:8px;border:1px solid var(--line)">$20M saved; first cross-team cost visibility</td></tr>
+              <tr><td style="padding:8px;border:1px solid var(--line)">Don't screw the customer</td><td style="padding:8px;border:1px solid var(--line)">Egregious Pricing detection</td><td style="padding:8px;border:1px solid var(--line)">Caught pricing errors before checkout</td></tr>
+            </table>
+          </div>
+        </details>
+      </section>
+
       <!-- BIG DATA CONCEPTS -->
       <section id="big-data" class="searchable">
         <h2>Big Data Concepts</h2>
@@ -2844,6 +3671,29 @@ SUM(CASE WHEN region = 'APAC' THEN amount ELSE 0 END) AS apac</code></pre>
           <li><b>Lambda vs Kappa:</b> Lambda = two codebases. Kappa = one, needs long Kafka retention.</li>
           <li><b>Airflow idempotency:</b> Delete-then-insert with {{ ds }} partition key</li>
           <li><b>Data quality layers:</b> Schema (ingestion) → Statistical (post-load) → Business logic (domain)</li>
+        </ul>
+
+        <h3>Cloud Stack Quick Reference</h3>
+        <table style="width:100%;border-collapse:collapse;font-size:12px">
+          <tr style="background:var(--code)"><th style="text-align:left;padding:6px;border:1px solid var(--line)">Layer</th><th style="padding:6px;border:1px solid var(--line)">AWS (Atlassian)</th><th style="padding:6px;border:1px solid var(--line)">GCP (your stack)</th><th style="padding:6px;border:1px solid var(--line)">Azure</th></tr>
+          <tr><td style="padding:6px;border:1px solid var(--line)">Object store</td><td style="padding:6px;border:1px solid var(--line)">S3</td><td style="padding:6px;border:1px solid var(--line)">GCS</td><td style="padding:6px;border:1px solid var(--line)">ADLS Gen2</td></tr>
+          <tr style="background:var(--code)"><td style="padding:6px;border:1px solid var(--line)">Managed Spark</td><td style="padding:6px;border:1px solid var(--line)">EMR / AWS Glue</td><td style="padding:6px;border:1px solid var(--line)">Dataproc</td><td style="padding:6px;border:1px solid var(--line)">HDInsight</td></tr>
+          <tr><td style="padding:6px;border:1px solid var(--line)">Streaming ingest</td><td style="padding:6px;border:1px solid var(--line)">Kinesis</td><td style="padding:6px;border:1px solid var(--line)">Pub/Sub</td><td style="padding:6px;border:1px solid var(--line)">Event Hubs</td></tr>
+          <tr style="background:var(--code)"><td style="padding:6px;border:1px solid var(--line)">Data warehouse</td><td style="padding:6px;border:1px solid var(--line)">Redshift</td><td style="padding:6px;border:1px solid var(--line)">BigQuery</td><td style="padding:6px;border:1px solid var(--line)">Synapse</td></tr>
+          <tr><td style="padding:6px;border:1px solid var(--line)">Serverless SQL on lake</td><td style="padding:6px;border:1px solid var(--line)">Athena</td><td style="padding:6px;border:1px solid var(--line)">BigQuery external / BigLake</td><td style="padding:6px;border:1px solid var(--line)">Synapse Serverless</td></tr>
+          <tr style="background:var(--code)"><td style="padding:6px;border:1px solid var(--line)">Stream processing</td><td style="padding:6px;border:1px solid var(--line)">Kinesis Analytics (Flink) / Flink on EMR</td><td style="padding:6px;border:1px solid var(--line)">Dataflow (Beam) / Dataproc Flink</td><td style="padding:6px;border:1px solid var(--line)">Stream Analytics</td></tr>
+          <tr><td style="padding:6px;border:1px solid var(--line)">Orchestration</td><td style="padding:6px;border:1px solid var(--line)">MWAA / Step Functions</td><td style="padding:6px;border:1px solid var(--line)">Cloud Composer</td><td style="padding:6px;border:1px solid var(--line)">ADF / MWAA</td></tr>
+          <tr style="background:var(--code)"><td style="padding:6px;border:1px solid var(--line)">Catalog / governance</td><td style="padding:6px;border:1px solid var(--line)">Glue + Lake Formation</td><td style="padding:6px;border:1px solid var(--line)">Dataplex + Data Catalog</td><td style="padding:6px;border:1px solid var(--line)">Microsoft Purview</td></tr>
+          <tr><td style="padding:6px;border:1px solid var(--line)">Table format (native)</td><td style="padding:6px;border:1px solid var(--line)">Iceberg (Glue/Athena/EMR)</td><td style="padding:6px;border:1px solid var(--line)">Hudi (Dataproc), Iceberg (BigLake)</td><td style="padding:6px;border:1px solid var(--line)">Delta (Databricks), Iceberg (Synapse)</td></tr>
+          <tr style="background:var(--code)"><td style="padding:6px;border:1px solid var(--line)">Atlassian's actual stack</td><td colspan="3" style="padding:6px;border:1px solid var(--line)"><b>Kinesis → Apache Flink → Delta Lake on S3 → DBT → Databricks → Delta Sharing</b></td></tr>
+        </table>
+        <ul class="columns" style="margin-top:12px">
+          <li><b>Kinesis vs Kafka:</b> Kinesis = managed, no consumer groups, 7-day retention, 1MB limit. Kafka = full control, unlimited retention, replay.</li>
+          <li><b>Flink vs Spark SS:</b> Flink = true event streaming, &lt;10ms. Spark SS = micro-batch, unified API with batch.</li>
+          <li><b>Delta vs Iceberg vs Hudi:</b> Delta = Databricks/SQL; Iceberg = multi-engine, partition evolution; Hudi = incremental pull, CDC.</li>
+          <li><b>BQ streaming:</b> Rows queryable in seconds. Use Storage Write API (COMMITTED) for exactly-once.</li>
+          <li><b>Redshift streaming:</b> Native from Kinesis — materialized view auto-refreshes, ~5s latency.</li>
+          <li><b>Your bridge:</b> S3↔GCS, Kinesis↔Pub/Sub, Flink↔Spark SS, Delta↔Hudi, Redshift↔BigQuery.</li>
         </ul>
 
         <h3>Advanced DS&amp;A Cheat Sheet</h3>
